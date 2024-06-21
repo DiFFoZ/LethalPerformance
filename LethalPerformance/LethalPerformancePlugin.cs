@@ -1,7 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using Unity.Burst;
 using Unity.Burst.LowLevel;
 
 namespace LethalPerformance;
@@ -12,6 +16,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
 
     internal new ManualLogSource Logger { get; private set; } = null!;
+    internal string WorkingDirectory { get; private set; } = null!;
 
     private Harmony? m_Harmony;
 
@@ -19,6 +24,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
     {
         Instance = this;
         Logger = base.Logger;
+        WorkingDirectory = new FileInfo(Info.Location).DirectoryName;
 
         /*m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);*/
@@ -33,7 +39,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
         const string c_LibName = "lib_burst_generated.data";
 
-        var burstLibPath = Path.Combine(Info.Location, c_LibName);
+        var burstLibPath = Path.Combine(WorkingDirectory, c_LibName);
         if (!File.Exists(burstLibPath))
         {
             Logger.LogWarning($"Failed to find \"{c_LibName}\"");
