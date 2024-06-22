@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <None Include="..\CHANGELOG.md" />
+    <None Remove="Publish\**" />
   </ItemGroup>
 
   <Target Name="CopyPublishFiles" AfterTargets="AfterBuild">
