@@ -7,6 +7,10 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Unity.Burst;
 using Unity.Burst.LowLevel;
+using Unity.Collections;
+using Unity.Mathematics;
+using Unity.Netcode;
+using UnityEngine;
 
 namespace LethalPerformance;
 
@@ -20,16 +24,16 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
     private Harmony? m_Harmony;
 
-    private void Awake()
+    private unsafe void Awake()
     {
         Instance = this;
         Logger = base.Logger;
         WorkingDirectory = new FileInfo(Info.Location).DirectoryName;
 
-        /*m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
-        m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);*/
-
         LoadGameBurstLib();
+
+        m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+        m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
     }
 
     private void LoadGameBurstLib()
