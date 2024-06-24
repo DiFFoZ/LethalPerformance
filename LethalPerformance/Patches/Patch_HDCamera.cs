@@ -6,7 +6,7 @@ namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(HDCamera), nameof(HDCamera.UpdateShaderVariablesXRCB))]
 internal static unsafe class Patch_HDCamera
 {
-    public static readonly Testing.TestDelegate s_TestDelegate = BurstCompiler.CompileFunctionPointer<Testing.TestDelegate>(Testing.Test).Invoke;
+    private static readonly Testing.TestDelegate s_TestDelegate = BurstCompiler.CompileFunctionPointer<Testing.TestDelegate>(Testing.Test).Invoke;
 
     [HarmonyPrefix]
     public static unsafe bool Prefix(HDCamera __instance, ref ShaderVariablesXR cb)
