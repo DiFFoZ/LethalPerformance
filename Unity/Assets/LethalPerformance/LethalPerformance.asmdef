@@ -1,0 +1,24 @@
+{
+    "name": "LethalPerformance",
+    "rootNamespace": "LethalPerformance",
+    "references": [
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:457756d89b35d2941b3e7b37b4ece6f1",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:4f5c0c83dfd6a0743834baba2b4de79e",
+        "GUID:9c6dda6c7922c624cb7ea9a7f1c7d54a",
+        "GUID:46a67ded66a63de48b9329c593fc08de"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_2022"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
