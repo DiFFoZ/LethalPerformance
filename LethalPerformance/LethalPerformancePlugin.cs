@@ -13,14 +13,16 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
     internal new ManualLogSource Logger { get; private set; } = null!;
     internal string WorkingDirectory { get; private set; } = null!;
+    internal new ConfigManager Config { get; private set; } = null!;
 
     private Harmony? m_Harmony;
 
-    private unsafe void Awake()
+    private void Awake()
     {
         Instance = this;
         Logger = base.Logger;
         WorkingDirectory = new FileInfo(Info.Location).DirectoryName;
+        Config = new(base.Config);
 
         LoadGameBurstLib();
 
