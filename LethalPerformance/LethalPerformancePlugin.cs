@@ -1,7 +1,10 @@
 ﻿using System.IO;
+using System.Linq;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using LethalPerformance.API;
 using Unity.Burst.LowLevel;
 
 namespace LethalPerformance;
@@ -25,9 +28,23 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         Config = new(base.Config);
 
         LoadGameBurstLib();
+        CallInitializeOnAwake();
 
         m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
+    }
+
+    private void CallInitializeOnAwake()
+    {
+        foreach (var method in typeof(LethalPerformancePlugin)
+            .Assembly
+            .GetTypes()
+            .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+            .Where(m => m.GetCustomAttribute<InitializeOnAwakeAttribute>() != null))
+        {
+            method.Invoke(null, null);
+            Logger.LogInfo($"Initialized {method.FullDescription()}");
+        }
     }
 
     private void LoadGameBurstLib()
