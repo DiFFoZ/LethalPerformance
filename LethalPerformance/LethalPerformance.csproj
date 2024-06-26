@@ -57,4 +57,8 @@
     <Copy SourceFiles="@(PublishFiles)" DestinationFolder="$(OutDir)" Condition="@(PublishFiles-&gt;Count()) != 0" />
   </Target>
 
+  <Target Name="OutputDll" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
+    <Copy SourceFiles="$(OutputPath)/LethalPerformance.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
+  </Target>
+
 </Project>
