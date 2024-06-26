@@ -1,16 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.IO;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using Unity.Burst;
 using Unity.Burst.LowLevel;
-using Unity.Collections;
-using Unity.Mathematics;
-using Unity.Netcode;
-using UnityEngine;
 
 namespace LethalPerformance;
 
@@ -46,14 +38,14 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         var burstLibPath = Path.Combine(WorkingDirectory, c_LibName);
         if (!File.Exists(burstLibPath))
         {
-            Logger.LogWarning($"Failed to find \"{c_LibName}\"");
+            Logger.LogFatal($"Failed to find \"{c_LibName}\"");
             return;
         }
 
         var isLoaded = BurstCompilerService.LoadBurstLibrary(burstLibPath);
         if (!isLoaded)
         {
-            Logger.LogWarning("Failed to load burst library. Probably machine architecture is not x64 or CPU doesn't support AVX2 and SSE2 instructions");
+            Logger.LogFatal("Failed to load burst library. Probably machine architecture is not x64 or CPU doesn't support AVX2 and SSE2 instructions");
         }
     }
 }
