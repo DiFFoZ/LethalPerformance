@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LethalPerformance.Patches;
+namespace LethalPerformance.API;
 internal static class HarmonyExceptionHandler
 {
     public static Exception? ReportException(Exception? exception)
@@ -9,7 +9,7 @@ internal static class HarmonyExceptionHandler
         {
             LethalPerformancePlugin.Instance.Logger.LogError(exception);
         }
-        
+
         return null;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using HarmonyLib;
+using LethalPerformance.API;
 using Unity.Burst;
 using UnityEngine.Rendering.HighDefinition;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
+using LethalPerformance.API;
 using Object = UnityEngine.Object;
 
 namespace LethalPerformance.Patches;
