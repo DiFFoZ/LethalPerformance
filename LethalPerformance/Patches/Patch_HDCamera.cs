@@ -5,7 +5,7 @@ using Unity.Burst;
 using UnityEngine.Rendering.HighDefinition;
 
 namespace LethalPerformance.Patches;
-[HarmonyPatch(typeof(HDCamera), nameof(HDCamera.UpdateShaderVariablesXRCB))]
+[HarmonyPatch(typeof(HDCamera))]
 internal static unsafe class Patch_HDCamera
 {
     private static readonly Testing.TestDelegate s_TestDelegate = BurstCompiler.CompileFunctionPointer<Testing.TestDelegate>(Testing.Test).Invoke;
@@ -17,6 +17,7 @@ internal static unsafe class Patch_HDCamera
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(HDCamera.UpdateShaderVariablesXRCB))]
     public static unsafe bool Prefix(HDCamera __instance, ref ShaderVariablesXR cb)
     {
         fixed (void* p = &cb, views = __instance.m_XRViewConstants)

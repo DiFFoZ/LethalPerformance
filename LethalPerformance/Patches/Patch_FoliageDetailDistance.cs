@@ -34,20 +34,4 @@ internal static class Patch_FoliageDetailDistance
 
         return matcher.InstructionEnumeration();
     }
-
-    public static void Test(FoliageDetailDistance instance)
-    {
-        instance.destroyCancellationToken.Register(OnDestroy, instance);
-
-        static void OnDestroy(object instanceObj)
-        {
-            Console.WriteLine("HEY WE DESTROY");
-            if (instanceObj is not FoliageDetailDistance instance)
-            {
-                return;
-            }
-
-            Console.WriteLine("HEY WE DESTROY with instance");
-        }
-    }
 }
