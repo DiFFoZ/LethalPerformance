@@ -7,7 +7,7 @@ internal static class HarmonyExceptionHandler
     {
         if (exception != null)
         {
-            LethalPerformancePlugin.Instance.Logger.LogError(exception);
+            LethalPerformancePlugin.Instance.Logger.LogWarning(exception);
         }
 
         return null;
