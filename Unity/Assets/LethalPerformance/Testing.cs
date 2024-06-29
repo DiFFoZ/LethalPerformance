@@ -10,7 +10,7 @@ using UnityEngine.Rendering.HighDefinition;
 using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;
 
 #if UNITY_2022
-[assembly: AssemblyVersion("0.0.4.0")]
+[assembly: AssemblyVersion("0.0.5.0")]
 #endif
 
 namespace LethalPerformance
