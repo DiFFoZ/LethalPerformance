@@ -11,6 +11,7 @@ namespace LethalPerformance;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("LethalPerformance.Unity", BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency("com.adibtw.loadstone", BepInDependency.DependencyFlags.SoftDependency)] // make loadstone to patch firstly
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
