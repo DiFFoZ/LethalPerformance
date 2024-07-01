@@ -25,12 +25,15 @@ internal static class Patch_FoliageDetailDistance
             .GetMethod(nameof(Object.FindObjectOfType), 1, AccessTools.all, null, CallingConventions.Any, [], [])
             .MakeGenericMethod(typeof(StartOfRound));
 
-        matcher
-            .SearchForward(c => c.Calls(findObjectOfType))
-            .ThrowIfInvalid("Failed to find call of FindObjectOfType<StartOfRound>")
-            .Operand = typeof(StartOfRound)
+        matcher.SearchForward(c => c.Calls(findObjectOfType));
+
+        if (matcher.IsValid)
+        {
+            matcher
+                .Operand = typeof(StartOfRound)
                 .GetProperty(nameof(StartOfRound.Instance), AccessTools.all)
                 .GetGetMethod();
+        }
 
         return matcher.InstructionEnumeration();
     }
