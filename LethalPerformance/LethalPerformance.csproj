@@ -20,9 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.Core" Version="5.*" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
-    <PackageReference Include="LethalCompany.GameLibs.Steam" Version="55.0.0-beta.0-ngd.0" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="LethalCompany.GameLibs.Steam" Version="55.0.0-beta.0-ngd.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,13 +39,9 @@
     <None Include="..\CHANGELOG.md" />
     <None Remove="Publish\**" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Include="..\Unity\Assets\LethalPerformance\*.cs">
-      <Link>Unity\%(Filename)%(Extension)</Link>
-    </Compile>
 
-    <None Remove="Unity\.gitinclude" />
+  <ItemGroup>
+    <ProjectReference Include="..\Unity\LethalPerformance.Unity.csproj" />
   </ItemGroup>
 
   <Target Name="CopyPublishFiles" AfterTargets="AfterBuild">
@@ -57,8 +53,10 @@
     <Copy SourceFiles="@(PublishFiles)" DestinationFolder="$(OutDir)" Condition="@(PublishFiles-&gt;Count()) != 0" />
   </Target>
 
-  <Target Name="OutputDll" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
+  <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
     <Copy SourceFiles="$(OutputPath)/LethalPerformance.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
+    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Unity.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
+    <Copy SourceFiles="$(OutputPath)/lib_burst_generated.data" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
   </Target>
 
 </Project>

@@ -10,6 +10,7 @@ using Unity.Burst.LowLevel;
 namespace LethalPerformance;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+[BepInDependency("LethalPerformance.Unity", BepInDependency.DependencyFlags.HardDependency)]
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;

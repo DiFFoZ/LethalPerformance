@@ -1,44 +1,25 @@
-using System;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;
 
-#if UNITY_2022
-[assembly: AssemblyVersion("0.0.5.0")]
-#endif
-
-namespace LethalPerformance
+namespace LethalPerformance.Unity
 {
     [BurstCompile]
     public static unsafe class Testing
     {
-        public delegate void TestDelegate(in ReadableViewConstants* xrViewConstants, in int viewCount, ReadableShaderVariablesXR* cb);
-        public delegate void UpdateShaderVariablesGlobalCBDelegate(in ReadableShaderVariablesGlobal* cb, in int frameCount,
-            in bool isTaaAntialiasingEnabled, in HDCamera.ViewConstants* mainViewConstant, in float4x4 vectorScreens,
-            in float4x3 vectorScales, in float4x4 vectorParams, in float4* frustumPlaneEquations,
-            in float taaSharpenStrength, in int taaFrameIndex, in float4 taaJitter, in int colorPyramidHistoryMipCount,
-            in float globalMipBias, in float4 timeParams, in int viewCount, in float probeRangeCompressionFactor,
-            in float deExposureMultiplier, in int transparentCameraOnlyMotionVectors, in float4 screenSizeOverride,
-            in float4 screenCoordScaleBias);
-
         [BurstCompile]
         public static void Log(in FixedString128Bytes log)
         {
-#if UNITY_2022
             Debug.Log(log);
-#endif
         }
 
         [BurstCompile]
         public static unsafe void Test(in ReadableViewConstants* xrViewConstants, in int viewCount, ReadableShaderVariablesXR* cb)
         {
-#if UNITY_2022
             for (var i = 0; i < viewCount; i++)
             {
                 MemCpy(cb->_XRViewMatrix + i * 15, &xrViewConstants[i].viewMatrix, sizeof(float4x4));
@@ -58,7 +39,6 @@ namespace LethalPerformance
                 MemCpy(cb->_XRWorldSpaceCameraPosViewOffset + i * 3, &xrViewConstants[i].worldSpaceCameraPosViewOffset, sizeof(float4));
                 MemCpy(cb->_XRPrevWorldSpaceCameraPos + i * 3, &xrViewConstants[i].prevWorldSpaceCameraPos, sizeof(float4));
             }
-#endif
         }
 
         [BurstCompile]
@@ -70,7 +50,6 @@ namespace LethalPerformance
             in float deExposureMultiplier, in int transparentCameraOnlyMotionVectors, in float4 screenSizeOverride,
             in float4 screenCoordScaleBias)
         {
-#if UNITY_2022
             cb->_ViewMatrix = mainViewConstant->viewMatrix;
             cb->_CameraViewMatrix = mainViewConstant->viewMatrix;
             cb->_InvViewMatrix = mainViewConstant->invViewMatrix;
@@ -125,7 +104,6 @@ namespace LethalPerformance
             cb->_TransparentCameraOnlyMotionVectors = transparentCameraOnlyMotionVectors;
             cb->_ScreenSizeOverride = screenSizeOverride;
             cb->_ScreenCoordScaleBias = screenCoordScaleBias;
-#endif
         }
 
         [StructLayout(LayoutKind.Sequential)]
