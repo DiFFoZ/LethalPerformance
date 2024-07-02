@@ -40,7 +40,7 @@ public static class BuildAction
         FileUtil.CopyFileOrDirectory(burstLibPath, burstOutputPath);
 
         var modLibPath = Path.Combine(dataFolderPath, "Managed", "LethalPerformance.Unity.dll");
-        var modOutputPath = Path.Combine(projectFolder, "..", "LethalPerformance", "libs", "LethalPerformance.Unity.dll");
+        var modOutputPath = Path.Combine(projectFolder, "..", "LethalPerformance", "Publish", "LethalPerformance.Unity.dll");
 
         FileUtil.DeleteFileOrDirectory(modOutputPath);
         FileUtil.CopyFileOrDirectory(modLibPath, modOutputPath);

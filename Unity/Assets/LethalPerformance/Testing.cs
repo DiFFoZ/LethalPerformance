@@ -1,8 +1,10 @@
+using System;
 using System.Runtime.InteropServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;
 
@@ -42,95 +44,99 @@ namespace LethalPerformance.Unity
         }
 
         [BurstCompile]
-        public static unsafe void UpdateShaderVariablesGlobalCB(in ReadableShaderVariablesGlobal* cb, in int frameCount,
-            in bool isTaaAntialiasingEnabled, in HDCamera.ViewConstants* mainViewConstant, in float4x4 vectorScreens,
-            in float4x3 vectorScales, in float4x4 vectorParams, in float4* frustumPlaneEquations,
-            in float taaSharpenStrength, in int taaFrameIndex, in float4 taaJitter, in int colorPyramidHistoryMipCount,
-            in float globalMipBias, in float4 timeParams, in int viewCount, in float probeRangeCompressionFactor,
-            in float deExposureMultiplier, in int transparentCameraOnlyMotionVectors, in float4 screenSizeOverride,
-            in float4 screenCoordScaleBias)
+        public static unsafe void UpdateShaderVariablesGlobalCB(ReadableShaderVariablesGlobal* cb,
+            in FrameSettings frameSettings, in HDAdditionalCameraData.AntialiasingMode antialiasingMode, in CameraType cameraType,
+            in ReadableViewConstants* mainViewConstants,
+            in float4x4 vectorParams, in float4x4 vectorParams2, in float4x4 vectorParams3,
+            in float4* frustumPlaneEquations, in float taaSharpenStrength, in int taaFrameIndex,
+            in int colorPyramidHistoryMipCount, in float globalMipBias,
+            in float time, in float lastTime, in int frameCount, in int viewCount,
+            in float probeRangeCompressionFactor, in float deExposureMultiplier, in float4 screenCoordScaleBias,
+            in bool useScreenSizeOverride, in float4 screenSizeOverride)
         {
-            cb->_ViewMatrix = mainViewConstant->viewMatrix;
-            cb->_CameraViewMatrix = mainViewConstant->viewMatrix;
-            cb->_InvViewMatrix = mainViewConstant->invViewMatrix;
-            cb->_ProjMatrix = mainViewConstant->projMatrix;
-            cb->_InvProjMatrix = mainViewConstant->invProjMatrix;
-            cb->_ViewProjMatrix = mainViewConstant->viewProjMatrix;
-            cb->_CameraViewProjMatrix = mainViewConstant->viewProjMatrix;
-            cb->_InvViewProjMatrix = mainViewConstant->invViewProjMatrix;
-            cb->_NonJitteredViewProjMatrix = mainViewConstant->nonJitteredViewProjMatrix;
-            cb->_PrevViewProjMatrix = mainViewConstant->prevViewProjMatrix;
-            cb->_PrevInvViewProjMatrix = mainViewConstant->prevInvViewProjMatrix;
-            cb->_WorldSpaceCameraPos_Internal = mainViewConstant->worldSpaceCameraPos;
-            cb->_PrevCamPosRWS_Internal = mainViewConstant->prevWorldSpaceCameraPos;
+            var isTaaEnabled = frameSettings.IsEnabled(FrameSettingsField.Postprocess)
+                && antialiasingMode == HDAdditionalCameraData.AntialiasingMode.TemporalAntialiasing
+                && cameraType == CameraType.Game;
 
-            cb->_ScreenSize = vectorScreens[0];
-            cb->_PostProcessScreenSize = vectorScreens[1];
-            cb->_RTHandleScale = vectorScreens[2];
-            cb->_RTHandleScaleHistory = vectorScreens[3];
-            cb->_RTHandlePostProcessScale = vectorScales[0];
-            cb->_RTHandlePostProcessScaleHistory = vectorScales[1];
-            cb->_DynamicResolutionFullscreenScale = new Vector4(vectorScales[2][0] / vectorScales[2][1], vectorScales[2][2] / vectorScales[2][3], 0f, 0f);
+            cb->_ViewMatrix = mainViewConstants->viewMatrix;
+            cb->_CameraViewMatrix = mainViewConstants->viewMatrix;
+            cb->_InvViewMatrix = mainViewConstants->invViewMatrix;
+            cb->_ProjMatrix = mainViewConstants->projMatrix;
+            cb->_InvProjMatrix = mainViewConstants->invProjMatrix;
+            cb->_ViewProjMatrix = mainViewConstants->viewProjMatrix;
+            cb->_CameraViewProjMatrix = mainViewConstants->viewProjMatrix;
+            cb->_InvViewProjMatrix = mainViewConstants->invViewProjMatrix;
+            cb->_NonJitteredViewProjMatrix = mainViewConstants->nonJitteredViewProjMatrix;
+            cb->_PrevViewProjMatrix = mainViewConstants->prevViewProjMatrix;
+            cb->_PrevInvViewProjMatrix = mainViewConstants->prevInvViewProjMatrix;
+            cb->_WorldSpaceCameraPos_Internal = mainViewConstants->worldSpaceCameraPos;
+            cb->_PrevCamPosRWS_Internal = mainViewConstants->prevWorldSpaceCameraPos;
 
-            cb->_ZBufferParams = vectorParams[0];
-            cb->_ProjectionParams = vectorParams[1];
-            cb->unity_OrthoParams = vectorParams[2];
-            cb->_ScreenParams = vectorParams[3];
+            cb->_ScreenSize = vectorParams[0]; // screenSize
+            cb->_PostProcessScreenSize = vectorParams[1]; // postProcessScreenSize
+            cb->_RTHandleScale = vectorParams[2]; // RTHandles.rtHandleProperties.rtHandleScale
+            cb->_RTHandleScaleHistory = vectorParams[3]; // m_HistoryRTSystem.rtHandleProperties.rtHandleScale
+            cb->_RTHandlePostProcessScale = vectorParams2[0]; // m_PostProcessRTScales
+            cb->_RTHandlePostProcessScaleHistory = vectorParams2[1]; // m_PostProcessRTScalesHistory
+            cb->_DynamicResolutionFullscreenScale = new float4(vectorParams2[2][0] / vectorParams2[2][1], vectorParams2[2][2] / vectorParams2[2][3], 0f, 0f);
+
+            cb->_ZBufferParams = vectorParams2[3]; // zBufferParams
+            cb->_ProjectionParams = vectorParams3[0]; // projectionParams
+            cb->unity_OrthoParams = vectorParams3[1]; // unity_OrthoParams
+            cb->_ScreenParams = vectorParams3[2]; // screenParams
+
             MemCpy(cb->_FrustumPlanes, frustumPlaneEquations, sizeof(float4) * 6);
 
-            cb->_TaaFrameInfo = new Vector4(taaSharpenStrength, 0f, taaFrameIndex, isTaaAntialiasingEnabled ? 1f : 0f);
-            cb->_TaaJitterStrength = taaJitter;
+            cb->_TaaFrameInfo = new float4(taaSharpenStrength, 0f, taaFrameIndex, isTaaEnabled ? 1f : 0f);
+            cb->_TaaJitterStrength = vectorParams3[3]; // taaJitter
             cb->_ColorPyramidLodCount = colorPyramidHistoryMipCount;
             cb->_GlobalMipBias = globalMipBias;
             cb->_GlobalMipBiasPow2 = (float)math.pow(2.0, globalMipBias);
 
-            var time = timeParams[0];
-            var lastTime = timeParams[1];
-            var deltaTime = timeParams[2];
-            var smoothDeltaTime = timeParams[3];
+            var deltaTime = Time.deltaTime;
+            var smoothDeltaTime = Time.smoothDeltaTime;
 
-            cb->_Time = new Vector4(time * 0.05f, time, time * 2f, time * 3f);
-            cb->_SinTime = new Vector4(math.sin(time * 0.125f), math.sin(time * 0.25f), math.sin(time * 0.5f), math.sin(time));
-            cb->_CosTime = new Vector4(math.cos(time * 0.125f), math.cos(time * 0.25f), math.cos(time * 0.5f), math.cos(time));
-            cb->unity_DeltaTime = new Vector4(deltaTime, 1f / deltaTime, smoothDeltaTime, 1f / smoothDeltaTime);
-            cb->_TimeParameters = new Vector4(time, math.sin(time), math.cos(time), 0f);
-            cb->_LastTimeParameters = new Vector4(lastTime, math.sin(lastTime), math.cos(lastTime), 0f);
-
+            cb->_Time = new float4(time * 0.05f, time, time * 2f, time * 3f);
+            cb->_SinTime = new float4(math.sin(time * 0.125f), math.sin(time * 0.25f), math.sin(time * 0.5f), math.sin(time));
+            cb->_CosTime = new float4(math.cos(time * 0.125f), math.cos(time * 0.25f), math.cos(time * 0.5f), math.cos(time));
+            cb->unity_DeltaTime = new float4(deltaTime, 1f / deltaTime, smoothDeltaTime, 1f / smoothDeltaTime);
+            cb->_TimeParameters = new float4(time, math.sin(time), math.cos(time), 0f);
+            cb->_LastTimeParameters = new float4(lastTime, math.sin(lastTime), math.cos(lastTime), 0f);
             cb->_FrameCount = frameCount;
             cb->_XRViewCount = (uint)viewCount;
 
-            cb->_ProbeExposureScale = 1f / math.max(probeRangeCompressionFactor, 1e-6f);
+            cb->_ProbeExposureScale = 1f / math.max(probeRangeCompressionFactor, 1E-06f);
             cb->_DeExposureMultiplier = deExposureMultiplier;
-            cb->_TransparentCameraOnlyMotionVectors = transparentCameraOnlyMotionVectors;
-            cb->_ScreenSizeOverride = screenSizeOverride;
+            cb->_TransparentCameraOnlyMotionVectors = (frameSettings.IsEnabled(FrameSettingsField.MotionVectors) && !frameSettings.IsEnabled(FrameSettingsField.TransparentsWriteMotionVector)) ? 1 : 0;
             cb->_ScreenCoordScaleBias = screenCoordScaleBias;
+            cb->_ScreenSizeOverride = useScreenSizeOverride ? screenSizeOverride : cb->_ScreenSize;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct ReadableViewConstants
+        public unsafe readonly struct ReadableViewConstants
         {
-            public Matrix4x4 viewMatrix;
-            public Matrix4x4 invViewMatrix;
-            public Matrix4x4 projMatrix;
-            public Matrix4x4 invProjMatrix;
-            public Matrix4x4 viewProjMatrix;
-            public Matrix4x4 invViewProjMatrix;
-            public Matrix4x4 nonJitteredViewProjMatrix;
-            public Matrix4x4 prevViewMatrix; // skipped
-            public Matrix4x4 prevViewProjMatrix;
-            public Matrix4x4 prevInvViewProjMatrix;
-            public Matrix4x4 prevViewProjMatrixNoCameraTrans;
-            public Matrix4x4 pixelCoordToViewDirWS; // should be at the end
-            public Matrix4x4 viewProjectionNoCameraTrans;
+            public readonly Matrix4x4 viewMatrix;
+            public readonly Matrix4x4 invViewMatrix;
+            public readonly Matrix4x4 projMatrix;
+            public readonly Matrix4x4 invProjMatrix;
+            public readonly Matrix4x4 viewProjMatrix;
+            public readonly Matrix4x4 invViewProjMatrix;
+            public readonly Matrix4x4 nonJitteredViewProjMatrix;
+            public readonly Matrix4x4 prevViewMatrix; // skipped
+            public readonly Matrix4x4 prevViewProjMatrix;
+            public readonly Matrix4x4 prevInvViewProjMatrix;
+            public readonly Matrix4x4 prevViewProjMatrixNoCameraTrans;
+            public readonly Matrix4x4 pixelCoordToViewDirWS; // should be at the end
+            public readonly Matrix4x4 viewProjectionNoCameraTrans;
 
-            public Vector3 worldSpaceCameraPos;
-            internal float pad0;
+            public readonly Vector3 worldSpaceCameraPos;
+            internal readonly float pad0;
 
-            public Vector3 worldSpaceCameraPosViewOffset;
-            internal float pad1;
+            public readonly Vector3 worldSpaceCameraPosViewOffset;
+            internal readonly float pad1;
 
-            public Vector3 prevWorldSpaceCameraPos;
-            internal float pad2;
+            public readonly Vector3 prevWorldSpaceCameraPos;
+            internal readonly float pad2;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -206,6 +212,8 @@ namespace LethalPerformance.Unity
             public Vector4 _ScreenParams;
 
             public fixed float _FrustumPlanes[24];
+
+            public fixed float _ShadowFrustumPlanes[24];
 
             public Vector4 _TaaFrameInfo;
 
