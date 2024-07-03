@@ -41,7 +41,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Unity\LethalPerformance.Unity.csproj" />
+    <Reference Include="LethalPerformance.Unity">
+      <HintPath>Publish/LethalPerformance.Unity.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="CopyPublishFiles" AfterTargets="AfterBuild">
