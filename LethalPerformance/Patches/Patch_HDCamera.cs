@@ -2,7 +2,6 @@
 using HarmonyLib;
 using LethalPerformance.API;
 using LethalPerformance.Unity;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;

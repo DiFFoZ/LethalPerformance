@@ -46,6 +46,10 @@
     </Reference>
   </ItemGroup>
 
+  <PropertyGroup Condition="$(IAmDiFFoZ)=='true'">
+    <DefineConstants>$(DefineConstants);ENABLE_PROFILER</DefineConstants>
+  </PropertyGroup>
+
   <Target Name="CopyPublishFiles" AfterTargets="AfterBuild">
     <ItemGroup>
       <PublishFiles Include="$(MSBuildThisFileDirectory)Publish/*.*" />
