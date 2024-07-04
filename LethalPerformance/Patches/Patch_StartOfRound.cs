@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using LethalPerformance.API;
-using Object = UnityEngine.Object;
 
 namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(StartOfRound))]
