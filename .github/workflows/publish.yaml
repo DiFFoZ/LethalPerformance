@@ -21,7 +21,7 @@ jobs:
           dotnet-version: 8.x
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore LethalPerformance/LethalPerformance.csproj
 
       - name: Update version
         run: "sed -i \"s#<Version>0.0.0</Version>#<Version>${{ github.event.inputs.version }}</Version>#\" LethalPerformance/LethalPerformance.csproj"  
