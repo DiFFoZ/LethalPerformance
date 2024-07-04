@@ -48,7 +48,8 @@ internal static class Patch_StartOfRound
             .InsertAndAdvance(new(OpCodes.Ldfld, spawnedEnemiesField),
             new(OpCodes.Ldfld, listInternalArrayField)) // unsafe, but allows to other mods to transpiler this method
             .Advance(1) // move after stfld array
-            .InsertAndAdvance(new(OpCodes.Ldloc_1), // store count to local var
+            .InsertAndAdvance(new(OpCodes.Call, roundManagerInstanceGetter),
+            new(OpCodes.Ldfld, spawnedEnemiesField), // store count to local var
             new(OpCodes.Callvirt, listGetCountMethod),
             new(OpCodes.Stloc, countLocal));
 
