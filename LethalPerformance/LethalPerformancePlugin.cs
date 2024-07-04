@@ -32,8 +32,18 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         LoadGameBurstLib();
         CallInitializeOnAwake();
 
+        // disables bepinex harmony logger filter temporarily
+        var oldFilter = HarmonyLib.Tools.Logger.ChannelFilter;
+        if ((oldFilter & HarmonyLib.Tools.Logger.LogChannel.IL) == 0)
+        {
+            // replace log filter only if IL log channel is not enabled
+            HarmonyLib.Tools.Logger.ChannelFilter = HarmonyLib.Tools.Logger.LogChannel.None;
+        }
+
         m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
+
+        HarmonyLib.Tools.Logger.ChannelFilter = oldFilter;
     }
 
     private void CallInitializeOnAwake()
