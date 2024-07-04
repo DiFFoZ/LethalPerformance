@@ -6,6 +6,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using LethalPerformance.API;
 using Unity.Burst.LowLevel;
+using UnityEngine;
 
 namespace LethalPerformance;
 
@@ -28,6 +29,12 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         Logger = base.Logger;
         WorkingDirectory = new FileInfo(Info.Location).DirectoryName;
         Config = new(base.Config);
+
+#if ENABLE_PROFILER
+        // disable overhead of stack trace in dev build
+        Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
+#endif
 
         LoadGameBurstLib();
         CallInitializeOnAwake();
