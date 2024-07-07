@@ -56,7 +56,6 @@ jobs:
           website: https://github.com/DiFFoZ/LethalPerformance
           deps: |
             BepInEx-BepInExPack@5.4.2100
-            DiFFoZ-HarmonyXTranspilerFix@1.0.0
       
       - name: Create release
         uses: actions/create-release@main

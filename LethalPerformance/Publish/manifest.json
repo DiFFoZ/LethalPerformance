@@ -5,7 +5,6 @@
     "description": "Optimizes the game by using Unity Jobs and Burst API.",
     "dependencies":
     [
-        "BepInEx-BepInExPack-5.4.2100",
-        "DiFFoZ-HarmonyXTranspilerFix-1.0.0"
+        "BepInEx-BepInExPack-5.4.2100"
     ]
 }
