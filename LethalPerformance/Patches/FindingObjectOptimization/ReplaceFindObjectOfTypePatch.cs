@@ -6,7 +6,7 @@ using HarmonyLib;
 using LethalPerformance.API;
 
 namespace LethalPerformance.Patches.FindingObjectOptimization;
-//[HarmonyPatch] // disabled until stable Loadstone will be updated
+[HarmonyPatch]
 internal static class ReplaceFindObjectOfTypePatch
 {
     private static readonly Dictionary<Type, MethodInfo> s_MapGettingInstance = new()
@@ -21,7 +21,7 @@ internal static class ReplaceFindObjectOfTypePatch
         { typeof(ShipBuildModeManager), AccessTools.PropertyGetter(typeof(ShipBuildModeManager), nameof(ShipBuildModeManager.Instance)) },
         { typeof(SoundManager), AccessTools.PropertyGetter(typeof(SoundManager), nameof(SoundManager.Instance)) },
         { typeof(SteamManager), AccessTools.PropertyGetter(typeof(SteamManager), nameof(SteamManager.Instance)) },
-    };
+    }; 
 
     private static readonly HashSet<Type> s_ExcludedTypes = [];
 
