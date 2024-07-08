@@ -2,9 +2,10 @@
     "name": "LethalPerformance",
     "version_number": "0.0.0",
     "website_url": "https://github.com/DiFFoZ/LethalPerformance",
-    "description": "Optimizes the game by using Unity Jobs and Burst API.",
+    "description": "Optimizes the game by using Unity Jobs and Burst API",
     "dependencies":
     [
-        "BepInEx-BepInExPack-5.4.2100"
+        "BepInEx-BepInExPack-5.4.2100",
+        "DiFFoZ-HarmonyXTranspilerFix-1.0.0"
     ]
 }
