@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Further optimized the process of finding a singleton object by not sorting by instance id.
 - Added `HarmonyXTranspilerFix` dependency for patching edge cases that caused methods to break.
+### Removed
+- Patch of ItemDropship that fixes NullReferenceException on custom moons. Recommended alternative [CompanyCruiserFix](https://thunderstore.io/c/lethal-company/p/DiFFoZ/CompanyCruiserFix/).
 
 ## [0.0.8] 2024-07-08
 ### Added
