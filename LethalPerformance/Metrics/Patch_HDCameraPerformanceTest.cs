@@ -4,7 +4,7 @@ using LethalPerformance.API;
 using Unity.Profiling;
 using UnityEngine.Rendering.HighDefinition;
 
-namespace LethalPerformance.PerformanceMetrics;
+namespace LethalPerformance.Metrics;
 #if ENABLE_PROFILER
 [HarmonyPatch(typeof(HDCamera))]
 [HarmonyPriority(Priority.Last)]
