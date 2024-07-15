@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
@@ -40,7 +41,11 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
         LoadGameBurstLib();
         CallInitializeOnAwake();
+        InitializeHarmony();
+    }
 
+    private void InitializeHarmony()
+    {
         // disables bepinex harmony logger filter temporarily
         var oldFilter = HarmonyLib.Tools.Logger.ChannelFilter;
         if ((oldFilter & HarmonyLib.Tools.Logger.LogChannel.IL) == 0)
@@ -50,7 +55,14 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         }
 
         m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
-        m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
+        try
+        {
+            m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+        }
 
         HarmonyLib.Tools.Logger.ChannelFilter = oldFilter;
     }
