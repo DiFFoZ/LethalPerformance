@@ -95,7 +95,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
         try
         {
-            var fileStream = new FileStream(burstLibPath, FileMode.Create, FileAccess.Read, FileShare.None);
+            var fileStream = new FileStream(burstLibPath, FileMode.Open, FileAccess.Read, FileShare.None);
             fileStream.Dispose();
         }
         catch
