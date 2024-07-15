@@ -21,8 +21,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
     internal new ManualLogSource Logger { get; private set; } = null!;
     internal string WorkingDirectory { get; private set; } = null!;
     internal new ConfigManager Config { get; private set; } = null!;
-
-    private Harmony? m_Harmony;
+    internal Harmony? Harmony { get; private set; }
 
     private void Awake()
     {
@@ -54,10 +53,10 @@ public class LethalPerformancePlugin : BaseUnityPlugin
             HarmonyLib.Tools.Logger.ChannelFilter = HarmonyLib.Tools.Logger.LogChannel.None;
         }
 
-        m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+        Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         try
         {
-            m_Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
+            Harmony.PatchAll(typeof(LethalPerformancePlugin).Assembly);
         }
         catch (Exception ex)
         {
@@ -91,6 +90,17 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         if (!File.Exists(burstLibPath))
         {
             Logger.LogFatal($"Failed to find \"{c_LibName}\"");
+            return;
+        }
+
+        try
+        {
+            var fileStream = new FileStream(burstLibPath, FileMode.Create, FileAccess.Read, FileShare.None);
+            fileStream.Dispose();
+        }
+        catch
+        {
+            Logger.LogFatal("Failed to open burst library. Probably file is locked by other process or antivirus is blocking the access");
             return;
         }
 
