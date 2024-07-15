@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using LethalPerformance.API;
 using LethalPerformance.Extensions;
 using NAudio.Wave;
 
@@ -25,6 +26,12 @@ internal static class Patch_WaveFileWriter
         ["data"] = typeof(Patch_WaveFileWriter).GetField(nameof(s_Data), AccessTools.all),
         ["fact"] = typeof(Patch_WaveFileWriter).GetField(nameof(s_Fact), AccessTools.all),
     };
+
+    [HarmonyCleanup]
+    public static Exception? Cleanup(Exception exception)
+    {
+        return HarmonyExceptionHandler.ReportException(exception);
+    }
 
     [HarmonyPatch(typeof(WaveFileWriter), MethodType.Constructor, typeof(Stream), typeof(WaveFormat))]
     [HarmonyTranspiler]
@@ -68,6 +75,7 @@ internal static class Patch_WaveFileWriter
     [HarmonyTranspiler]
     private static IEnumerable<CodeInstruction> FixWriterFloatAllocation(IEnumerable<CodeInstruction> _)
     {
+        // if some mod are also patching this, lmk to add compatibility
         return
         [
             new(OpCodes.Ldarg_0),
