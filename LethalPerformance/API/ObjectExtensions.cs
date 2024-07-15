@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace LethalPerformance.API;
-internal static class ObjectExtensions
+internal static partial class ObjectExtensions
 {
     public static T? FindObjectByTypeNonOrdered<T>() where T : Object
     {
