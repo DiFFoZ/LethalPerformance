@@ -33,6 +33,12 @@
       <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
       <Strip>false</Strip>
     </Publicize>
+    <Publicize Include="DissonanceVoip">
+      <PublicizeTarget>all</PublicizeTarget>
+      <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
+      <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
+      <Strip>false</Strip>
+    </Publicize>
   </ItemGroup>
 
   <ItemGroup>

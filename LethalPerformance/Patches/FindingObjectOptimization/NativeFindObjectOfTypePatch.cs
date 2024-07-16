@@ -37,7 +37,7 @@ internal static class NativeFindObjectOfTypePatch
         {
             __result = getter();
 
-            if (__result.m_CachedPtr != IntPtr.Zero)
+            if (__result != null)
             {
                 return false;
             }
