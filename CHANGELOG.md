@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10] 2024-07-16
+### Added
+- Implemented patches to reduce memory allocation:
+	- `AudioReverbTrigger` no longer allocates every frame by avoiding the retrieval of a collider tag.
+	- `HangarShipDoor` no longer allocates every frame by replacing `string.Format` with `TMP_Text.SetText(string, float)`.
+	- `WaveFileWriter` no longer allocates by rewriting Mono `BinaryWriter.Write(float)` to avoid array allocation with every write.
+	- Resolved an issue where the local username billboard was toggling between enabled and disabled every frame, leading to unnecessary memory allocation.
+### Fixed
+- Resolved an exception thrown by another mod attempting to access the object instance while in the main menu.
+
 ## [0.0.9] 2024-07-08
 ### Added
 - Further optimized the process of finding a singleton object by not sorting by instance id.
