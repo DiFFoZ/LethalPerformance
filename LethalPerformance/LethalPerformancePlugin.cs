@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -93,21 +94,36 @@ public class LethalPerformancePlugin : BaseUnityPlugin
             return;
         }
 
-        try
+#if ENABLE_PROFILER
+        // using FileStream to check if file locked by other process causing Unity to crash when joining to the LAN server, using this hack instead..
+
+        using (var currentProcess = Process.GetCurrentProcess())
         {
-            var fileStream = new FileStream(burstLibPath, FileMode.Open, FileAccess.Read, FileShare.None);
-            fileStream.Dispose();
+            var name = currentProcess.ProcessName;
+            var id = currentProcess.Id;
+
+            var processesByName = Process.GetProcessesByName(name);
+            if (Array.Exists(processesByName, p => p.Id == id))
+            {
+                DisposeProcesses(processesByName);
+                return;
+            }
+            DisposeProcesses(processesByName);
         }
-        catch
-        {
-            Logger.LogFatal("Failed to open burst library. Probably file is locked by other process or antivirus is blocking the access");
-            return;
-        }
+#endif
 
         var isLoaded = BurstCompilerService.LoadBurstLibrary(burstLibPath);
         if (!isLoaded)
         {
             Logger.LogFatal("Failed to load burst library. Probably machine architecture is not x64 or CPU doesn't support AVX2 and SSE2 instructions");
+        }
+
+        static void DisposeProcesses(Process[] processes)
+        {
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
         }
     }
 }
