@@ -12,7 +12,6 @@ internal static class CSyncFixer
 {
     private static PropertyInfo? s_CSyncPrefab;
     private static PropertyInfo? s_ConfigInstanceKey;
-    private static bool s_CSyncPatched;
 
     [InitializeOnAwake]
     public static void Initialize()
@@ -23,10 +22,12 @@ internal static class CSyncFixer
 
     private static void SceneManager_sceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
-        if (s_CSyncPatched || scene.name != "MainMenu")
+        if (scene.name != "MainMenu")
         {
             return;
         }
+
+        SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
 
         var configSyncBehaviourType = Type.GetType("CSync.Lib.ConfigSyncBehaviour,com.sigurd.csync");
         if (configSyncBehaviourType == null)
@@ -48,8 +49,6 @@ internal static class CSyncFixer
         LethalPerformancePlugin.Instance.Harmony?.CreateProcessor(methodToPatch)
             .AddPrefix(SymbolExtensions.GetMethodInfo((NetworkBehaviour x) => FixSerializedKey(x)))
             .Patch();
-
-        s_CSyncPatched = true;
     }
 
     public static void FixSerializedKey(NetworkBehaviour __instance)
