@@ -14,7 +14,7 @@ namespace LethalPerformance;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("LethalPerformance.Unity", BepInDependency.DependencyFlags.HardDependency)]
-[BepInDependency("com.adibtw.loadstone", BepInDependency.DependencyFlags.SoftDependency)] // make loadstone to patch firstly
+[BepInDependency(Dependencies.Loadstone, BepInDependency.DependencyFlags.SoftDependency)] // make loadstone to patch firstly
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
@@ -103,7 +103,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
             var id = currentProcess.Id;
 
             var processesByName = Process.GetProcessesByName(name);
-            if (Array.Exists(processesByName, p => p.Id == id))
+            if (Array.Exists(processesByName, p => p.Id != id))
             {
                 DisposeProcesses(processesByName);
                 return;
