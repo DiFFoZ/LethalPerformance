@@ -71,7 +71,7 @@ internal static class Patch_WaveFileWriter
         return matcher.InstructionEnumeration();
     }
 
-    [HarmonyPatch(typeof(WaveFileWriter), nameof(WaveFileWriter.WriteSample))]
+    [HarmonyPatch(typeof(WaveFileWriter), nameof(WaveFileWriter.WriteSamples))]
     [HarmonyTranspiler]
     private static IEnumerable<CodeInstruction> FixWriterFloatAllocation(IEnumerable<CodeInstruction> _)
     {
@@ -80,19 +80,23 @@ internal static class Patch_WaveFileWriter
         [
             new(OpCodes.Ldarg_0),
             new(OpCodes.Ldarg_1),
-            CodeInstruction.Call((WaveFileWriter x, float y) => WriteSample(x, y)),
+            new(OpCodes.Ldarg_2),
+            new(OpCodes.Ldarg_3),
+            CodeInstruction.Call((WaveFileWriter x, float[] y, int _) => WriteSamples(x, y, _, _)),
             new(OpCodes.Ret)
         ];
     }
 
-    private static void WriteSample(WaveFileWriter waveFileWriter, float sample)
+    private static void WriteSamples(WaveFileWriter waveFileWriter, float[] samples, int offset, int count)
     {
         // Mono BinaryWriter.Write(float) allocates array, using our write method
 
-        Span<byte> buffer = stackalloc byte[sizeof(float)];
-        BinaryPrimitivesExtension.WriteSingleLittleEndian(buffer, sample);
-
-        waveFileWriter._outStream.Write(buffer);
-        waveFileWriter._dataSizePos += 4;
+        Span<byte> span = stackalloc byte[sizeof(float)];
+        for (var i = 0; i < count; i++)
+        {
+            BinaryPrimitivesExtension.WriteSingleLittleEndian(span, samples[offset + i]);
+            waveFileWriter._outStream.Write(span);
+            waveFileWriter._dataChunkSize += sizeof(float);
+        }
     }
 }
