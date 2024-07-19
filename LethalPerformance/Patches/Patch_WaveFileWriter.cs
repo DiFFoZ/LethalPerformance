@@ -34,26 +34,9 @@ internal static class Patch_WaveFileWriter
     }
 
     [HarmonyPatch(typeof(WaveFileWriter), MethodType.Constructor, typeof(Stream), typeof(WaveFormat))]
-    [HarmonyTranspiler]
-    public static IEnumerable<CodeInstruction> FixConstructorAllocations(IEnumerable<CodeInstruction> instructions)
-    {
-        return ReplaceASCIICallToStaticField(instructions);
-    }
-
     [HarmonyPatch(typeof(WaveFileWriter), nameof(WaveFileWriter.WriteDataChunkHeader))]
-    [HarmonyTranspiler]
-    public static IEnumerable<CodeInstruction> FixWriteDataChunkHeaderAllocations(IEnumerable<CodeInstruction> instructions)
-    {
-        return ReplaceASCIICallToStaticField(instructions);
-    }
-
     [HarmonyPatch(typeof(WaveFileWriter), nameof(WaveFileWriter.CreateFactChunk))]
     [HarmonyTranspiler]
-    public static IEnumerable<CodeInstruction> FixCreateFactChunkAllocations(IEnumerable<CodeInstruction> instructions)
-    {
-        return ReplaceASCIICallToStaticField(instructions);
-    }
-
     private static IEnumerable<CodeInstruction> ReplaceASCIICallToStaticField(IEnumerable<CodeInstruction> instructions)
     {
         var matcher = new CodeMatcher(instructions);
