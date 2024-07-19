@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using HarmonyLib;
 using LethalPerformance.API;
+using LethalPerformance.Utilities;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,7 @@ internal static class CSyncFixer
 {
     private static PropertyInfo? s_CSyncPrefab;
     private static PropertyInfo? s_ConfigInstanceKey;
+    private static MethodInfo? s_MethodToPatch;
 
     [InitializeOnAwake]
     public static void Initialize()
@@ -22,7 +24,7 @@ internal static class CSyncFixer
 
     private static void SceneManager_sceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
-        if (scene.name != "MainMenu")
+        if (!scene.IsSceneShip())
         {
             return;
         }
@@ -43,15 +45,25 @@ internal static class CSyncFixer
             .GetType("CSync.Lib.ConfigManager")
             .GetProperty("Prefab", AccessTools.all);
 
-        var methodToPatch = configSyncBehaviourType
+        s_MethodToPatch = configSyncBehaviourType
             .GetMethod("Awake", AccessTools.all);
 
-        LethalPerformancePlugin.Instance.Harmony?.CreateProcessor(methodToPatch)
+        PatchCSync();
+    }
+
+    public static void PatchCSync()
+    {
+        if (s_MethodToPatch == null)
+        {
+            return;
+        }
+
+        LethalPerformancePlugin.Instance.Harmony?.CreateProcessor(s_MethodToPatch)
             .AddPrefix(SymbolExtensions.GetMethodInfo((NetworkBehaviour x) => FixSerializedKey(x)))
             .Patch();
     }
 
-    public static void FixSerializedKey(NetworkBehaviour __instance)
+    private static void FixSerializedKey(NetworkBehaviour __instance)
     {
         var components = __instance.gameObject.GetComponents<Object>();
 

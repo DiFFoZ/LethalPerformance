@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿using System;
+using BepInEx.Configuration;
 
 namespace LethalPerformance;
 internal class ConfigManager
@@ -14,9 +15,49 @@ internal class ConfigManager
 
 #nullable disable
 
+    public ConfigEntry<bool> PatchHDRenderPipeline { get; private set; }
+
 #nullable restore
 
     private void BindConfig()
     {
+#if ENABLE_PROFILER
+        var force = true;
+#else
+        var force = false;
+#endif
+
+        PatchHDRenderPipeline = BindHarmonyConfig("Unsafe", "Remove useless calls from HDRenderPipeline", force || false,
+            """
+            Remove useless method calls in rendering to improve performance.
+            May cause graphical issues, if you noticed them, disable this option.
+            """);
+    }
+
+    private ConfigEntry<T> BindHarmonyConfig<T>(string section, string key, T defaultValue, string? description)
+    {
+        var configDescription = description == null ? null : new ConfigDescription(description);
+        var entry = m_Config.Bind(section, key, defaultValue, configDescription);
+        entry.SettingChanged += RepatchHarmony;
+
+        return entry;
+    }
+
+    private static void RepatchHarmony(object _, EventArgs __)
+    {
+        LethalPerformancePlugin.Instance.Logger.LogInfo("Config option of Harmony got changed, repatching...");
+        try
+        {
+            LethalPerformancePlugin.Instance.Harmony?.UnpatchSelf();
+            LethalPerformancePlugin.Instance.Harmony?.PatchAll(typeof(ConfigManager).Assembly);
+
+#if ENABLE_PROFILER
+            CSyncFixer.PatchCSync();
+#endif
+        }
+        catch (Exception ex)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogError("Failed to repatch with Harmony\n" + ex);
+        }
     }
 }
