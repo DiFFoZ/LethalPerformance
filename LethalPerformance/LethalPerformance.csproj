@@ -27,6 +27,12 @@
 
   <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+    <Publicize Include="Unity.RenderPipelines.Core.Runtime">
+      <PublicizeTarget>all</PublicizeTarget>
+      <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
+      <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
+      <Strip>false</Strip>
+    </Publicize>
     <Publicize Include="Unity.RenderPipelines.HighDefinition.Runtime">
       <PublicizeTarget>all</PublicizeTarget>
       <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>

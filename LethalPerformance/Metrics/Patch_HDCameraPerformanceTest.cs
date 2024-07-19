@@ -1,14 +1,15 @@
-﻿using System;
+﻿#if ENABLE_PROFILER
+using System;
 using HarmonyLib;
 using LethalPerformance.API;
 using Unity.Profiling;
 using UnityEngine.Rendering.HighDefinition;
 
 namespace LethalPerformance.Metrics;
-#if ENABLE_PROFILER
+
 [HarmonyPatch(typeof(HDCamera))]
+[IgnoredByDeepProfiler]
 [HarmonyPriority(Priority.Last)]
-#endif
 internal static class Patch_HDCameraPerformanceTest
 {
     private static readonly ProfilerMarker s_UpdateShaderVariablesXRCB = new("DiFFoZ.HDCamera.UpdateShaderVariablesXRCB");
@@ -22,14 +23,14 @@ internal static class Patch_HDCameraPerformanceTest
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(HDCamera.UpdateShaderVariablesXRCB))]
-    public static unsafe void UpdateShaderVariablesXRCBBefore()
+    public static void UpdateShaderVariablesXRCBBefore()
     {
         s_UpdateShaderVariablesXRCB.Begin();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(HDCamera.UpdateShaderVariablesXRCB))]
-    public static unsafe void UpdateShaderVariablesXRCBAfter()
+    public static void UpdateShaderVariablesXRCBAfter()
     {
         s_UpdateShaderVariablesXRCB.End();
     }
@@ -37,7 +38,7 @@ internal static class Patch_HDCameraPerformanceTest
     [HarmonyPrefix]
     [HarmonyPatch(nameof(HDCamera.UpdateShaderVariablesGlobalCB),
         [typeof(ShaderVariablesGlobal), typeof(int)], [ArgumentType.Ref, ArgumentType.Normal])]
-    public static unsafe void UpdateShaderVariablesGlobalCBBefore()
+    public static void UpdateShaderVariablesGlobalCBBefore()
     {
         s_UpdateShaderVariablesGlobalCB.Begin();
     }
@@ -45,8 +46,9 @@ internal static class Patch_HDCameraPerformanceTest
     [HarmonyPostfix]
     [HarmonyPatch(nameof(HDCamera.UpdateShaderVariablesGlobalCB),
         [typeof(ShaderVariablesGlobal), typeof(int)], [ArgumentType.Ref, ArgumentType.Normal])]
-    public static unsafe void UpdateShaderVariablesGlobalCBAfter()
+    public static void UpdateShaderVariablesGlobalCBAfter()
     {
         s_UpdateShaderVariablesGlobalCB.End();
     }
 }
+#endif
