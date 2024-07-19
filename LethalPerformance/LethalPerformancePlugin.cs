@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -42,6 +43,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         LoadGameBurstLib();
         CallInitializeOnAwake();
         InitializeHarmony();
+        DisableDefaultWatcher();
     }
 
     private void InitializeHarmony()
@@ -78,6 +80,28 @@ public class LethalPerformancePlugin : BaseUnityPlugin
             method.Invoke(null, null);
             Logger.LogInfo($"Initialized {method.FullDescription()}");
         }
+    }
+
+    private void DisableDefaultWatcher()
+    {
+        var defaultWatcherType = typeof(FileSystemWatcher).Assembly.GetType("System.IO.DefaultWatcher");
+        if (defaultWatcherType == null)
+        {
+            return;
+        }
+
+        Harmony?.CreateProcessor(defaultWatcherType.GetMethod("StartDispatching", AccessTools.all))
+            .AddPrefix(SymbolExtensions.GetMethodInfo(() => DisableWatcher()))
+            .Patch();
+
+        defaultWatcherType
+            .GetField("watches", AccessTools.all)
+            .SetValue(null, new Hashtable());
+    }
+
+    private static bool DisableWatcher()
+    {
+        return false;
     }
 
     private void LoadGameBurstLib()
