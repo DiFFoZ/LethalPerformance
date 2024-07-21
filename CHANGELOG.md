@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] 2024-07-21
+### Added
+- Config option `Unsafe.Rendering` to disable some rendering code, by default is disabled.
+- Patching of stormy/rainy weathers to prevent logging: `Sub-emitters may not use stop actions. The Stop action will not be executed`.
+- Added disabler of FileSystemWatcher. It's very unoptimized on Windows Mono.
+- Added remover of some objects on scene loading.
+### Changed
+- The system of unsafe caching instances.
+
 ## [0.0.11] 2024-07-18
 ### Changed
 - Updated README.
