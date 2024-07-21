@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace LethalPerformance;
+[HarmonyPatch]
 internal static class CSyncFixer
 {
     private static PropertyInfo? s_CSyncPrefab;
@@ -24,11 +25,6 @@ internal static class CSyncFixer
 
     private static void SceneManager_sceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
-        if (!scene.IsSceneShip())
-        {
-            return;
-        }
-
         SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
 
         var configSyncBehaviourType = Type.GetType("CSync.Lib.ConfigSyncBehaviour,com.sigurd.csync");
@@ -58,11 +54,22 @@ internal static class CSyncFixer
             return;
         }
 
-        LethalPerformancePlugin.Instance.Harmony?.CreateProcessor(s_MethodToPatch)
-            .AddPrefix(SymbolExtensions.GetMethodInfo((NetworkBehaviour x) => FixSerializedKey(x)))
-            .Patch();
+        LethalPerformancePlugin.Instance.Harmony?.PatchAll(typeof(CSyncFixer));
     }
 
+    [HarmonyPrepare]
+    public static bool ShouldPatch()
+    {
+        return s_MethodToPatch != null;
+    }
+
+    [HarmonyTargetMethod]
+    public static MethodInfo? GetTargetPatch()
+    {
+        return s_MethodToPatch!;
+    }
+
+    [HarmonyPrefix]
     private static void FixSerializedKey(NetworkBehaviour __instance)
     {
         var components = __instance.gameObject.GetComponents<Object>();

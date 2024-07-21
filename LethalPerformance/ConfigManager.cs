@@ -27,7 +27,7 @@ internal class ConfigManager
         var force = false;
 #endif
 
-        PatchHDRenderPipeline = BindHarmonyConfig("Unsafe", "Remove useless calls from HDRenderPipeline", force || false,
+        PatchHDRenderPipeline = BindHarmonyConfig("Unsafe.Rendering", "Remove useless calls from HDRenderPipeline", force || false,
             """
             Remove useless method calls in rendering to improve performance.
             May cause graphical issues, if you noticed them, disable this option.
@@ -46,14 +46,19 @@ internal class ConfigManager
     private static void RepatchHarmony(object _, EventArgs __)
     {
         LethalPerformancePlugin.Instance.Logger.LogInfo("Config option of Harmony got changed, repatching...");
+
+        var harmony = LethalPerformancePlugin.Instance.Harmony;
+        if (harmony == null)
+        {
+            return;
+        }
+
+        // todo: add our own HarmonyCategory to HarmonyX
+
         try
         {
-            LethalPerformancePlugin.Instance.Harmony?.UnpatchSelf();
-            LethalPerformancePlugin.Instance.Harmony?.PatchAll(typeof(ConfigManager).Assembly);
-
-#if ENABLE_PROFILER
-            CSyncFixer.PatchCSync();
-#endif
+            harmony.UnpatchSelf();
+            harmony.PatchAll(typeof(ConfigManager).Assembly);
         }
         catch (Exception ex)
         {
