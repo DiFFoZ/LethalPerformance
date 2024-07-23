@@ -95,7 +95,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
             return;
         }
 
-#if ENABLE_PROFILER
+#if DEBUG || ENABLE_PROFILER
         // using FileStream to check if file locked by other process causing Unity to crash when joining to the LAN server, using this hack instead..
 
         using (var currentProcess = Process.GetCurrentProcess())
