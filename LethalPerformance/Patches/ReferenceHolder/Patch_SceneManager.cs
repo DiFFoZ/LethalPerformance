@@ -3,26 +3,21 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using LethalPerformance.Utilities;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace LethalPerformance.Patches.ReferenceHolder;
-[HarmonyPatch(typeof(SceneManager))]
+[HarmonyPatch(typeof(EventSystem))]
 internal static class Patch_SceneManager
 {
-    [HarmonyPatch(nameof(SceneManager.Internal_ActiveSceneChanged))]
+    [HarmonyPatch("OnEnable")]
     [HarmonyPrefix]
-    public static void FindReferences(Scene previousActiveScene, Scene newActiveScene)
+    public static void FindReferences(EventSystem __instance)
     {
-        if (previousActiveScene.IsValid() && previousActiveScene.IsSceneShip())
-        {
-            UnsafeCacheManager.CleanupCache();
-            return;
-        }
-
-        if (!newActiveScene.IsValid() || !newActiveScene.IsSceneShip())
+        var scene = __instance.gameObject.scene;
+        if (!scene.IsSceneShip())
         {
             return;
         }
@@ -35,6 +30,26 @@ internal static class Patch_SceneManager
         catch (Exception ex)
         {
             LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to get references. Probably other mod destroyed object.\n{ex}");
+        }
+    }
+
+    [HarmonyPatch("OnDisable")]
+    [HarmonyPrefix]
+    public static void CleanReferences(EventSystem __instance)
+    {
+        var scene = __instance.gameObject.scene;
+        if (!scene.IsSceneShip())
+        {
+            return;
+        }
+
+        try
+        {
+            UnsafeCacheManager.CleanupCache();
+        }
+        catch (Exception ex)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to clean references.\n{ex}");
         }
     }
 
@@ -68,8 +83,17 @@ internal static class Patch_SceneManager
         go = GameObject.Find("/Systems/GameSystems/ItemSystems/MapScreenUIWorldSpace");
         if (go != null)
         {
-            Object.Destroy(go);
-            LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed MapScreenUIWorldSpace");
+            if (go.TryGetComponent<GraphicRaycaster>(out var raycaster))
+            {
+                Object.Destroy(raycaster);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed GraphicRaycaster of map screen");
+            }
+
+            if (go.TryGetComponent<CanvasScaler>(out var scaler))
+            {
+                Object.Destroy(scaler);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed CanvasScaler of map screen");
+            }
         }
 
         go = GameObject.Find("/Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)");
@@ -88,11 +112,22 @@ internal static class Patch_SceneManager
             }
         }
 
+        var asset = (HDRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
+        var renderSettings = asset.currentPlatformRenderPipelineSettings;
+
+        renderSettings.lightLoopSettings.reflectionProbeTexCacheSize = ReflectionProbeTextureCacheResolution.Resolution512x512;
+        renderSettings.hdShadowInitParams.cachedAreaLightShadowAtlas = 8192;
+        renderSettings.hdShadowInitParams.cachedPunctualLightShadowAtlas = 8192;
+        renderSettings.hdShadowInitParams.allowDirectionalMixedCachedShadows = true;
+
+        asset.currentPlatformRenderPipelineSettings = renderSettings;
+
         var settings = HDRenderPipelineGlobalSettings.instance;
         ref var frameSettings = ref settings.GetDefaultFrameSettings(FrameSettingsRenderType.Camera);
         frameSettings.bitDatas[(uint)FrameSettingsField.StopNaN] = false;
         frameSettings.bitDatas[(uint)FrameSettingsField.DepthPrepassWithDeferredRendering] = true;
         frameSettings.bitDatas[(uint)FrameSettingsField.ClearGBuffers] = true;
+        frameSettings.bitDatas[(uint)FrameSettingsField.Shadowmask] = false;
         LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled StopNan and enabled DepthPrepassWithDeferredRendering globally");
 
         go = GameObject.Find("/Systems/UI/UICamera");

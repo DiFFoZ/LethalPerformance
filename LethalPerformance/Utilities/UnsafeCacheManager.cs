@@ -6,17 +6,6 @@ using UnityEngine;
 namespace LethalPerformance.Utilities;
 internal static class UnsafeCacheManager
 {
-    private static readonly UnsafeCachedInstance<Terminal> s_Terminal
-        = new("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript");
-    private static readonly UnsafeCachedInstance<StartMatchLever> s_StartMatchLever
-        = new("/Environment/HangarShip/StartGameLever");
-    private static readonly UnsafeCachedInstance<MoldSpreadManager> s_MoldSpreadManager
-        = new("/Systems/GameSystems/Misc/MoldSpread");
-    private static readonly UnsafeCachedInstance<StormyWeather> s_StormyWeather
-        = new("/Systems/GameSystems/TimeAndWeather/Stormy");
-    private static readonly UnsafeCachedInstance<HangarShipDoor> s_HangarShipDoor
-        = new("/Environment/HangarShip/AnimatedShipDoor");
-
     private delegate (bool, MonoBehaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive);
 
     private static readonly Dictionary<Type, TryGetInstance> s_MapGettingInstance = new()
@@ -24,15 +13,11 @@ internal static class UnsafeCacheManager
         // checking for null for now, because Awake order execution is not defined properly
         // fixme: use patcher to reorder them https://docs.unity3d.com/2022.3/Documentation/ScriptReference/DefaultExecutionOrder.html
         [typeof(StartOfRound)] = (_) => (StartOfRound.Instance, StartOfRound.Instance),
-        [typeof(TimeOfDay)] = (_) => (TimeOfDay.Instance, TimeOfDay.Instance),
-        [typeof(GameNetworkManager)] = (_) => (GameNetworkManager.Instance, GameNetworkManager.Instance),
+        [typeof(GameNetworkManager)] = (_) => (true, GameNetworkManager.Instance),
         [typeof(HUDManager)] = (_) => (HUDManager.Instance, HUDManager.Instance),
         [typeof(GlobalEffects)] = (_) => (GlobalEffects.Instance, GlobalEffects.Instance),
-        [typeof(IngamePlayerSettings)] = (_) => (IngamePlayerSettings.Instance, IngamePlayerSettings.Instance),
-        [typeof(RoundManager)] = (_) => (RoundManager.Instance, RoundManager.Instance),
-        [typeof(ShipBuildModeManager)] = (_) => (ShipBuildModeManager.Instance, ShipBuildModeManager.Instance),
-        [typeof(SoundManager)] = (_) => (SoundManager.Instance, SoundManager.Instance),
-        [typeof(SteamManager)] = (_) => (SteamManager.Instance, SteamManager.Instance),
+        [typeof(IngamePlayerSettings)] = (_) => (true, IngamePlayerSettings.Instance),
+        [typeof(SteamManager)] = (_) => (true, SteamManager.Instance),
         // dissonance comms is also used in main menu, so checking for null here
         [typeof(DissonanceComms)] = (_) =>
         {
@@ -43,11 +28,6 @@ internal static class UnsafeCacheManager
             return (false, null);
         },
         // check the comment inside of TryGetOnlyActiveInstance
-        [typeof(StormyWeather)] = s_StormyWeather.TryGetOnlyActiveInstance,
-        [typeof(Terminal)] = s_Terminal.TryGetInstance,
-        [typeof(StartMatchLever)] = s_StartMatchLever.TryGetInstance,
-        [typeof(MoldSpreadManager)] = s_MoldSpreadManager.TryGetInstance,
-        [typeof(HangarShipDoor)] = s_HangarShipDoor.TryGetInstance,
         [typeof(QuickMenuManager)] = (findObjectInactive) =>
         {
             if (GameNetworkManager.Instance == null
@@ -66,6 +46,35 @@ internal static class UnsafeCacheManager
             return (true, menu);
         }
     };
+
+    static UnsafeCacheManager()
+    {
+        AddReference<RoundManager>("/Systems/GameSystems/RoundManager", false);
+        AddReference<QuickMenuManager>("/Systems/GameSystems/QuickMenuManager", false);
+        AddReference<TimeOfDay>("/Systems/GameSystems/TimeAndWeather", false);
+        AddReference<SoundManager>("/Systems/GameSystems/SoundManager", false);
+        AddReference<ShipBuildModeManager>("/Systems/GameSystems/ShipBuildMode", false);
+        AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread", false);
+
+        AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript", false);
+        AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever", false);
+        AddReference<HangarShipDoor>("/Environment/HangarShip/AnimatedShipDoor", false);
+
+        AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy", true);
+    }
+
+    private static void AddReference<T>(string hierarchyPath, bool addCheckIfActive) where T : MonoBehaviour
+    {
+        var unsafeInstance = new UnsafeCachedInstance<T>(hierarchyPath);
+        if (addCheckIfActive)
+        {
+            s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetOnlyActiveInstance;
+        }
+        else
+        {
+            s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
+        }
+    }
 
     public static void CacheInstances()
     {
