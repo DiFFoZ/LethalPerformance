@@ -43,6 +43,8 @@ internal static class Patch_EventSystem
             return;
         }
 
+        LethalPerformancePlugin.Instance.Logger.LogInfo("Cleanup references");
+
         try
         {
             UnsafeCacheManager.CleanupCache();
