@@ -17,6 +17,8 @@ internal class ConfigManager
 
     public ConfigEntry<bool> PatchHDRenderPipeline { get; private set; }
 
+    public ConfigEntry<bool> CompressSuitsTextures { get; private set; }
+
 #nullable restore
 
     private void BindConfig()
@@ -31,6 +33,11 @@ internal class ConfigManager
             """
             Remove useless method calls in rendering to improve performance.
             May cause graphical issues, if you noticed them, disable this option.
+            """);
+
+        CompressSuitsTextures = BindHarmonyConfig("Experimental.Mods", "Compress custom suits textures", force || false,
+            """
+            Compress custom suits from MoreSuits mod to reduce usage of VRAM.
             """);
     }
 
