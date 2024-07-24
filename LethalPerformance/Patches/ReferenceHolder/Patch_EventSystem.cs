@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace LethalPerformance.Patches.ReferenceHolder;
 [HarmonyPatch(typeof(EventSystem))]
-internal static class Patch_SceneManager
+internal static class Patch_EventSystem
 {
     [HarmonyPatch("OnEnable")]
     [HarmonyPrefix]
