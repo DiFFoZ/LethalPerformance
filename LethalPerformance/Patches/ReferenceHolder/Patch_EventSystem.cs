@@ -117,7 +117,7 @@ internal static class Patch_EventSystem
         var asset = (HDRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
         var renderSettings = asset.currentPlatformRenderPipelineSettings;
 
-        renderSettings.lightLoopSettings.reflectionProbeTexCacheSize = ReflectionProbeTextureCacheResolution.Resolution512x512;
+        renderSettings.lightLoopSettings.reflectionProbeTexCacheSize = ReflectionProbeTextureCacheResolution.Resolution2048x2048;
         renderSettings.hdShadowInitParams.cachedAreaLightShadowAtlas = 8192;
         renderSettings.hdShadowInitParams.cachedPunctualLightShadowAtlas = 8192;
         renderSettings.hdShadowInitParams.allowDirectionalMixedCachedShadows = true;
