@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] 2024-07-24
+### Added
+- Config option `Experimental.Mods::Compress custom suits textures`, by default is disabled.
+### Changed
+- Make caching to run before of all mods.
+### Fixed
+- Terminal accessible objects code names are not rendered to the map camera.
+
 ## [0.1.0] 2024-07-21
 ### Added
 - Config option `Unsafe.Rendering` to disable some rendering code, by default is disabled.
