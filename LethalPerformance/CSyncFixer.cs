@@ -1,9 +1,8 @@
-﻿#if ENABLE_PROFILER
+﻿#if ENABLE_PROFILER || DEBUG
 using System;
 using System.Reflection;
 using HarmonyLib;
 using LethalPerformance.API;
-using LethalPerformance.Utilities;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
