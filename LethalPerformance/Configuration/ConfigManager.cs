@@ -1,7 +1,9 @@
 ﻿using System;
 using BepInEx.Configuration;
+using LethalPerformance.Utilities;
+using UnityEngine.Rendering.HighDefinition;
 
-namespace LethalPerformance;
+namespace LethalPerformance.Configuration;
 internal class ConfigManager
 {
     private readonly ConfigFile m_Config;
@@ -18,6 +20,9 @@ internal class ConfigManager
     public ConfigEntry<bool> PatchHDRenderPipeline { get; private set; }
 
     public ConfigEntry<bool> CompressSuitsTextures { get; private set; }
+
+    public ConfigEntry<CookieAtlasResolutionLimited> CookieAtlasResolution { get; private set; }
+    public ConfigEntry<ReflectionProbeTextureCacheResolution> ReflectionProbeCacheResolution { get; private set; }
 
 #nullable restore
 
@@ -39,6 +44,28 @@ internal class ConfigManager
             """
             Compress custom suits from MoreSuits mod to reduce usage of VRAM.
             """);
+
+        CookieAtlasResolution = BindRenderingConfig("Rendering", "Cookie atlas texture resolution", CookieAtlasResolutionLimited.CookieResolution1024,
+            new("""
+            Sets cookie light atlas texture resolution. By default 1024 is enough for vanilla, but some mods can use custom cookie texture, causing this log spam:
+            "No more space in the 2D Cookie Texture Atlas. To solve this issue, increase the resolution of the cookie atlas in the HDRP settings".
+            To fix it just increase the resolution of texture atlas.
+            """, new AcceptableValueEnum<CookieAtlasResolutionLimited>()));
+
+        ReflectionProbeCacheResolution = BindRenderingConfig("Rendering", "Reflection probe atlas texture resolution", ReflectionProbeTextureCacheResolution.Resolution1024x1024,
+            new("""
+            Sets reflection probe cache resolution. By default it's 16384x8192 causing high RAM usage (~1GB) even if vanilla game doesn't use them at all. But some mods may use, so it may cause this log spam:
+            "No more space in Reflection Probe Atlas. To solve this issue, increase the size of the Reflection Probe Atlas in the HDRP settings".
+            To fix it just increase the resolution of texture atlas.
+            """, new AcceptableValueEnum<ReflectionProbeTextureCacheResolution>()));
+    }
+
+    private ConfigEntry<T> BindRenderingConfig<T>(string section, string key, T defaultValue, ConfigDescription? description)
+    {
+        var entry = m_Config.Bind(section, key, defaultValue, description);
+        entry.SettingChanged += UpdateRenderingAsset;
+
+        return entry;
     }
 
     private ConfigEntry<T> BindHarmonyConfig<T>(string section, string key, T defaultValue, string? description)
@@ -48,6 +75,11 @@ internal class ConfigManager
         entry.SettingChanged += RepatchHarmony;
 
         return entry;
+    }
+
+    private static void UpdateRenderingAsset(object _, EventArgs __)
+    {
+        HDRenderPipelineAssetOptimizer.Initialize();
     }
 
     private static void RepatchHarmony(object _, EventArgs __)

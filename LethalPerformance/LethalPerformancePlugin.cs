@@ -7,6 +7,7 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using LethalPerformance.API;
+using LethalPerformance.Configuration;
 using Unity.Burst.LowLevel;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
     internal new ManualLogSource Logger { get; private set; } = null!;
     internal string WorkingDirectory { get; private set; } = null!;
-    internal new ConfigManager Config { get; private set; } = null!;
+    internal ConfigManager Configuration { get; private set; } = null!;
     internal Harmony? Harmony { get; private set; }
 
     private void Awake()
@@ -30,7 +31,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         Instance = this;
         Logger = base.Logger;
         WorkingDirectory = new FileInfo(Info.Location).DirectoryName;
-        Config = new(base.Config);
+        Configuration = new(base.Config);
 
 #if ENABLE_PROFILER
         // disable overhead of stack trace in dev build

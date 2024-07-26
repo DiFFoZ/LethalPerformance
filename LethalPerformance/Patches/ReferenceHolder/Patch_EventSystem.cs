@@ -114,29 +114,11 @@ internal static class Patch_EventSystem
             }
         }
 
-        var asset = (HDRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
-        var renderSettings = asset.currentPlatformRenderPipelineSettings;
-
-        renderSettings.lightLoopSettings.reflectionProbeTexCacheSize = ReflectionProbeTextureCacheResolution.Resolution2048x2048;
-        renderSettings.hdShadowInitParams.cachedAreaLightShadowAtlas = 8192;
-        renderSettings.hdShadowInitParams.cachedPunctualLightShadowAtlas = 8192;
-        renderSettings.hdShadowInitParams.allowDirectionalMixedCachedShadows = true;
-
-        asset.currentPlatformRenderPipelineSettings = renderSettings;
-
-        var settings = HDRenderPipelineGlobalSettings.instance;
-        ref var frameSettings = ref settings.GetDefaultFrameSettings(FrameSettingsRenderType.Camera);
-        frameSettings.bitDatas[(uint)FrameSettingsField.StopNaN] = false;
-        frameSettings.bitDatas[(uint)FrameSettingsField.DepthPrepassWithDeferredRendering] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.ClearGBuffers] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.Shadowmask] = false;
-        LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled StopNan and enabled DepthPrepassWithDeferredRendering globally");
-
         go = GameObject.Find("/Systems/UI/UICamera");
         if (go != null && go.TryGetComponent<HDAdditionalCameraData>(out var data))
         {
             ref var maskFrameSettings = ref data.renderingPathCustomFrameSettingsOverrideMask;
-            frameSettings = ref data.renderingPathCustomFrameSettings;
+            ref var frameSettings = ref data.renderingPathCustomFrameSettings;
 
             maskFrameSettings.mask[(uint)FrameSettingsField.LitShaderMode] = true;
             frameSettings.litShaderMode = LitShaderMode.Forward;

@@ -28,7 +28,7 @@ internal static class Patch_MoreSuits
     [HarmonyPrepare]
     public static bool ShouldPatch()
     {
-        return LethalPerformancePlugin.Instance.Config.CompressSuitsTextures.Value && s_MethodToPatch != null;
+        return LethalPerformancePlugin.Instance.Configuration.CompressSuitsTextures.Value && s_MethodToPatch != null;
     }
 
     [HarmonyTargetMethod]

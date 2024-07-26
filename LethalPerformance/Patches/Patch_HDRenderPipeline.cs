@@ -12,7 +12,7 @@ internal static class Patch_HDRenderPipeline
     [HarmonyPrepare]
     public static bool ShouldPatch()
     {
-        return LethalPerformancePlugin.Instance.Config.PatchHDRenderPipeline.Value;
+        return LethalPerformancePlugin.Instance.Configuration.PatchHDRenderPipeline.Value;
     }
 
     [HarmonyCleanup]
