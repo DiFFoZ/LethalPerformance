@@ -49,31 +49,24 @@ internal static class UnsafeCacheManager
 
     static UnsafeCacheManager()
     {
-        AddReference<RoundManager>("/Systems/GameSystems/RoundManager", false);
-        AddReference<QuickMenuManager>("/Systems/GameSystems/QuickMenuManager", false);
-        AddReference<TimeOfDay>("/Systems/GameSystems/TimeAndWeather", false);
-        AddReference<SoundManager>("/Systems/GameSystems/SoundManager", false);
-        AddReference<ShipBuildModeManager>("/Systems/GameSystems/ShipBuildMode", false);
-        AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread", false);
+        AddReference<RoundManager>("/Systems/GameSystems/RoundManager");
+        AddReference<QuickMenuManager>("/Systems/GameSystems/QuickMenuManager");
+        AddReference<TimeOfDay>("/Systems/GameSystems/TimeAndWeather");
+        AddReference<SoundManager>("/Systems/GameSystems/SoundManager");
+        AddReference<ShipBuildModeManager>("/Systems/GameSystems/ShipBuildMode");
+        AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread");
 
-        AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript", false);
-        AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever", false);
-        AddReference<HangarShipDoor>("/Environment/HangarShip/AnimatedShipDoor", false);
+        AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript");
+        AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever");
+        AddReference<HangarShipDoor>("/Environment/HangarShip/AnimatedShipDoor");
 
-        AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy", true);
+        AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
     }
 
-    private static void AddReference<T>(string hierarchyPath, bool addCheckIfActive) where T : MonoBehaviour
+    private static void AddReference<T>(string hierarchyPath) where T : MonoBehaviour
     {
         var unsafeInstance = new UnsafeCachedInstance<T>(hierarchyPath);
-        if (addCheckIfActive)
-        {
-            s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetOnlyActiveInstance;
-        }
-        else
-        {
-            s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
-        }
+        s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
     }
 
     public static void CacheInstances()

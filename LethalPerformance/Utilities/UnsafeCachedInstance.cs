@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LethalPerformance.Utilities;
@@ -52,34 +53,17 @@ internal sealed class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : M
             return (false, null);
         }
 
-        if (findObjectsInactive is FindObjectsInactive.Include && Instance.isActiveAndEnabled)
-        {
-            return (true, Instance);
-        }
-
-        return (false, null);
-    }
-
-    public (bool, MonoBehaviour?) TryGetOnlyActiveInstance(FindObjectsInactive findObjectsInactive)
-    {
-        if (Instance == null)
-        {
-            return (false, null);
-        }
-
         if (findObjectsInactive is FindObjectsInactive.Include)
         {
             return (true, Instance);
         }
 
-        if (Instance.isActiveAndEnabled)
+        // .isActiveAndEnabled doesn't work until Awake method was called, using this to prevent that
+        if (Instance.enabled && Instance.gameObject.activeInHierarchy)
         {
             return (true, Instance);
         }
 
-        // note: returning as found, but instance is null
-        // making that way we sure that instance exists, but not active
-        // meaning that Object.FindObjectOfType(bool includeInactive = false) will always return null
         return (true, null);
     }
 
