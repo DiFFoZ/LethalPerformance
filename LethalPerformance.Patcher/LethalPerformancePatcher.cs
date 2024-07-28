@@ -3,7 +3,6 @@ using HarmonyLib;
 using Mono.Cecil;
 
 namespace LethalPerformance.Patcher;
-
 internal class LethalPerformancePatcher
 {
     private static Harmony? s_Harmony;
@@ -18,7 +17,7 @@ internal class LethalPerformancePatcher
     }
 
     // cannot be removed, BepInEx checks it
-    public static IEnumerable<string> TargetDLLs { get; } = ["Assembly-CSharp"];
+    public static IEnumerable<string> TargetDLLs { get; } = [];
 
     // cannot be removed, BepInEx checks it
     // https://github.com/BepInEx/BepInEx/blob/v5-lts/BepInEx.Preloader/Patching/AssemblyPatcher.cs#L67
