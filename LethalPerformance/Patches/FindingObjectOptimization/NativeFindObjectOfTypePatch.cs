@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using HarmonyLib;
 using LethalPerformance.API;
 using LethalPerformance.Utilities;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace LethalPerformance.Patches.FindingObjectOptimization;
 
@@ -20,6 +22,7 @@ internal static class NativeFindObjectOfTypePatch
     [HarmonyPrefix]
     public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, ref Object? __result)
     {
+        ShowInProfilerType(type);
         return !TryFindObjectFast(type, findObjectsInactive, out __result);
     }
 
@@ -27,8 +30,16 @@ internal static class NativeFindObjectOfTypePatch
     [HarmonyPrefix]
     public static bool FindObjectFast(Type type, bool includeInactive, ref Object? __result)
     {
+        ShowInProfilerType(type);
         return !TryFindObjectFast(type, includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
             out __result);
+    }
+
+    [Conditional("ENABLE_PROFILER")]
+    private static void ShowInProfilerType(Type type)
+    {
+        Profiler.BeginSample("DiFFoZ.Find." + type.Name);
+        Profiler.EndSample();
     }
 
     public static bool TryFindObjectFast(Type type, FindObjectsInactive findObjectsInactive, out Object? __result)
