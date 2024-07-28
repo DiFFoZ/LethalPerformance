@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LethalPerformance", "Lethal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.Unity", "Unity\LethalPerformance.Unity.csproj", "{B648CB5C-0EE2-EF29-F17A-55D4A2CA7438}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.Patcher", "LethalPerformance.Patcher\LethalPerformance.Patcher.csproj", "{DCFEB224-32B8-481E-B9CF-0573FBC6248A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{B648CB5C-0EE2-EF29-F17A-55D4A2CA7438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B648CB5C-0EE2-EF29-F17A-55D4A2CA7438}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B648CB5C-0EE2-EF29-F17A-55D4A2CA7438}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

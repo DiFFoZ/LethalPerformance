@@ -2,16 +2,15 @@
 using System.IO;
 using System.Reflection;
 using HarmonyLib;
-using LethalPerformance.API;
 
-namespace LethalPerformance.Utilities;
+namespace LethalPerformance.Patcher.Patches;
 [HarmonyPatch]
-internal static class FileSystemWatcherDisabler
+internal class Patch_FileSystemWatcher
 {
     private static readonly MethodInfo? s_StartDispatching;
     private static readonly FieldInfo? s_Watches;
 
-    static FileSystemWatcherDisabler()
+    static Patch_FileSystemWatcher()
     {
         var type = typeof(FileSystemWatcher).Assembly.GetType("System.IO.DefaultWatcher", false);
         if (type == null)
@@ -21,27 +20,18 @@ internal static class FileSystemWatcherDisabler
 
         s_StartDispatching = type.GetMethod("StartDispatching", AccessTools.all);
         s_Watches = type.GetField("watches", AccessTools.all);
-    }
 
-    [InitializeOnAwake]
-    private static void Initialize()
-    {
-        if (s_StartDispatching == null)
-        {
-            return;
-        }
-
-        s_Watches!.SetValue(null, new Hashtable());
+        s_Watches?.SetValue(null, new Hashtable());
     }
 
     [HarmonyPrepare]
-    public static bool ShouldPatch()
+    private static bool ShouldPatch()
     {
         return s_StartDispatching != null;
     }
 
     [HarmonyTargetMethod]
-    public static MethodInfo? GetTargetPatch()
+    private static MethodInfo? GetTargetPatch()
     {
         return s_StartDispatching!;
     }
