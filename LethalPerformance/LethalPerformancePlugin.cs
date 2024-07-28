@@ -36,9 +36,9 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 #if ENABLE_PROFILER
         // disable overhead of stack trace in dev build
         Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
-        //Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
-        //Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
-        //Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
+        Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
 #endif
 
         LoadGameBurstLib();

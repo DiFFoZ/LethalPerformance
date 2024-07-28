@@ -13,11 +13,13 @@ internal static class Patch_PlayerControllerB
         return HarmonyExceptionHandler.ReportException(exception);
     }
 
+    /// <summary>
+    /// Fixes local username billboard actives and deactives in the same frame
+    /// </summary>
     [HarmonyPrefix]
     [HarmonyPatch(nameof(PlayerControllerB.ShowNameBillboard))]
     public static bool FixLocalBillBoardIsEnabling(PlayerControllerB __instance, bool __runOriginal)
     {
-        // todo: remove CanvasScaler and GraphicRaycaster from billboard
         if (!__runOriginal)
         {
             return __runOriginal;
