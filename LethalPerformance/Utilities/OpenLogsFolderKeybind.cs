@@ -8,7 +8,6 @@ internal class OpenLogsFolderKeybind
 {
     private static InputActionAsset? s_InputActions;
 
-#if ENABLE_PROFILER
     [InitializeOnAwake]
     private static void Initialize()
     {
@@ -27,15 +26,15 @@ internal class OpenLogsFolderKeybind
 
         action.performed += OnOpenLogsPressed;
 
+        // defer initialization of input action
         SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
     }
-#endif
 
     private static void SceneManager_activeSceneChanged(Scene arg0, Scene arg1)
     {
         SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
 
-        // deferred initialization of input action
+        
         if (s_InputActions != null)
         {
             s_InputActions.Enable();
