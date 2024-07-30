@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] 2024-07-30
+### Added
+- Keybind to open the Unity logs folder with `Ctrl + Shift + L`.
+- Patching of BepInEx configuration to reduce memory allocation.
+- `CookieAtlasResolution` and `ReflectionProbeCacheResolution` configuration options.
+- Patching camera initialization to remove debugging window registration.
+### Fixed
+- Caching was not working before Awake was called on the component.
+
 ## [0.1.2] 2024-07-25
 ### Changed
 - Temporarily increased reflection probe atlas resolution to 2048x2048 to fix log spam.
