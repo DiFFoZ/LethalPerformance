@@ -21,19 +21,24 @@ jobs:
           dotnet-version: 8.x
 
       - name: Install dependencies
-        run: dotnet restore LethalPerformance/LethalPerformance.csproj
+        run: dotnet restore LethalPerformance.NoUnity.slnf
 
       - name: Update version
-        run: "sed -i \"s#<Version>0.0.0</Version>#<Version>${{ github.event.inputs.version }}</Version>#\" LethalPerformance/LethalPerformance.csproj"  
+        run: "sed -i \"s#<Version>0.0.0</Version>#<Version>${{ github.event.inputs.version }}</Version>#\" props/Common.props"  
 
       - name: Update modpack version
         run: sed -i "s#0.0.0#${{ github.event.inputs.version }}#" LethalPerformance/Publish/manifest.json
 
-      - name: Build
+      - name: Build mod
         run: dotnet build LethalPerformance/LethalPerformance.csproj --configuration Release --no-restore
+
+      - name: Build patcher
+        run: dotnet build LethalPerformance.Patcher --configuration Release --no-restore
 
       - name: Zip files
         run: |
+          mkdir -p ./release/BepInEx/patchers/LethalPerformance
+          mv ./LethalPerformance.Patcher/bin/Release/netstandard2.1/*.dll ./release/BepInEx/patchers/LethalPerformance
           mkdir -p ./release/BepInEx/plugins/LethalPerformance
           mv ./LethalPerformance/bin/Release/netstandard2.1/* ./release/BepInEx/plugins/LethalPerformance
           mv ./release/BepInEx/plugins/LethalPerformance/icon.png ./release

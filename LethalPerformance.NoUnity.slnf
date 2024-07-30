@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "LethalPerformance.sln",
+    "projects": [
+      "LethalPerformance.Patcher\\LethalPerformance.Patcher.csproj",
+      "LethalPerformance\\LethalPerformance.csproj"
+    ]
+  }
+}
