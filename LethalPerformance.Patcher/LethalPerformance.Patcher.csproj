@@ -10,6 +10,8 @@
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json;
     </RestoreAdditionalProjectSources>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
 
   <Import Project="..\props\Common.props" />
@@ -34,5 +36,9 @@
       <Strip>false</Strip>
     </Publicize>
   </ItemGroup>
+
+  <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
+    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Patcher.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\patchers\DiFFoZ-LethalPerformance\LethalPerformance" />
+  </Target>
 
 </Project>
