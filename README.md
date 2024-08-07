@@ -1,8 +1,8 @@
 # LethalPerformance
 Optimizes CPU time and minimizes GC allocation. It should help with lag spikes, so your frametime will be smoother.
 
-## Links
-- [Thunderstore](https://thunderstore.io/c/lethal-company/p/DiFFoZ/LethalPerformance/)
+## Features
+- Adds key bind to Unity logs folder: `Ctrl + Shift + L`
 
 ## Recommended mods
 Recommended to use with these mods:
