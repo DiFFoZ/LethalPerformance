@@ -39,34 +39,34 @@ internal class StringTomlConverter : TypeConverter<string>
             switch (c)
             {
                 case '\0':
-                    stringBuilder.Append(@"\0");
+                    stringBuilder.Append("\\0");
                     break;
                 case '\a':
-                    stringBuilder.Append(@"\a");
+                    stringBuilder.Append("\\a");
                     break;
                 case '\b':
-                    stringBuilder.Append(@"\b");
+                    stringBuilder.Append("\\b");
                     break;
                 case '\t':
-                    stringBuilder.Append(@"\t");
+                    stringBuilder.Append("\\t");
                     break;
                 case '\n':
-                    stringBuilder.Append(@"\n");
+                    stringBuilder.Append("\\n");
                     break;
                 case '\v':
-                    stringBuilder.Append(@"\v");
+                    stringBuilder.Append("\\v");
                     break;
                 case '\f':
-                    stringBuilder.Append(@"\f");
+                    stringBuilder.Append("\\f");
                     break;
                 case '\r':
-                    stringBuilder.Append(@"\r");
+                    stringBuilder.Append("\\r");
                     break;
                 case '\'':
-                    stringBuilder.Append(@"\'");
+                    stringBuilder.Append("\\'");
                     break;
-                case '\"':
-                    stringBuilder.Append(@"\""");
+                case '"':
+                    stringBuilder.Append("\\\"");
                     break;
                 default:
                     stringBuilder.Append(c);
@@ -90,13 +90,15 @@ internal class StringTomlConverter : TypeConverter<string>
             return txt;
         }
 
-        int indexOfBackslash = txt.IndexOf('\\');
+        var indexOfBackslash = txt.IndexOf('\\');
         if (indexOfBackslash == -1)
         {
             return txt;
         }
 
         var stringBuilder = new StringBuilder(txt.Length);
+        stringBuilder.Append(txt, 0, indexOfBackslash);
+
         for (var i = indexOfBackslash; i < txt.Length;)
         {
             var num = txt.IndexOf('\\', i);
