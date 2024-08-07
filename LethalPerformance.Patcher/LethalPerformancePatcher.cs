@@ -1,11 +1,17 @@
 ﻿using System.Collections.Generic;
+using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
+using LethalPerformance.Patcher.TomlConverters;
+using LethalPerformance.Patcher.Utilities;
 using Mono.Cecil;
 
 namespace LethalPerformance.Patcher;
-internal class LethalPerformancePatcher
+public class LethalPerformancePatcher
 {
     private static Harmony? s_Harmony;
+    public static ManualLogSource Logger { get; } = BepInEx.Logging.Logger.CreateLogSource("LethalPeformance.Patcher");
+    public static ConfigSaverTask ConfigSaverTask { get; } = new();
 
     public static void Finish()
     {
@@ -14,6 +20,12 @@ internal class LethalPerformancePatcher
         // let Harmony init other classes, because it's now safe to load them
         s_Harmony = new Harmony("LethalPerformance.Patcher");
         s_Harmony.PatchAll(typeof(LethalPerformancePatcher).Assembly);
+
+        // removes compatibility with old harmony
+        Harmony.UnpatchID("org.bepinex.fixes.harmonyinterop");
+
+        TomlTypeConverter.TypeConverters[typeof(string)] = new StringTomlConverter();
+        TomlTypeConverter.TypeConverters[typeof(bool)] = new BoolTomlConverter();
     }
 
     // cannot be removed, BepInEx checks it

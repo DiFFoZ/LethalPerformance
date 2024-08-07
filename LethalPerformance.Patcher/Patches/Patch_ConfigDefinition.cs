@@ -15,7 +15,7 @@ internal static class Patch_ConfigDefinition
 
     [HarmonyPatch(nameof(ConfigDefinition.CheckInvalidConfigChars))]
     [HarmonyTranspiler]
-    public static IEnumerable<CodeInstruction> TargetOtherMethod(IEnumerable<CodeInstruction> _)
+    public static IEnumerable<CodeInstruction> CallCheckInvalidConfigCharsOptimized()
     {
         return
             [
@@ -26,19 +26,21 @@ internal static class Patch_ConfigDefinition
             ];
     }
 
-    public static void CheckInvalidConfigCharsOptimized(string val, string name)
+    private static void CheckInvalidConfigCharsOptimized(string value, string name)
     {
-        if (val == null)
+        if (value == null)
         {
             throw new ArgumentNullException(name);
         }
 
-        if (!val.AsSpan().Trim().SequenceEqual(val))
+        var valueSpan = value.AsSpan().Trim();
+
+        if (!valueSpan.SequenceEqual(value))
         {
             throw new ArgumentException("Cannot use whitespace characters at start or end of section and key names", name);
         }
 
-        if (val.AsSpan().IndexOfAny(ConfigDefinition._invalidConfigChars) >= 0)
+        if (valueSpan.IndexOfAny(ConfigDefinition._invalidConfigChars) >= 0)
         {
             throw new ArgumentException("Cannot use any of the following characters in section and key names: = \\n \\t \\ \" ' [ ]", name);
         }

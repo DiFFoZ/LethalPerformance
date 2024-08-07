@@ -44,6 +44,15 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         LoadGameBurstLib();
         CallInitializeOnAwake();
         InitializeHarmony();
+        InitializeSaveScheduler();
+    }
+
+    private void InitializeSaveScheduler()
+    {
+        var go = new GameObject("Lethal Performance Configuration Scheduler", typeof(SaveScheduleComponent));
+        go.hideFlags = HideFlags.HideAndDontSave;
+
+        DontDestroyOnLoad(go);
     }
 
     private void InitializeHarmony()
