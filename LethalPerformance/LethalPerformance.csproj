@@ -53,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" />
+    <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" Private="false" />
   </ItemGroup>
 
   <ItemGroup>
