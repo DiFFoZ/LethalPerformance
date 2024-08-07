@@ -8,6 +8,7 @@
     "com.unity.multiplayer.tools": "1.1.1",
     "com.unity.netcode.gameobjects": "1.5.2",
     "com.unity.performance.profile-analyzer": "1.2.2",
+    "com.unity.project-auditor": "0.10.0",
     "com.unity.render-pipelines.high-definition": "14.0.8",
     "com.unity.xr.interaction.toolkit": "2.5.4",
     "com.unity.xr.openxr": "1.8.2",
