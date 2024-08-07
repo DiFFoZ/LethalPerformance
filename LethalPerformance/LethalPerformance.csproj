@@ -10,8 +10,6 @@
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json;
     </RestoreAdditionalProjectSources>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
 
   <Import Project="..\props\Common.props" />
@@ -51,7 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\CHANGELOG.md" />
     <None Remove="Publish\**" />
   </ItemGroup>
 

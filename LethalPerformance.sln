@@ -7,7 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LethalPerformance", "Lethal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.Unity", "Unity\LethalPerformance.Unity.csproj", "{B648CB5C-0EE2-EF29-F17A-55D4A2CA7438}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.Patcher", "LethalPerformance.Patcher\LethalPerformance.Patcher.csproj", "{DCFEB224-32B8-481E-B9CF-0573FBC6248A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LethalPerformance.Patcher", "LethalPerformance.Patcher\LethalPerformance.Patcher.csproj", "{DCFEB224-32B8-481E-B9CF-0573FBC6248A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66AD88FA-989C-41F7-BAA5-3A155061E29A}"
+	ProjectSection(SolutionItems) = preProject
+		CHANGELOG.md = CHANGELOG.md
+		props\Common.props = props\Common.props
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
