@@ -114,25 +114,37 @@ internal static class Patch_EventSystem
             }
         }
 
-        go = GameObject.Find("/Systems/UI/UICamera");
-        if (go != null && go.TryGetComponent<HDAdditionalCameraData>(out var data))
+        ChangeUICameraSettings();
+    }
+
+    private static void ChangeUICameraSettings()
+    {
+        if (Dependencies.IsModLoaded(Dependencies.LethalCompanyVR))
         {
-            ref var maskFrameSettings = ref data.renderingPathCustomFrameSettingsOverrideMask;
-            ref var frameSettings = ref data.renderingPathCustomFrameSettings;
-
-            maskFrameSettings.mask[(uint)FrameSettingsField.LitShaderMode] = true;
-            frameSettings.litShaderMode = LitShaderMode.Forward;
-
-            maskFrameSettings.mask[(uint)FrameSettingsField.OpaqueObjects] = true;
-            frameSettings.bitDatas[(uint)FrameSettingsField.OpaqueObjects] = false;
-
-            maskFrameSettings.mask[(uint)FrameSettingsField.ProbeVolume] = true;
-            frameSettings.bitDatas[(uint)FrameSettingsField.ProbeVolume] = false;
-
-            maskFrameSettings.mask[(uint)FrameSettingsField.VolumetricClouds] = true;
-            frameSettings.bitDatas[(uint)FrameSettingsField.VolumetricClouds] = false;
-
-            data.probeLayerMask = 0;
+            return;
         }
+
+        var go = GameObject.Find("/Systems/UI/UICamera");
+        if (go == null || !go.TryGetComponent<HDAdditionalCameraData>(out var data))
+        {
+            return;
+        }
+
+        ref var maskFrameSettings = ref data.renderingPathCustomFrameSettingsOverrideMask;
+        ref var frameSettings = ref data.renderingPathCustomFrameSettings;
+
+        maskFrameSettings.mask[(uint)FrameSettingsField.LitShaderMode] = true;
+        frameSettings.litShaderMode = LitShaderMode.Forward;
+
+        maskFrameSettings.mask[(uint)FrameSettingsField.OpaqueObjects] = true;
+        frameSettings.bitDatas[(uint)FrameSettingsField.OpaqueObjects] = false;
+
+        maskFrameSettings.mask[(uint)FrameSettingsField.ProbeVolume] = true;
+        frameSettings.bitDatas[(uint)FrameSettingsField.ProbeVolume] = false;
+
+        maskFrameSettings.mask[(uint)FrameSettingsField.VolumetricClouds] = true;
+        frameSettings.bitDatas[(uint)FrameSettingsField.VolumetricClouds] = false;
+
+        data.probeLayerMask = 0;
     }
 }

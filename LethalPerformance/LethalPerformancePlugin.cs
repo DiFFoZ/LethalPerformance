@@ -17,6 +17,7 @@ namespace LethalPerformance;
 [BepInDependency("LethalPerformance.Unity", BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency(Dependencies.Loadstone, BepInDependency.DependencyFlags.SoftDependency)] // make loadstone to patch firstly
 [BepInDependency(Dependencies.MoreSuits, BepInDependency.DependencyFlags.SoftDependency)] // optimization
+[BepInDependency(Dependencies.LethalCompanyVR, BepInDependency.DependencyFlags.SoftDependency)]
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
