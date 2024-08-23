@@ -49,13 +49,15 @@ internal class ConfigManager
             new("""
             Sets cookie light atlas texture resolution. By default 1024 is enough for vanilla, but some mods can use custom cookie texture, causing this log spam:
             "No more space in the 2D Cookie Texture Atlas. To solve this issue, increase the resolution of the cookie atlas in the HDRP settings".
+
             To fix it just increase the resolution of texture atlas.
             """, new AcceptableValueEnum<CookieAtlasResolutionLimited>()));
 
-        ReflectionProbeCacheResolution = BindRenderingConfig("Rendering", "Reflection probe atlas texture resolution", ReflectionProbeTextureCacheResolution.Resolution1024x1024,
+        ReflectionProbeCacheResolution = BindRenderingConfig("Rendering", "Reflection probe atlas texture resolution", ReflectionProbeTextureCacheResolution.Resolution2048x1024,
             new("""
             Sets reflection probe cache resolution. By default it's 16384x8192 causing high RAM usage (~1GB) even if vanilla game doesn't use them at all. But some mods may use, so it may cause this log spam:
             "No more space in Reflection Probe Atlas. To solve this issue, increase the size of the Reflection Probe Atlas in the HDRP settings".
+
             To fix it just increase the resolution of texture atlas.
             """, new AcceptableValueEnum<ReflectionProbeTextureCacheResolution>()));
     }
