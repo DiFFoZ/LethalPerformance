@@ -23,12 +23,17 @@ internal static class Patch_MoreSuits
         {
             s_MethodToPatch = patchClass.GetMethod("StartPatch", AccessTools.all);
         }
+
+        if (s_MethodToPatch == null)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogWarning("Failed to find MoreSuits method to patch");
+        }
     }
 
     [HarmonyPrepare]
     public static bool ShouldPatch()
     {
-        return LethalPerformancePlugin.Instance.Configuration.CompressSuitsTextures.Value && s_MethodToPatch != null;
+        return s_MethodToPatch != null;
     }
 
     [HarmonyTargetMethod]
@@ -40,7 +45,7 @@ internal static class Patch_MoreSuits
     [HarmonyTranspiler]
     public static IEnumerable<CodeInstruction> OptimizeSuitsTextures(IEnumerable<CodeInstruction> codeInstructions)
     {
-        // new Texture2D(2, 2, TextureFormat.DXT1, true)
+        // new Texture2D(2, 2, TextureFormat.DXT5, true)
 
         var matcher = new CodeMatcher(codeInstructions);
 

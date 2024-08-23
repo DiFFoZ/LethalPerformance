@@ -16,34 +16,22 @@ internal class ConfigManager
     }
 
 #nullable disable
-
-    public ConfigEntry<bool> PatchHDRenderPipeline { get; private set; }
-
-    public ConfigEntry<bool> CompressSuitsTextures { get; private set; }
-
     public ConfigEntry<CookieAtlasResolutionLimited> CookieAtlasResolution { get; private set; }
+
     public ConfigEntry<ReflectionProbeTextureCacheResolution> ReflectionProbeCacheResolution { get; private set; }
 
 #nullable restore
 
     private void BindConfig()
     {
+#pragma warning disable
 #if ENABLE_PROFILER
         var force = true;
+
 #else
         var force = false;
 #endif
-
-        PatchHDRenderPipeline = BindHarmonyConfig("Unsafe.Rendering", "Remove useless calls from HDRenderPipeline", force || false,
-            """
-            Remove useless method calls in rendering to improve performance.
-            May cause graphical issues, if you noticed them, disable this option.
-            """);
-
-        CompressSuitsTextures = BindHarmonyConfig("Experimental.Mods", "Compress custom suits textures", force || false,
-            """
-            Compress custom suits from MoreSuits mod to reduce usage of VRAM.
-            """);
+#pragma warning restore
 
         CookieAtlasResolution = BindRenderingConfig("Rendering", "Cookie atlas texture resolution", CookieAtlasResolutionLimited.CookieResolution1024,
             new("""
