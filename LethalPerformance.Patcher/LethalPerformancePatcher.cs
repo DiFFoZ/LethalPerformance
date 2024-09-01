@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using LethalPerformance.Patcher.TomlConverters;
 using LethalPerformance.Patcher.Utilities;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace LethalPerformance.Patcher;
 public class LethalPerformancePatcher
@@ -29,11 +32,42 @@ public class LethalPerformancePatcher
     }
 
     // cannot be removed, BepInEx checks it
-    public static IEnumerable<string> TargetDLLs { get; } = [];
+    public static IEnumerable<string> TargetDLLs { get; } = ["Assembly-CSharp.dll"];
 
     // cannot be removed, BepInEx checks it
     // https://github.com/BepInEx/BepInEx/blob/v5-lts/BepInEx.Preloader/Patching/AssemblyPatcher.cs#L67
-    public static void Patch(AssemblyDefinition _)
+    public static void Patch(AssemblyDefinition assembly)
     {
+        foreach (var type in assembly.MainModule.Types)
+        {
+            if (type.Name != "AudioReverbPresets")
+            {
+                continue;
+            }
+
+            if (type.GetMethods().Any(md => md.Name == "Awake"))
+            {
+                Logger.LogInfo("AudioReverbPresets already contains Awake method. Some preloader added it?");
+                return;
+            }
+
+            var method = new MethodDefinition("Awake", MethodAttributes.Private, assembly.MainModule.TypeSystem.Void);
+
+            var processor = method.Body.GetILProcessor();
+            StubMethod(processor);
+
+            type.Methods.Add(method);
+
+            return;
+        }
+    }
+
+    private static void StubMethod(ILProcessor processor)
+    {
+        for (var i = 0; i < 32; i++)
+        {
+            processor.Emit(OpCodes.Nop);
+        }
+        processor.Emit(OpCodes.Ret);
     }
 }
