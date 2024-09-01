@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using BepInEx.Configuration;
 using LethalPerformance.Patcher.Helpers;
@@ -10,7 +11,7 @@ public class ConfigSaverTask
     private readonly HashSet<ConfigFile> m_ConfigFilesToSave = new();
     private readonly HashSet<ConfigFile> m_IgnoredConfigFiles = new();
 
-    public void AddConfigFile(ConfigFile configFile)
+    public void ScheduleSaveFor(ConfigFile configFile)
     {
         if (m_IgnoredConfigFiles.Contains(configFile))
         {

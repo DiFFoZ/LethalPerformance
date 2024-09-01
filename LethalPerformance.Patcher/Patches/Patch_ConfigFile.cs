@@ -44,11 +44,11 @@ internal static class Patch_ConfigFile
         if (saveOnInit)
         {
             // Add save schedule if mod uses saveOnInit
-            LethalPerformancePatcher.ConfigSaverTask.AddConfigFile(__instance);
+            LethalPerformancePatcher.ConfigSaverTask.ScheduleSaveFor(__instance);
         }
 
         __instance.SettingChanged +=
-            (_, arg) => LethalPerformancePatcher.ConfigSaverTask.AddConfigFile(arg.ChangedSetting.ConfigFile);
+            (_, arg) => LethalPerformancePatcher.ConfigSaverTask.ScheduleSaveFor(arg.ChangedSetting.ConfigFile);
     }
 
     [HarmonyPatch(nameof(ConfigFile.SaveOnConfigSet), MethodType.Setter)]

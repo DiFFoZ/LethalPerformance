@@ -10,6 +10,13 @@ namespace LethalPerformance.Patcher.Patches;
 [HarmonyPatch(typeof(ConfigEntryBase))]
 internal static class Patch_ConfigEntryBase
 {
+    [HarmonyPatch(MethodType.Constructor, [typeof(ConfigFile), typeof(ConfigDefinition), typeof(Type), typeof(object), typeof(ConfigDescription)])]
+    [HarmonyPostfix]
+    public static void ScheduleSave(ConfigFile configFile)
+    {
+        LethalPerformancePatcher.ConfigSaverTask.ScheduleSaveFor(configFile);
+    }
+
     [HarmonyPatch(nameof(ConfigEntryBase.WriteDescription))]
     [HarmonyTranspiler]
     public static IEnumerable<CodeInstruction> CallWriteDescriptionOptimized()
