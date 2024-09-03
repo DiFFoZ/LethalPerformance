@@ -56,6 +56,10 @@
     <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" Private="false" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(IAmDiFFoZ)=='true'">
+    <ProjectReference Include="..\LethalPerformance.Dev\LethalPerformance.Dev.csproj" Private="false" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="LethalPerformance.Unity">
       <HintPath>Publish/LethalPerformance.Unity.dll</HintPath>

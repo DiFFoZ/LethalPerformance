@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using HarmonyLib;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 using LethalPerformance.Utilities;
 using UnityEngine;
 using UnityEngine.Profiling;

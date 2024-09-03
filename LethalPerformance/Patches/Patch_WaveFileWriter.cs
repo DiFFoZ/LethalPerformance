@@ -4,8 +4,8 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using LethalPerformance.API;
 using LethalPerformance.Extensions;
+using LethalPerformance.Patcher.API;
 using NAudio.Wave;
 
 namespace LethalPerformance.Patches;

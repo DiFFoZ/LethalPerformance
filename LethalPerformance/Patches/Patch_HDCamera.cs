@@ -1,6 +1,6 @@
 ﻿using System;
 using HarmonyLib;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 using LethalPerformance.Unity;
 using Unity.Mathematics;
 using UnityEngine.Rendering;

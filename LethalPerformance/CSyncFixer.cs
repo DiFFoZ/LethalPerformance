@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 using HarmonyLib;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;

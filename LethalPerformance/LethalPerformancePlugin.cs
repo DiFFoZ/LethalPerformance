@@ -6,8 +6,8 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using LethalPerformance.API;
 using LethalPerformance.Configuration;
+using LethalPerformance.Patcher.API;
 using Unity.Burst.LowLevel;
 using UnityEngine;
 
