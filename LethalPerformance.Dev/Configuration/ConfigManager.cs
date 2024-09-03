@@ -11,6 +11,8 @@ public class ConfigManager
     public ConfigEntry<KeyboardShortcut> SavePositionButton { get; }
     public ConfigEntry<KeyboardShortcut> TeleportToPositionButton { get; }
 
+    public ConfigEntry<bool> ShouldSpawnEnemies { get; }
+
     public ConfigManager(ConfigFile config)
     {
         OverriddenSeed = config.Bind("Debug", "Seed generation", 0);
@@ -20,5 +22,7 @@ public class ConfigManager
 
         SavePositionButton = config.Bind("Debug", "Save position button", new KeyboardShortcut(KeyCode.Minus));
         TeleportToPositionButton = config.Bind("Debug", "Teleport to position button", new KeyboardShortcut(KeyCode.Equals));
+
+        ShouldSpawnEnemies = config.Bind("Debug", "Should Spawn Enemies", true);
     }
 }
