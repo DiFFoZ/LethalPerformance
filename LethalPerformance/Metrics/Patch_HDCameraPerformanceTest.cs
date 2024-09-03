@@ -1,7 +1,7 @@
 ﻿#if ENABLE_PROFILER
 using System;
 using HarmonyLib;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 using Unity.Profiling;
 using UnityEngine.Rendering.HighDefinition;
 

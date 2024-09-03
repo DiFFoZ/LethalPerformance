@@ -1,4 +1,4 @@
-﻿using LethalPerformance.API;
+﻿using LethalPerformance.Patcher.API;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;

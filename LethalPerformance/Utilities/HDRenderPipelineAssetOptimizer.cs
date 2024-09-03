@@ -1,5 +1,5 @@
 ﻿using System;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 

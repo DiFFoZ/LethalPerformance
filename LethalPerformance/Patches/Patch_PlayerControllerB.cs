@@ -1,7 +1,7 @@
 ﻿using System;
 using GameNetcodeStuff;
 using HarmonyLib;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 
 namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(PlayerControllerB))]

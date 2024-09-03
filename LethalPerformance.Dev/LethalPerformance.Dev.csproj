@@ -12,8 +12,6 @@
     </RestoreAdditionalProjectSources>
   </PropertyGroup>
 
-  <Import Project="..\props\Common.props" />
-
   <PropertyGroup>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
@@ -21,28 +19,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="LethalPerformance" />
-    <InternalsVisibleTo Include="LethalPerformance.Dev" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
     <PackageReference Include="LethalCompany.GameLibs.Steam" Version="55.0.0-beta.0-ngd.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
-    <Publicize Include="BepInEx">
-      <PublicizeTarget>all</PublicizeTarget>
-      <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
-      <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
-      <Strip>false</Strip>
-    </Publicize>
+    <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" />
   </ItemGroup>
-
-  <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
-    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Patcher.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\patchers\DiFFoZ-LethalPerformance\LethalPerformance" />
-  </Target>
-
 
 </Project>
