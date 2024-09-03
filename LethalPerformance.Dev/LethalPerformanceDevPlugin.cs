@@ -1,9 +1,14 @@
-﻿using System.Linq;
+﻿#if !IAmDiFFoZ
+#error CI build should fail
+#endif
+
+using System.Linq;
 using System.Reflection;
 using BepInEx;
 using HarmonyLib;
 using LethalPerformance.Dev.Configuration;
 using LethalPerformance.Patcher.API;
+using UnityEngine;
 
 namespace LethalPerformance.Dev;
 
@@ -25,6 +30,15 @@ public class LethalPerformanceDevPlugin : BaseUnityPlugin
         m_Harmony.PatchAll(typeof(LethalPerformanceDevPlugin).Assembly);
 
         CallInitializeOnAwake();
+        InitializePositionTeleporter();
+    }
+
+    private void InitializePositionTeleporter()
+    {
+        var go = new GameObject("Lethal Performance Dev", [typeof(PositionTeleporter)]);
+        go.hideFlags = HideFlags.HideAndDontSave;
+
+        DontDestroyOnLoad(go);
     }
 
     private void CallInitializeOnAwake()

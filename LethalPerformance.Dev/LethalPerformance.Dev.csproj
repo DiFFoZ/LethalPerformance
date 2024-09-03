@@ -18,6 +18,10 @@
     <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=/_/</PathMap>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(IAmDiFFoZ)=='true'">
+    <DefineConstants>$(DefineConstants);IAmDiFFoZ</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
@@ -27,5 +31,9 @@
   <ItemGroup>
     <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" />
   </ItemGroup>
+
+  <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
+    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Dev.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
+  </Target>
 
 </Project>
