@@ -25,7 +25,6 @@ internal static class HDRenderPipelineAssetOptimizer
 
         var settings = HDRenderPipelineGlobalSettings.instance;
         ref var frameSettings = ref settings.GetDefaultFrameSettings(FrameSettingsRenderType.Camera);
-        frameSettings.SetEnabled(FrameSettingsField.Volumetrics, supportsVolumetric);
         frameSettings.SetEnabled(FrameSettingsField.StopNaN, false);
         frameSettings.SetEnabled(FrameSettingsField.DepthPrepassWithDeferredRendering, true);
         frameSettings.SetEnabled(FrameSettingsField.ClearGBuffers, true);
@@ -34,6 +33,7 @@ internal static class HDRenderPipelineAssetOptimizer
 
         if (!supportsVolumetric)
         {
+            frameSettings.SetEnabled(FrameSettingsField.Volumetrics, false);
             LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled volumetric fog as hardware system doesn't support it");
         }
     }
