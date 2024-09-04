@@ -1,5 +1,5 @@
-﻿using System;
-using LethalPerformance.Patcher.API;
+﻿using LethalPerformance.Patcher.API;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
@@ -18,15 +18,24 @@ internal static class HDRenderPipelineAssetOptimizer
         renderSettings.hdShadowInitParams.cachedPunctualLightShadowAtlas = 8192;
         renderSettings.hdShadowInitParams.allowDirectionalMixedCachedShadows = true;
 
+        var supportsVolumetric = false && SystemInfo.supportsRenderTargetArrayIndexFromVertexShader;
+        renderSettings.supportVolumetrics = supportsVolumetric;
+
         asset.currentPlatformRenderPipelineSettings = renderSettings;
 
         var settings = HDRenderPipelineGlobalSettings.instance;
         ref var frameSettings = ref settings.GetDefaultFrameSettings(FrameSettingsRenderType.Camera);
-        frameSettings.bitDatas[(uint)FrameSettingsField.StopNaN] = false;
-        frameSettings.bitDatas[(uint)FrameSettingsField.DepthPrepassWithDeferredRendering] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.ClearGBuffers] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.Shadowmask] = false;
+        frameSettings.SetEnabled(FrameSettingsField.Volumetrics, supportsVolumetric);
+        frameSettings.SetEnabled(FrameSettingsField.StopNaN, false);
+        frameSettings.SetEnabled(FrameSettingsField.DepthPrepassWithDeferredRendering, true);
+        frameSettings.SetEnabled(FrameSettingsField.ClearGBuffers, true);
+        frameSettings.SetEnabled(FrameSettingsField.Shadowmask, false);
         LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled StopNan and enabled DepthPrepassWithDeferredRendering globally");
+
+        if (!supportsVolumetric)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled volumetric fog as hardware system doesn't support it");
+        }
     }
 
 }
