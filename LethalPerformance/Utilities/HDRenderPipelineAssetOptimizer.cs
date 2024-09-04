@@ -18,7 +18,7 @@ internal static class HDRenderPipelineAssetOptimizer
         renderSettings.hdShadowInitParams.cachedPunctualLightShadowAtlas = 8192;
         renderSettings.hdShadowInitParams.allowDirectionalMixedCachedShadows = true;
 
-        var supportsVolumetric = false && SystemInfo.supportsRenderTargetArrayIndexFromVertexShader;
+        var supportsVolumetric = SystemInfo.supportsRenderTargetArrayIndexFromVertexShader;
         renderSettings.supportVolumetrics = supportsVolumetric;
 
         asset.currentPlatformRenderPipelineSettings = renderSettings;
