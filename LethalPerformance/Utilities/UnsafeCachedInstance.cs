@@ -14,7 +14,7 @@ internal abstract class UnsafeCachedInstance
 
 internal sealed class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : MonoBehaviour
 {
-    private readonly string m_HierarchyPath;
+    private readonly string? m_HierarchyPath;
 
     public T? Instance { get; set; }
 
@@ -26,8 +26,20 @@ internal sealed class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : M
         UnsafeCachedInstances.Add(this);
     }
 
+    public UnsafeCachedInstance()
+    {
+        Instance = null;
+
+        UnsafeCachedInstances.Add(this);
+    }
+
     public override void SaveInstance()
     {
+        if (m_HierarchyPath == null)
+        {
+            return;
+        }
+
         var gameObject = GameObject.Find(m_HierarchyPath);
         if (gameObject != null)
         {

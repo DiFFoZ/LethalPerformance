@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
 using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 using UnityEngine;
 
 namespace LethalPerformance.Patches;

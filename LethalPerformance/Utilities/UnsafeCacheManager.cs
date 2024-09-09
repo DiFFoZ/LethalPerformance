@@ -69,6 +69,11 @@ internal static class UnsafeCacheManager
         s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
     }
 
+    public static void AddReferenceToMap<T>(UnsafeCachedInstance<T> unsafeInstance) where T : MonoBehaviour
+    {
+        s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
+    }
+
     public static void CacheInstances()
     {
         foreach (var r in UnsafeCachedInstance.UnsafeCachedInstances)

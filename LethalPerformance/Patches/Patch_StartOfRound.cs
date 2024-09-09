@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 
 namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(StartOfRound))]

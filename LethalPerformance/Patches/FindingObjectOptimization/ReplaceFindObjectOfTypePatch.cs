@@ -4,6 +4,7 @@ using System.Reflection;
 using GameNetcodeStuff;
 using HarmonyLib;
 using LethalPerformance.API;
+using LethalPerformance.Patcher.API;
 
 namespace LethalPerformance.Patches.FindingObjectOptimization;
 [HarmonyPatch]

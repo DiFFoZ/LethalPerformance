@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.Dev", "LethalPerformance.Dev\LethalPerformance.Dev.csproj", "{21CDD45C-104A-40FA-9D28-A40AD871AA2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCFEB224-32B8-481E-B9CF-0573FBC6248A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

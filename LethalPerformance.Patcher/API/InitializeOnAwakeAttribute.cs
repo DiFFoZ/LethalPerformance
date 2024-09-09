@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LethalPerformance.API;
+namespace LethalPerformance.Patcher.API;
 [AttributeUsage(AttributeTargets.Method)]
 internal sealed class InitializeOnAwakeAttribute : Attribute
 {
