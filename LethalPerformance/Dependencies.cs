@@ -11,6 +11,10 @@ internal static class Dependencies
 
     public const string LethalCompanyVR = "io.daxcess.lcvr";
 
+    public const string LethalLevelLoader = "imabatby.lethallevelloader";
+
+    public const string LobbyControl = "mattymatty.LobbyControl";
+
     public static bool IsModLoaded(string id)
     {
         return Chainloader.PluginInfos.ContainsKey(id);

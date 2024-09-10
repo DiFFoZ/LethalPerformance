@@ -115,6 +115,23 @@ internal static class Patch_EventSystem
         }
 
         ChangeUICameraSettings();
+        RemoveAudioSpecializerPlugin();
+    }
+
+    private static void RemoveAudioSpecializerPlugin()
+    {
+        if (Dependencies.IsModLoaded(Dependencies.LethalLevelLoader) || Dependencies.IsModLoaded(Dependencies.LobbyControl))
+        {
+            return;
+        }
+
+        var audioSources = Resources.FindObjectsOfTypeAll<AudioSource>();
+        foreach (var audioSource in audioSources)
+        {
+            audioSource.spatialize = false;
+        }
+
+        LethalPerformancePlugin.Instance.Logger.LogInfo($"Disabled spatialize for {audioSources.Length} audio sources");
     }
 
     private static void ChangeUICameraSettings()
