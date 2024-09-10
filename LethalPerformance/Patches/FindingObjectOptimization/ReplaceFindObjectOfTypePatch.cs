@@ -8,6 +8,7 @@ using LethalPerformance.Patcher.API;
 
 namespace LethalPerformance.Patches.FindingObjectOptimization;
 [HarmonyPatch]
+[HarmonyPriority(Priority.VeryLow)]
 internal static class ReplaceFindObjectOfTypePatch
 {
     private static readonly Dictionary<Type, MethodInfo> s_MapGettingInstance = new()
