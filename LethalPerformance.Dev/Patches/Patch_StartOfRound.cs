@@ -25,4 +25,11 @@ internal static class Patch_StartOfRound
         StartOfRound.Instance.overrideRandomSeed = true;
         StartOfRound.Instance.overrideSeedNumber = newSeed;
     }
+
+    [HarmonyPatch(nameof(StartOfRound.PlayFirstDayShipAnimation))]
+    [HarmonyPrefix]
+    public static bool DisableSpeaker()
+    {
+        return false;
+    }
 }
