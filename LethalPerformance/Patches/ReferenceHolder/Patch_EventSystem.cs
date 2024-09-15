@@ -116,6 +116,28 @@ internal static class Patch_EventSystem
 
         ChangeUICameraSettings();
         RemoveAudioSpecializerPlugin();
+        DisableCameraCleanup();
+    }
+
+    private static readonly string[] s_CameraPaths =
+    [
+        "/Systems/GameSystems/ItemSystems/MapCamera",
+        "/Environment/HangarShip/Cameras/FrontDoorSecurityCam/SecurityCamera",
+        "/Environment/HangarShip/Cameras/ShipCamera",
+    ];
+
+    private static void DisableCameraCleanup()
+    {
+        foreach (var cameraPath in s_CameraPaths)
+        {
+            var go = GameObject.Find(cameraPath);
+            if (go == null || !go.TryGetComponent<HDAdditionalCameraData>(out var data))
+            {
+                continue;
+            }
+
+            data.hasPersistentHistory = true;
+        }
     }
 
     private static void RemoveAudioSpecializerPlugin()
