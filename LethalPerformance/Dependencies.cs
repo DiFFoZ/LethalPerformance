@@ -1,4 +1,5 @@
 ﻿using BepInEx.Bootstrap;
+using LethalPerformance.Patcher.Patches;
 
 namespace LethalPerformance;
 internal static class Dependencies
@@ -17,6 +18,7 @@ internal static class Dependencies
 
     public static bool IsModLoaded(string id)
     {
-        return Chainloader.PluginInfos.ContainsKey(id);
+        return Chainloader.PluginInfos.ContainsKey(id)
+            || Patch_Chainloader.IsModWillBeLoaded(id);
     }
 }
