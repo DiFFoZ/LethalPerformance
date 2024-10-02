@@ -13,7 +13,7 @@ using UnityEngine;
 namespace LethalPerformance.Dev;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-public class LethalPerformanceDevPlugin : BaseUnityPlugin
+internal class LethalPerformanceDevPlugin : BaseUnityPlugin
 {
     public static LethalPerformanceDevPlugin Instance { get; private set; } = null!;
 
@@ -31,6 +31,15 @@ public class LethalPerformanceDevPlugin : BaseUnityPlugin
 
         CallInitializeOnAwake();
         InitializePositionTeleporter();
+
+        Application.focusChanged += Application_focusChanged;
+    }
+
+    private void Application_focusChanged(bool isFocused)
+    {
+        var targetFps = isFocused ? 60 : 30;
+
+        Application.targetFrameRate = targetFps;
     }
 
     private void InitializePositionTeleporter()

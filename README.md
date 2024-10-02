@@ -2,7 +2,7 @@
 Optimizes CPU time and minimizes GC allocation. It should help with lag spikes, so your frametime will be smoother.
 
 ## Features
-- Adds key bind to Unity logs folder: `Ctrl + Shift + L`
+- Adds key bind to Unity logs folder <code>Ctrl Shift L</code>
 
 ## Help
 
@@ -19,6 +19,7 @@ Recommended to use with these mods:
 - [BepInEx Faster Load AssetBundles Patcher](https://thunderstore.io/c/lethal-company/p/DiFFoZ/BepInEx_Faster_Load_AssetBundles_Patcher/) by DiFFoZ - reduces RAM usage and speeds up asset loading, leading to smoother frametime.
 - [PathfindingLagFix](https://thunderstore.io/c/lethal-company/p/Zaggy1024/PathfindingLagFix/) by Zaggy1024 - makes the calculation of AI path to use time-slicing, resulting in smoother frametime.
 - [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) by fumiko & Zaggy1024 - stops rendering interior rooms that aren't visible.
+- [Loadstone](https://thunderstore.io/c/lethal-company/p/AdiBTW/Loadstone/) by AdiBTW - reduces stuttering during level loading.
 
 ## Credits
 - Icon by [Lorc](https://lorcblog.blogspot.com/) via [game-icons.net](https://game-icons.net/)
