@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -96,12 +97,20 @@ internal static class Patch_VolumeComponent
                 continue;
             }
 
-            if (fieldType.IsArray || !fieldType.IsClass)
+            if (fieldType.IsArray
+                || !fieldType.IsClass
+                || typeof(ICollection).IsAssignableFrom(fieldType) /* ignore fields that implements collection interface */)
             {
                 continue;
             }
 
             codeInstructions.Add(new() { opCode = OpCodes.Ldfld, field = field });
+
+            if (codeInstructions.Count > 30)
+            {
+                codeInstructions.ForEach(c => Console.WriteLine(c.field?.DeclaringType.Name + " " + c.field?.Name));
+            }
+
             EmitAddItem(fieldType, il, codeInstructions);
             codeInstructions.RemoveAt(codeInstructions.Count - 1);
         }
