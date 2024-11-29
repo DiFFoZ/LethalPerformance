@@ -172,12 +172,6 @@ internal static class Patch_EventSystem
         ref var maskFrameSettings = ref data.renderingPathCustomFrameSettingsOverrideMask;
         ref var frameSettings = ref data.renderingPathCustomFrameSettings;
 
-        maskFrameSettings.mask[(uint)FrameSettingsField.LitShaderMode] = true;
-        frameSettings.litShaderMode = LitShaderMode.Forward;
-
-        maskFrameSettings.mask[(uint)FrameSettingsField.OpaqueObjects] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.OpaqueObjects] = false;
-
         maskFrameSettings.mask[(uint)FrameSettingsField.ProbeVolume] = true;
         frameSettings.bitDatas[(uint)FrameSettingsField.ProbeVolume] = false;
 
