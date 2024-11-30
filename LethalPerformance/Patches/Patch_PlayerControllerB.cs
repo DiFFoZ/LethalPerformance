@@ -13,6 +13,8 @@ internal static class Patch_PlayerControllerB
 {
     private static Vector3[] s_Normals = null!;
 
+    // todo: SetHoverTipAndCurrentInteractTrigger fix tag
+
     [HarmonyCleanup]
     public static Exception? Cleanup(Exception exception)
     {

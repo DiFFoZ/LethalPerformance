@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -6,8 +7,6 @@ using HarmonyLib;
 using LethalPerformance.Patcher.TomlConverters;
 using LethalPerformance.Patcher.Utilities;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 
 namespace LethalPerformance.Patcher;
 public class LethalPerformancePatcher
@@ -38,36 +37,23 @@ public class LethalPerformancePatcher
     // https://github.com/BepInEx/BepInEx/blob/v5-lts/BepInEx.Preloader/Patching/AssemblyPatcher.cs#L67
     public static void Patch(AssemblyDefinition assembly)
     {
-        foreach (var type in assembly.MainModule.Types)
+        Dictionary<string, Action<AssemblyDefinition, TypeDefinition>> workList = new()
         {
-            if (type.Name != "AudioReverbPresets")
+            { "AudioReverbPresets", (a, t) => AssemblyPatcherUtilities.AddMethod(a, t, "Awake") },
+            { "animatedSun", (a, t) => AssemblyPatcherUtilities.RemoveMethod(a, t, "Update") },
+        };
+
+        var types = assembly.MainModule.Types;
+        foreach ((string typeName, Action<AssemblyDefinition, TypeDefinition> action) in workList)
+        {
+            var type = types.FirstOrDefault(t => t.Name == typeName);
+            if (type == null)
             {
+                Logger.LogWarning("Failed to patch " + typeName);
                 continue;
             }
 
-            if (type.GetMethods().Any(md => md.Name == "Awake"))
-            {
-                Logger.LogInfo("AudioReverbPresets already contains Awake method. Some preloader added it?");
-                return;
-            }
-
-            var method = new MethodDefinition("Awake", MethodAttributes.Private, assembly.MainModule.TypeSystem.Void);
-
-            var processor = method.Body.GetILProcessor();
-            StubMethod(processor);
-
-            type.Methods.Add(method);
-
-            return;
+            action(assembly, type);
         }
-    }
-
-    private static void StubMethod(ILProcessor processor)
-    {
-        for (var i = 0; i < 32; i++)
-        {
-            processor.Emit(OpCodes.Nop);
-        }
-        processor.Emit(OpCodes.Ret);
     }
 }

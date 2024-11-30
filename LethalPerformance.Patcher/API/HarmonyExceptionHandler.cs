@@ -8,6 +8,8 @@ internal static class HarmonyExceptionHandler
         if (exception != null)
         {
             LethalPerformancePatcher.Logger.LogWarning(exception);
+            // stacktrace needed to find class that fails to patch
+            LethalPerformancePatcher.Logger.LogWarning(Environment.StackTrace);
         }
 
         return null;
