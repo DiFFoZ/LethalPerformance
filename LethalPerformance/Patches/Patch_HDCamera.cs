@@ -22,7 +22,7 @@ internal static unsafe class Patch_HDCamera
     {
         fixed (void* p = &cb, views = __instance.m_XRViewConstants)
         {
-            Testing.Test((Testing.ReadableViewConstants*)views, __instance.viewCount, (Testing.ReadableShaderVariablesXR*)p);
+            CameraBurst.UpdateShaderVariablesXRCB((CameraBurst.ReadableViewConstants*)views, __instance.viewCount, (CameraBurst.ReadableShaderVariablesXR*)p);
             return false;
         }
     }
@@ -49,8 +49,8 @@ internal static unsafe class Patch_HDCamera
             var screenCoordScaleBias = isAdditionalDataNull ? new float4(1f, 1f, 0f, 0f) : (float4)__instance.m_AdditionalCameraData!.screenCoordScaleBias;
             var screenSizeOverride = isAdditionalDataNull ? float4.zero : (float4)__instance.m_AdditionalCameraData!.screenSizeOverride;
 
-            Testing.UpdateShaderVariablesGlobalCB((Testing.ReadableShaderVariablesGlobal*)p, __instance.frameSettings, __instance.antialiasing, __instance.camera.cameraType,
-                (Testing.ReadableViewConstants*)mainViewConstants, vectorParams1, vectorParams2, vectorParams3, (float4*)frustumPlaneEquations,
+            CameraBurst.UpdateShaderVariablesGlobalCB((CameraBurst.ReadableShaderVariablesGlobal*)p, __instance.frameSettings, __instance.antialiasing, __instance.camera.cameraType,
+                (CameraBurst.ReadableViewConstants*)mainViewConstants, vectorParams1, vectorParams2, vectorParams3, (float4*)frustumPlaneEquations,
                 __instance.taaSharpenStrength, __instance.taaFrameIndex, __instance.colorPyramidHistoryMipCount,
                 __instance.globalMipBias, __instance.time, __instance.lastTime, frameCount, __instance.viewCount,
                 __instance.probeRangeCompressionFactor, deExposureMultiplier, screenCoordScaleBias, !isAdditionalDataNull, screenSizeOverride);

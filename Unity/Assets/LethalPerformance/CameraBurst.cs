@@ -1,45 +1,39 @@
-using System;
 using System.Runtime.InteropServices;
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using static Unity.Collections.LowLevel.Unsafe.UnsafeUtility;
 
 namespace LethalPerformance.Unity
 {
     [BurstCompile]
-    public static unsafe class Testing
+    public static unsafe class CameraBurst
     {
         [BurstCompile]
-        public static void Log(in FixedString128Bytes log)
-        {
-            Debug.Log(log);
-        }
-
-        [BurstCompile]
-        public static unsafe void Test(in ReadableViewConstants* xrViewConstants, in int viewCount, ReadableShaderVariablesXR* cb)
+        public static unsafe void UpdateShaderVariablesXRCB(in ReadableViewConstants* xrViewConstants, in int viewCount, ReadableShaderVariablesXR* cb)
         {
             for (var i = 0; i < viewCount; i++)
             {
-                MemCpy(cb->_XRViewMatrix + i * 15, &xrViewConstants[i].viewMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRInvViewMatrix + i * 15, &xrViewConstants[i].invViewMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRProjMatrix + i * 15, &xrViewConstants[i].projMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRInvProjMatrix + i * 15, &xrViewConstants[i].invProjMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRViewProjMatrix + i * 15, &xrViewConstants[i].viewProjMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRInvViewProjMatrix + i * 15, &xrViewConstants[i].invViewProjMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRNonJitteredViewProjMatrix + i * 15, &xrViewConstants[i].nonJitteredViewProjMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRPrevViewProjMatrix + i * 15, &xrViewConstants[i].prevViewProjMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRPrevInvViewProjMatrix + i * 15, &xrViewConstants[i].prevInvViewProjMatrix, sizeof(float4x4));
-                MemCpy(cb->_XRViewProjMatrixNoCameraTrans + i * 15, &xrViewConstants[i].viewProjectionNoCameraTrans, sizeof(float4x4));
-                MemCpy(cb->_XRPrevViewProjMatrixNoCameraTrans + i * 15, &xrViewConstants[i].prevViewProjMatrixNoCameraTrans, sizeof(float4x4));
-                MemCpy(cb->_XRPixelCoordToViewDirWS + i * 15, &xrViewConstants[i].pixelCoordToViewDirWS, sizeof(float4x4));
+                const int offset = 15;
+                const int offset2 = 4;
 
-                MemCpy(cb->_XRWorldSpaceCameraPos + i * 3, &xrViewConstants[i].worldSpaceCameraPos, sizeof(float4));
-                MemCpy(cb->_XRWorldSpaceCameraPosViewOffset + i * 3, &xrViewConstants[i].worldSpaceCameraPosViewOffset, sizeof(float4));
-                MemCpy(cb->_XRPrevWorldSpaceCameraPos + i * 3, &xrViewConstants[i].prevWorldSpaceCameraPos, sizeof(float4));
+                MemCpy(cb->_XRViewMatrix + i * offset, &xrViewConstants[i].viewMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRInvViewMatrix + i * offset, &xrViewConstants[i].invViewMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRProjMatrix + i * offset, &xrViewConstants[i].projMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRInvProjMatrix + i * offset, &xrViewConstants[i].invProjMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRViewProjMatrix + i * offset, &xrViewConstants[i].viewProjMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRInvViewProjMatrix + i * offset, &xrViewConstants[i].invViewProjMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRNonJitteredViewProjMatrix + i * offset, &xrViewConstants[i].nonJitteredViewProjMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRPrevViewProjMatrix + i * offset, &xrViewConstants[i].prevViewProjMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRPrevInvViewProjMatrix + i * offset, &xrViewConstants[i].prevInvViewProjMatrix, sizeof(float4x4));
+                MemCpy(cb->_XRViewProjMatrixNoCameraTrans + i * offset, &xrViewConstants[i].viewProjectionNoCameraTrans, sizeof(float4x4));
+                MemCpy(cb->_XRPrevViewProjMatrixNoCameraTrans + i * offset, &xrViewConstants[i].prevViewProjMatrixNoCameraTrans, sizeof(float4x4));
+                MemCpy(cb->_XRPixelCoordToViewDirWS + i * offset, &xrViewConstants[i].pixelCoordToViewDirWS, sizeof(float4x4));
+
+                MemCpy(cb->_XRWorldSpaceCameraPos + i * offset2, &xrViewConstants[i].worldSpaceCameraPos, sizeof(float4));
+                MemCpy(cb->_XRWorldSpaceCameraPosViewOffset + i * offset2, &xrViewConstants[i].worldSpaceCameraPosViewOffset, sizeof(float4));
+                MemCpy(cb->_XRPrevWorldSpaceCameraPos + i * offset2, &xrViewConstants[i].prevWorldSpaceCameraPos, sizeof(float4));
             }
         }
 
