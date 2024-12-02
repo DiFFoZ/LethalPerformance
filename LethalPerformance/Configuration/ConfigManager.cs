@@ -20,6 +20,8 @@ internal class ConfigManager
 
     public ConfigEntry<ReflectionProbeTextureCacheResolution> ReflectionProbeCacheResolution { get; private set; }
 
+    public ConfigEntry<bool> UseSteamVoiceAPI { get; private set; }
+
 #nullable restore
 
     private void BindConfig()
@@ -48,6 +50,13 @@ internal class ConfigManager
 
             To fix it just increase the resolution of texture atlas.
             """, new AcceptableValueEnum<ReflectionProbeTextureCacheResolution>()));
+
+        UseSteamVoiceAPI = m_Config.Bind("Experimental", "UseSteamVoiceAPI", false, new ConfigDescription("""
+            (EXPERIMENTAL) Sets Dissonance to utilize Steam Voice API instead of Unity Microphone API. This change may prevent lag spike, as Dissonance interprets the initial lag spike (150ms or more) as frame skip.
+            In response, it restarts the audio pipeline to reduce audio artifacts, such as repeated voice.
+
+            Please note that microphone selection is now managed through Steam. To choose a different microphone, please adjust your Steam settings.
+            """));
     }
 
     private ConfigEntry<T> BindRenderingConfig<T>(string section, string key, T defaultValue, ConfigDescription? description)
