@@ -25,7 +25,10 @@ internal class SteamMicrophoneCapture : MonoBehaviour, IMicrophoneCapture
 
     public WaveFormat? StartCapture([CanBeNull] string? name)
     {
-        m_Format = new WaveFormat((int)SteamUser.SampleRate, 1);
+        var sampleRate = SteamUser.OptimalSampleRate;
+        SteamUser.SampleRate = sampleRate;
+
+        m_Format = new WaveFormat((int)sampleRate, 1);
         SteamUser.VoiceRecord = true;
         IsRecording = true;
 
@@ -50,51 +53,48 @@ internal class SteamMicrophoneCapture : MonoBehaviour, IMicrophoneCapture
 
     public bool UpdateSubscribers()
     {
-        if (m_Subscribers.Count == 0)
+        if (!SteamUser.HasVoiceData)
         {
             return false;
         }
 
-        if (SteamUser.HasVoiceData)
+        m_CompressedVoiceStream.Position = 0;
+        var length = SteamUser.ReadVoiceData(m_CompressedVoiceStream);
+
+        if (length <= 0)
         {
-            m_CompressedVoiceStream.Position = 0;
-            var length = SteamUser.ReadVoiceData(m_CompressedVoiceStream);
-
-            if (length == 0)
-            {
-                return false;
-            }
-
-            m_CompressedVoiceStream.Position = 0;
-            m_DecompressedVoiceStream.Position = 0;
-            length = SteamUser.DecompressVoice(m_CompressedVoiceStream, length, m_DecompressedVoiceStream);
-
-            if (length == 0)
-            {
-                return false;
-            }
-
-            var samplesCount = length / 2;
-            var samplesVoice = ArrayPool<float>.Shared.Rent(samplesCount);
-            var samples = m_DecompressedVoiceStream.GetBuffer();
-
-            for (int i = 0; i < samplesCount; i++)
-            {
-                // Read the two bytes and convert to a short
-                var sample = (short)(samples[i * 2] | (samples[i * 2 + 1] << 8));
-
-                // Normalize to the range of -1.0 to 1.0
-                samplesVoice[i] = sample / 32767f;
-            }
-
-            var arraySegment = new ArraySegment<float>(samplesVoice, 0, samplesCount);
-            foreach (var subscriber in m_Subscribers)
-            {
-                subscriber.ReceiveMicrophoneData(arraySegment, m_Format);
-            }
-
-            ArrayPool<float>.Shared.Return(samplesVoice);
+            return false;
         }
+
+        m_CompressedVoiceStream.Position = 0;
+        m_DecompressedVoiceStream.Position = 0;
+        length = SteamUser.DecompressVoice(m_CompressedVoiceStream, length, m_DecompressedVoiceStream);
+
+        if (length <= 0)
+        {
+            return false;
+        }
+
+        var samplesCount = length / 2;
+        var samplesVoice = ArrayPool<float>.Shared.Rent(samplesCount);
+        var samples = m_DecompressedVoiceStream.GetBuffer();
+
+        for (int i = 0; i < samplesCount; i++)
+        {
+            // Read the two bytes and convert to a short
+            var sample = (short)(samples[i * 2] | (samples[i * 2 + 1] << 8));
+
+            // Normalize to the range of -1.0 to 1.0
+            samplesVoice[i] = sample / 32768f;
+        }
+
+        var arraySegment = new ArraySegment<float>(samplesVoice, 0, samplesCount);
+        foreach (var subscriber in m_Subscribers)
+        {
+            subscriber.ReceiveMicrophoneData(arraySegment, m_Format);
+        }
+
+        ArrayPool<float>.Shared.Return(samplesVoice);
 
         return false;
     }
