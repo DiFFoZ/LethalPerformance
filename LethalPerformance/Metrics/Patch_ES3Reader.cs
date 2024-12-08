@@ -6,6 +6,7 @@ using Unity.Profiling;
 
 namespace LethalPerformance.Metrics;
 [HarmonyPatch]
+[HarmonyPriority(Priority.Last)]
 internal static class Patch_ES3Reader
 {
     private static readonly Stack<ProfilerMarker> s_ProfilerStack = new();
@@ -14,7 +15,7 @@ internal static class Patch_ES3Reader
     [HarmonyPatch(typeof(ES3Reader), nameof(ES3Reader.Create), argumentTypes: [typeof(ES3Settings)])]
     public static void Create(ES3Settings settings)
     {
-        var sampleName = "DiFFoZ.ES3.CreateReader." + settings.path;
+        var sampleName = "DiFFoZ.ES3.Reader." + settings.path;
 
         ProfilerMarker marker = new ProfilerMarker(sampleName);
         marker.Begin();

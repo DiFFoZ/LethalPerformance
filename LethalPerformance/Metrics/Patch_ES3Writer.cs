@@ -6,6 +6,7 @@ using Unity.Profiling;
 
 namespace LethalPerformance.Metrics;
 [HarmonyPatch]
+[HarmonyPriority(Priority.Last)]
 internal static class Patch_ES3Writer
 {
     private static readonly Stack<ProfilerMarker> s_ProfilerStack = new();
@@ -15,7 +16,7 @@ internal static class Patch_ES3Writer
         argumentTypes: [typeof(ES3Settings), typeof(bool), typeof(bool), typeof(bool)])]
     public static void Create(ES3Settings settings)
     {
-        var sampleName = "DiFFoZ.ES3.CreateWriter." + settings.path;
+        var sampleName = "DiFFoZ.ES3.Writer." + settings.path;
 
         ProfilerMarker marker = new ProfilerMarker(sampleName);
         marker.Begin();
