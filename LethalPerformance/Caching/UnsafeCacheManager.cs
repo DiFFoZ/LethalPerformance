@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Dissonance;
 using UnityEngine;
 
-namespace LethalPerformance.Utilities;
+namespace LethalPerformance.Caching;
 internal static class UnsafeCacheManager
 {
     private delegate (bool, MonoBehaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive);
@@ -55,30 +55,34 @@ internal static class UnsafeCacheManager
         AddReference<SoundManager>("/Systems/GameSystems/SoundManager");
         AddReference<ShipBuildModeManager>("/Systems/GameSystems/ShipBuildMode");
         AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread");
+        AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
+        AddReference<BeltBagInventoryUI>("/Systems/UI/Canvas/BeltBagUI");
 
         AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript");
         AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever");
         AddReference<HangarShipDoor>("/Environment/HangarShip/AnimatedShipDoor");
-
-        AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
     }
 
     private static void AddReference<T>(string hierarchyPath) where T : MonoBehaviour
     {
-        var unsafeInstance = new UnsafeCachedInstance<T>(hierarchyPath);
+        var unsafeInstance = new AutoUnsafeCachedInstance<T>(hierarchyPath);
         s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
     }
 
-    public static void AddReferenceToMap<T>(UnsafeCachedInstance<T> unsafeInstance) where T : MonoBehaviour
+    public static UnsafeCachedInstance<T> AddReferenceToMap<T>(UnsafeCachedInstance<T> unsafeInstance) where T : MonoBehaviour
     {
         s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
+        return unsafeInstance;
     }
 
     public static void CacheInstances()
     {
         foreach (var r in UnsafeCachedInstance.UnsafeCachedInstances)
         {
-            r.SaveInstance();
+            if (r is IAutoInstance autoInstance)
+            {
+                autoInstance.SaveInstance();
+            }
         }
     }
 
@@ -86,7 +90,7 @@ internal static class UnsafeCacheManager
     {
         if (s_MapGettingInstance.TryGetValue(type, out var cacheFunc))
         {
-            (bool isFound, Behaviour? cachedInstance) = cacheFunc(findObjectsInactive);
+            (var isFound, Behaviour? cachedInstance) = cacheFunc(findObjectsInactive);
             if (isFound)
             {
                 cache = cachedInstance;

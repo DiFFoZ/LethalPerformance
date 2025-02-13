@@ -1,4 +1,4 @@
-﻿using LethalPerformance.Utilities;
+﻿using LethalPerformance.Caching;
 using UnityEngine;
 
 namespace LethalPerformance.API;

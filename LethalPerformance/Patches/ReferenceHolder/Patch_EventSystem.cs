@@ -1,6 +1,7 @@
 ﻿using System;
 using GameNetcodeStuff;
 using HarmonyLib;
+using LethalPerformance.Caching;
 using LethalPerformance.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;

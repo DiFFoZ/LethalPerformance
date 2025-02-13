@@ -37,5 +37,4 @@ internal static class HDRenderPipelineAssetOptimizer
             LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled volumetric fog as hardware system doesn't support it");
         }
     }
-
 }

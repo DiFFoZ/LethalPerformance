@@ -40,6 +40,7 @@ public class LethalPerformancePatcher
         Dictionary<string, Action<AssemblyDefinition, TypeDefinition>> workList = new()
         {
             { "AudioReverbPresets", (a, t) => AssemblyPatcherUtilities.AddMethod(a, t, "Awake") },
+            { "DepositItemsDesk", (a, t) => AssemblyPatcherUtilities.AddMethod(a, t, "Awake") },
             // todo: detect if BrutalCompanyMinusExtra(Reborn) mod is installed
             // issue: https://github.com/DiFFoZ/LethalPerformance/issues/11
             //{ "animatedSun", (a, t) => AssemblyPatcherUtilities.RemoveMethod(a, t, "Update") },
