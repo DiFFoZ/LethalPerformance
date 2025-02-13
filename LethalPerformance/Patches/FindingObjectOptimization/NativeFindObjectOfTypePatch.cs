@@ -20,7 +20,7 @@ internal static class NativeFindObjectOfTypePatch
     [HarmonyPatch(nameof(Object.FindAnyObjectByType), [typeof(Type), typeof(FindObjectsInactive)])]
     [HarmonyPatch(nameof(Object.FindFirstObjectByType), [typeof(Type), typeof(FindObjectsInactive)])]
     [HarmonyPrefix]
-    public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, ref Object? __result)
+    public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, out Object? __result)
     {
         ShowInProfilerType(type, false);
         return !TryFindObjectFast(type, findObjectsInactive, out __result);
@@ -28,7 +28,7 @@ internal static class NativeFindObjectOfTypePatch
 
     [HarmonyPatch(nameof(Object.FindObjectOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPrefix]
-    public static bool FindObjectFast(Type type, bool includeInactive, ref Object? __result)
+    public static bool FindObjectFast(Type type, bool includeInactive, out Object? __result)
     {
         ShowInProfilerType(type, false);
         return !TryFindObjectFast(type, includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
@@ -54,6 +54,8 @@ internal static class NativeFindObjectOfTypePatch
             name += " (all objects)";
         }
 
+        LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + name);
+
         Profiler.BeginSample(name);
         Profiler.EndSample();
     }
@@ -66,7 +68,7 @@ internal static class NativeFindObjectOfTypePatch
             return true;
         }
 
-#if true
+#if ENABLE_PROFILER
         LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} object");
 #endif
 

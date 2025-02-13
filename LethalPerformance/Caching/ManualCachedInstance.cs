@@ -8,7 +8,6 @@ internal class ManualCachedInstance<T> : UnsafeCachedInstance<T> where T : MonoB
 
     public override (bool, MonoBehaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive)
     {
-        LethalPerformancePlugin.Instance.Logger.LogInfo("Aboba");
         if (Instance == null)
         {
             return (true, null);

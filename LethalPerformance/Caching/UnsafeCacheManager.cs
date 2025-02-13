@@ -56,7 +56,7 @@ internal static class UnsafeCacheManager
         AddReference<ShipBuildModeManager>("/Systems/GameSystems/ShipBuildMode");
         AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread");
         AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
-        AddReference<BeltBagInventoryUI>("/Systems/UI/Canvas/BeltBagUI");
+        AddReference<BeltBagInventoryUI>("/Systems/UI/Canvas/IngamePlayerHUD/BeltBagUI");
 
         AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript");
         AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever");
