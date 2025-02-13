@@ -6,12 +6,12 @@ internal abstract class UnsafeCachedInstance
 {
     public static List<UnsafeCachedInstance> UnsafeCachedInstances { get; private set; } = new();
 
-    public abstract (bool found, MonoBehaviour? instance) TryGetInstance(FindObjectsInactive findObjectsInactive);
+    public abstract (bool found, Behaviour? instance) TryGetInstance(FindObjectsInactive findObjectsInactive);
 
     public abstract void Cleanup();
 }
 
-internal class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : MonoBehaviour
+internal class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : Behaviour
 {
     public T? Instance { get; protected set; }
 
@@ -32,7 +32,7 @@ internal class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : MonoBeha
         Instance = instance;
     }
 
-    public override (bool, MonoBehaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive)
+    public override (bool, Behaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive)
     {
         if (Instance == null)
         {

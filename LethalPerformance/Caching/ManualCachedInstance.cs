@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
 namespace LethalPerformance.Caching;
-internal class ManualCachedInstance<T> : UnsafeCachedInstance<T> where T : MonoBehaviour
+internal class ManualCachedInstance<T> : UnsafeCachedInstance<T> where T : Behaviour
 {
     public ManualCachedInstance() : base()
     { }
 
-    public override (bool, MonoBehaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive)
+    public override (bool, Behaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive)
     {
         if (Instance == null)
         {

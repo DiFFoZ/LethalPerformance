@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace LethalPerformance.Caching;
-internal class AutoUnsafeCachedInstance<T> : UnsafeCachedInstance<T>, IAutoInstance where T : MonoBehaviour
+internal class AutoUnsafeCachedInstance<T> : UnsafeCachedInstance<T>, IAutoInstance where T : Behaviour
 {
     private readonly string m_HierarchyPath;
 

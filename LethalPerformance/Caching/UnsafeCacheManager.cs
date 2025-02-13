@@ -6,7 +6,7 @@ using UnityEngine;
 namespace LethalPerformance.Caching;
 internal static class UnsafeCacheManager
 {
-    private delegate (bool, MonoBehaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive);
+    private delegate (bool, Behaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive);
 
     private static readonly Dictionary<Type, TryGetInstance> s_MapGettingInstance = new()
     {
@@ -57,19 +57,20 @@ internal static class UnsafeCacheManager
         AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread");
         AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
         AddReference<BeltBagInventoryUI>("/Systems/UI/Canvas/IngamePlayerHUD/BeltBagUI");
+        AddReference<AudioListener>("/Systems/Audios/PlayerAudioListener");
 
         AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript");
         AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever");
         AddReference<HangarShipDoor>("/Environment/HangarShip/AnimatedShipDoor");
     }
 
-    private static void AddReference<T>(string hierarchyPath) where T : MonoBehaviour
+    private static void AddReference<T>(string hierarchyPath) where T : Behaviour
     {
         var unsafeInstance = new AutoUnsafeCachedInstance<T>(hierarchyPath);
         s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
     }
 
-    public static UnsafeCachedInstance<T> AddReferenceToMap<T>(UnsafeCachedInstance<T> unsafeInstance) where T : MonoBehaviour
+    public static UnsafeCachedInstance<T> AddReferenceToMap<T>(UnsafeCachedInstance<T> unsafeInstance) where T : Behaviour
     {
         s_MapGettingInstance[typeof(T)] = unsafeInstance.TryGetInstance;
         return unsafeInstance;

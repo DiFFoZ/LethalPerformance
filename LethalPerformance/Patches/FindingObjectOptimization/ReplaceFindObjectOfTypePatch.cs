@@ -90,6 +90,7 @@ internal static class ReplaceFindObjectOfTypePatch
         yield return type.GetMethod(nameof(StartOfRound.ResetMoldStates), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.PowerSurgeShip), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.PassTimeToNextDay), AccessTools.all);
+        yield return type.GetMethod(nameof(StartOfRound.GetBodiesInShip), AccessTools.all);
         yield return AccessTools.EnumeratorMoveNext(type.GetMethod(nameof(StartOfRound.TravelToLevelEffects), AccessTools.all));
 
         type = typeof(Shovel);
