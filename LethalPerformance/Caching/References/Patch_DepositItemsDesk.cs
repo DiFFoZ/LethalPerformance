@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
-using LethalPerformance.Caching;
 
-namespace LethalPerformance.Patches;
+namespace LethalPerformance.Caching.References;
 [HarmonyPatch(typeof(DepositItemsDesk))]
 internal static class Patch_DepositItemsDesk
 {

@@ -6,7 +6,7 @@ using HarmonyLib;
 using LethalPerformance.API;
 using LethalPerformance.Patcher.API;
 
-namespace LethalPerformance.Patches.FindingObjectOptimization;
+namespace LethalPerformance.Caching.FindingObjectOptimization;
 [HarmonyPatch]
 [HarmonyPriority(Priority.VeryLow)]
 internal static class ReplaceFindObjectOfTypePatch
@@ -23,7 +23,7 @@ internal static class ReplaceFindObjectOfTypePatch
         { typeof(ShipBuildModeManager), AccessTools.PropertyGetter(typeof(ShipBuildModeManager), nameof(ShipBuildModeManager.Instance)) },
         { typeof(SoundManager), AccessTools.PropertyGetter(typeof(SoundManager), nameof(SoundManager.Instance)) },
         { typeof(SteamManager), AccessTools.PropertyGetter(typeof(SteamManager), nameof(SteamManager.Instance)) },
-    }; 
+    };
 
     private static readonly HashSet<Type> s_ExcludedTypes = [];
 

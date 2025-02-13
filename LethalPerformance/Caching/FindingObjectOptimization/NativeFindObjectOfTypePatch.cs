@@ -6,7 +6,7 @@ using LethalPerformance.Patcher.API;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace LethalPerformance.Patches.FindingObjectOptimization;
+namespace LethalPerformance.Caching.FindingObjectOptimization;
 
 [HarmonyPatch(typeof(Object))]
 internal static class NativeFindObjectOfTypePatch
@@ -54,7 +54,11 @@ internal static class NativeFindObjectOfTypePatch
             name += " (all objects)";
         }
 
-        LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + name);
+        LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
+        if (findAllObjects)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
+        }
 
         Profiler.BeginSample(name);
         Profiler.EndSample();

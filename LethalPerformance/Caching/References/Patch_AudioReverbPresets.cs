@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
-using LethalPerformance.Caching;
 
-namespace LethalPerformance.Patches;
+namespace LethalPerformance.Caching.References;
 [HarmonyPatch(typeof(AudioReverbPresets))]
 internal static class Patch_AudioReverbPresets
 {
@@ -13,7 +12,7 @@ internal static class Patch_AudioReverbPresets
     public static void Prepare() { }
 
     [HarmonyPatch("Awake")] // was added by preloader
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     public static void Awake(AudioReverbPresets __instance)
     {
         s_Instance.SetInstance(__instance);
