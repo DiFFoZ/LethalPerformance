@@ -13,6 +13,8 @@ public class ConfigManager
 
     public ConfigEntry<bool> ShouldSpawnEnemies { get; }
 
+    public ConfigEntry<LevelWeatherType> OverriddenWeather { get; }
+
     public ConfigManager(ConfigFile config)
     {
         OverriddenSeed = config.Bind("Debug", "Seed generation", 0);
@@ -24,5 +26,7 @@ public class ConfigManager
         TeleportToPositionButton = config.Bind("Debug", "Teleport to position button", new KeyboardShortcut(KeyCode.Equals));
 
         ShouldSpawnEnemies = config.Bind("Debug", "Should Spawn Enemies", true);
+
+        OverriddenWeather = config.Bind("Weather", "Weather override", LevelWeatherType.None);
     }
 }

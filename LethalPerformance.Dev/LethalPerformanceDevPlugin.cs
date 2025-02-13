@@ -39,7 +39,7 @@ internal class LethalPerformanceDevPlugin : BaseUnityPlugin
     {
         var targetFps = isFocused ? 60 : 30;
 
-        Application.targetFrameRate = targetFps;
+        //Application.targetFrameRate = targetFps;
     }
 
     private void InitializePositionTeleporter()

@@ -32,6 +32,24 @@ internal static class Patch_StartOfRound
         StartOfRound.Instance.overrideSeedNumber = newSeed;
     }
 
+    [HarmonyPatch(nameof(StartOfRound.SetPlanetsWeather))]
+    [HarmonyPrefix]
+    public static bool SetPlanetWeather(StartOfRound __instance)
+    {
+        var weather = LethalPerformanceDevPlugin.Instance.Config.OverriddenWeather.Value;
+        if (weather is LevelWeatherType.None)
+        {
+            return true;
+        }
+
+        foreach (var level in __instance.levels)
+        {
+            level.currentWeather = weather;
+        }
+
+        return false;
+    }
+
     private static void ChangeWindowTitle()
     {
         var handle = Process.GetCurrentProcess().MainWindowHandle;
