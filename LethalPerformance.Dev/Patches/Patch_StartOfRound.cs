@@ -61,6 +61,7 @@ internal static class Patch_StartOfRound
 
         var isServer = NetworkManager.Singleton.IsServer;
         WindowAPI.SetWindowText(handle, $"Lethal Company - {(isServer ? "Server" : "Client")}");
+        WindowAPI.SetConsoleTitle($"Lethal Company - {(isServer ? "Server" : "Client")}");
     }
 
     [HarmonyPatch(nameof(StartOfRound.PlayFirstDayShipAnimation))]
@@ -75,5 +76,9 @@ internal static class Patch_StartOfRound
         [DllImport("User32.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowText(IntPtr hWnd, string text);
+
+        [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetConsoleTitle(string title);
     }
 }
