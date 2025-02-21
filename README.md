@@ -1,7 +1,12 @@
 # LethalPerformance
 Optimizes CPU time and minimizes GC allocation. It should help with lag spikes, so your frametime will be smoother.
 
+For discussing the mod you can use Discord: 
+[Discord Channel](https://discord.gg/XeyYqRdRGC) // [Discord Thread](https://canary.discord.com/channels/1168655651455639582/1253705079605956640)
+
 ## Features
+- Optimizes a lot things for less lag spikes
+- Optimizes some mods, like `MoreSuits`
 - Adds key bind to Unity logs folder <code>Ctrl Shift L</code>
 
 ## Help
