@@ -46,12 +46,13 @@ internal static class Patch_ES3
     [HarmonyPostfix]
     private static void DeleteCachedFile(ES3Settings settings)
     {
-        if (!ES3File.cachedFiles.ContainsKey(settings.path))
+        if (settings._location is ES3.Location.Cache
+            && !ES3File.cachedFiles.ContainsKey(settings.path))
         {
-            ES3.DeleteFile(new ES3Settings(settings.path)
+            ES3IO.DeleteFile(new ES3Settings(settings.path)
             {
                 _location = ES3.Location.File
-            });
+            }.FullPath);
         }
     }
 

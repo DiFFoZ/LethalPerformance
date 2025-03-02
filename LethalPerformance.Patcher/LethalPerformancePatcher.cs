@@ -144,6 +144,14 @@ public class LethalPerformancePatcher
 
     private static void PatchSerialize(AssemblyDefinition assembly, TypeDefinition es3Type)
     {
+        // due to some mods (LCModDataLib) that call ES3.Save<object>(string) method
+        // makes ES3 to confuse and write type header to the value.
+        // By patching Serialize to use GetType() instead of typeof() we are escaping this issue
+
+        // If you're concern about null values, then it's ES3 error. ES3 cannot serialize object of null value,
+        // it will throw null reference exception
+
+
         // Serialize<T>(T value, ES3Settings settings)
         var serializeMethod = es3Type.Methods.FirstOrDefault(m => m.Name == "Serialize"
             && m.Parameters.Count == 2);
