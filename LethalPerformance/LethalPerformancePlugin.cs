@@ -8,6 +8,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using LethalPerformance.Configuration;
 using LethalPerformance.Patcher.API;
+using LethalPerformance.Utilities;
 using Unity.Burst.LowLevel;
 using UnityEngine;
 
@@ -23,6 +24,8 @@ public class LethalPerformancePlugin : BaseUnityPlugin
     internal string WorkingDirectory { get; private set; } = null!;
     internal ConfigManager Configuration { get; private set; } = null!;
     internal Harmony? Harmony { get; private set; }
+
+    internal ES3SaverTask ES3SaverTask { get; } = new();
 
     private void Awake()
     {
@@ -40,8 +43,8 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 #endif
 
         LoadGameBurstLib();
-        CallInitializeOnAwake();
         InitializeHarmony();
+        CallInitializeOnAwake();
         InitializeSaveScheduler();
     }
 

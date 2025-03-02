@@ -7,6 +7,8 @@ using HarmonyLib;
 using LethalPerformance.Patcher.TomlConverters;
 using LethalPerformance.Patcher.Utilities;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
+using MonoMod.Utils;
 
 namespace LethalPerformance.Patcher;
 public class LethalPerformancePatcher
@@ -31,12 +33,18 @@ public class LethalPerformancePatcher
     }
 
     // cannot be removed, BepInEx checks it
-    public static IEnumerable<string> TargetDLLs { get; } = ["Assembly-CSharp.dll"];
+    public static IEnumerable<string> TargetDLLs { get; } = ["Assembly-CSharp.dll", "Assembly-CSharp-firstpass.dll"];
 
     // cannot be removed, BepInEx checks it
     // https://github.com/BepInEx/BepInEx/blob/v5-lts/BepInEx.Preloader/Patching/AssemblyPatcher.cs#L67
     public static void Patch(AssemblyDefinition assembly)
     {
+        if (assembly.Name.Name == "Assembly-CSharp-firstpass")
+        {
+            PatchES3(assembly);
+            return;
+        }
+
         Dictionary<string, Action<AssemblyDefinition, TypeDefinition>> workList = new()
         {
             { "AudioReverbPresets", (a, t) => AssemblyPatcherUtilities.AddMethod(a, t, "Awake") },
@@ -46,10 +54,9 @@ public class LethalPerformancePatcher
             //{ "animatedSun", (a, t) => AssemblyPatcherUtilities.RemoveMethod(a, t, "Update") },
         };
 
-        var types = assembly.MainModule.Types;
         foreach ((string typeName, Action<AssemblyDefinition, TypeDefinition> action) in workList)
         {
-            var type = types.FirstOrDefault(t => t.Name == typeName);
+            var type = assembly.MainModule.GetType(typeName);
             if (type == null)
             {
                 Logger.LogWarning("Failed to patch " + typeName);
@@ -58,5 +65,92 @@ public class LethalPerformancePatcher
 
             action(assembly, type);
         }
+    }
+
+    private static void PatchES3(AssemblyDefinition assembly)
+    {
+        var es3Type = assembly.MainModule.GetType("ES3");
+        var es3SettingsType = assembly.MainModule.GetType("ES3Settings");
+
+        PatchSave(assembly, es3Type, es3SettingsType);
+        PatchLoad(assembly, es3Type, es3SettingsType);
+    }
+
+    private static void PatchSave(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType)
+    {
+        var origSaveMethod = es3Type.Methods.FirstOrDefault(m => m.Name == "Save"
+                    && m.Parameters.Count == 3
+                    && m.Parameters[2].ParameterType.Name == "ES3Settings"
+                    && m.HasGenericParameters);
+
+        if (origSaveMethod == null)
+        {
+            Logger.LogWarning("ES3.Save doesn't exists. Removed by other mod?");
+            return;
+        }
+
+        var newSaveMethod = AddNonGenericMethod(assembly, es3Type, es3SettingsType, "LethalPerformance_Save");
+
+        origSaveMethod.Body.Instructions.InsertRange(0, [
+            Instruction.Create(OpCodes.Ldarg, origSaveMethod.Parameters[^1]), // load ES3Settings
+            Instruction.Create(OpCodes.Call, newSaveMethod)
+            ]);
+    }
+
+    private static void PatchLoad(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType)
+    {
+        var origLoadMethods = es3Type.Methods.Where(m =>
+        {
+            if (m.Name != "Load" || !m.ReturnType.IsGenericParameter)
+            {
+                return false;
+            }
+
+            if (m.Parameters.Count == 2
+                && m.Parameters[0].ParameterType.Name == "String"
+                && m.Parameters[1].ParameterType.Name == "ES3Settings")
+            {
+                return true;
+            }
+            else if (m.Parameters.Count == 3
+                && m.Parameters[0].ParameterType.Name == "String"
+                && m.Parameters[1].ParameterType.IsGenericParameter
+                && m.Parameters[2].ParameterType.Name == "ES3Settings")
+            {
+                return true;
+            }
+
+            return false;
+        }).ToList();
+
+        if (origLoadMethods.Count != 2)
+        {
+            Logger.LogWarning("Detected ES3.Load mismatch of count");
+            return;
+        }
+
+        var newLoadMethod = AddNonGenericMethod(assembly, es3Type, es3SettingsType, "LethalPerformance_Load");
+
+        foreach (var origLoadMethod in origLoadMethods)
+        {
+            origLoadMethod.Body.Instructions.InsertRange(0, [
+                Instruction.Create(OpCodes.Ldarg, origLoadMethod.Parameters[^1]), // load ES3Settings
+                Instruction.Create(OpCodes.Call, newLoadMethod)
+                ]);
+        }
+    }
+
+    private static MethodDefinition AddNonGenericMethod(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType,
+        string name)
+    {
+        var saveMethod = new MethodDefinition(name,
+            MethodAttributes.Public | MethodAttributes.Static,
+            assembly.MainModule.TypeSystem.Void);
+
+        saveMethod.Parameters.Add(new ParameterDefinition("settings", ParameterAttributes.None, es3SettingsType));
+        saveMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+        es3Type.Methods.Add(saveMethod);
+        return saveMethod;
     }
 }
