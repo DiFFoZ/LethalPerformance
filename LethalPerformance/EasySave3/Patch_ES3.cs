@@ -27,7 +27,7 @@ internal static class Patch_ES3
         CheckAndForceCache(settings);
         LoadFileToCache(settings);
 
-        LethalPerformancePlugin.Instance.Logger.LogFatal("[ES3 Load] " + settings.path);
+        //LethalPerformancePlugin.Instance.Logger.LogFatal("[ES3 Load] " + settings.path);
     }
 
     [HarmonyPatch("LethalPerformance_Save")] // added by preloader
@@ -39,7 +39,7 @@ internal static class Patch_ES3
 
         LethalPerformancePlugin.Instance.ES3SaverTask.ScheduleSaveFor(settings.path);
 
-        LethalPerformancePlugin.Instance.Logger.LogFatal("[ES3 Save] " + settings.path);
+        //LethalPerformancePlugin.Instance.Logger.LogFatal("[ES3 Save] " + settings.path);
     }
 
     [HarmonyPatch(nameof(ES3.DeleteFile), [typeof(ES3Settings)])]
