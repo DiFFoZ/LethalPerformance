@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Pre-release [0.0.101] 2025-03-02
+### Fixed
+- Diversity intro cutscene plays every session.
+
 ## Pre-release [0.0.100] 2025-03-02
 ES3 caching is here! yay<br>
 
