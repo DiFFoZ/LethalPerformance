@@ -27,7 +27,7 @@ internal class ES3SaverTask
 
             file.Sync(new ES3Settings(path)
             {
-                encryptionType = GetEncryptionType(path),
+                encryptionType = ES3.EncryptionType.AES,
                 _location = ES3.Location.File
             });
         }
@@ -35,13 +35,5 @@ internal class ES3SaverTask
         LethalPerformancePatcher.Logger.LogInfo($"Saved {m_ChangedSaves.Count} save(s)");
 
         m_ChangedSaves.Clear();
-    }
-
-    private static ES3.EncryptionType GetEncryptionType(string path)
-    {
-        // forcing AES only for LCGeneralSaveData(.moddata)
-        // the only main reason is to not reset generic save, because LethalPerformance is not loaded
-
-        return path.StartsWith("LCGeneralSaveData") ? ES3.EncryptionType.AES : ES3.EncryptionType.None;
     }
 }
