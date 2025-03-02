@@ -5,9 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Pre-release [0.0.100] 2025-03-02
+ES3 caching is here! yay<br>
+
+**Precaution:**<br>
+**If you load the game without `LethalPerformance` after playing with it, you will not able to get your saves to get loaded!**
+
 ### Added
 - Caching of AudioListener, DepositItemsDesk, BeltBagInventoryUI.
+- Caching of ES3 files.
+- Saving ES3 files as unencrypted. Note that `LCGeneralSaveData` is still will be encrypted.
 
 ## [0.5.1] 2025-01-27
 ### Fixed
