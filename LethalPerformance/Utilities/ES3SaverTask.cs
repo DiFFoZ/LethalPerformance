@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using LethalPerformance.Patcher;
 
 namespace LethalPerformance.Utilities;
@@ -28,7 +27,8 @@ internal class ES3SaverTask
 
             file.Sync(new ES3Settings(path)
             {
-                encryptionType = GetEncryptionType(path)
+                encryptionType = GetEncryptionType(path),
+                _location = ES3.Location.File
             });
         }
 
@@ -39,14 +39,9 @@ internal class ES3SaverTask
 
     private static ES3.EncryptionType GetEncryptionType(string path)
     {
-        // only forcing no encryption for saves
-        // todo:
-        // - add no encryption for generic save?
-        // - compact with other mods (CodeRebirth, TooManyEmotes, BetterEXP)
-        // - no encryption for "LCChallengeFile"?
+        // forcing AES only for LCGeneralSaveData(.moddata)
+        // the only main reason is to not reset generic save, because LethalPerformance is not loaded
 
-        return ES3.EncryptionType.None;
-
-        return path.StartsWith("LCSaveFile") ? ES3.EncryptionType.None : ES3.EncryptionType.AES;
+        return path.StartsWith("LCGeneralSaveData") ? ES3.EncryptionType.AES : ES3.EncryptionType.None;
     }
 }
