@@ -74,6 +74,8 @@ public class LethalPerformancePatcher
 
         PatchSave(assembly, es3Type, es3SettingsType);
         PatchLoad(assembly, es3Type, es3SettingsType);
+
+        PatchSerialize(assembly, es3Type);
     }
 
     private static void PatchSave(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType)
@@ -138,6 +140,34 @@ public class LethalPerformancePatcher
                 Instruction.Create(OpCodes.Call, newLoadMethod)
                 ]);
         }
+    }
+
+    private static void PatchSerialize(AssemblyDefinition assembly, TypeDefinition es3Type)
+    {
+        // Serialize<T>(T value, ES3Settings settings)
+        var serializeMethod = es3Type.Methods.FirstOrDefault(m => m.Name == "Serialize"
+            && m.Parameters.Count == 2);
+
+        // Serialize(object value, ES3Type type, ES3Settings settings)
+        var newSerializeMethod = es3Type.Methods.FirstOrDefault(m => m.Name == "Serialize"
+            && m.Parameters.Count == 3);
+
+        var es3TypeManagerGetOrCreateMethod = assembly.MainModule.GetType("ES3Internal.ES3TypeMgr")
+            .Methods.FirstOrDefault(m => m.Name == "GetOrCreateES3Type");
+
+        serializeMethod.Body.Instructions.Clear();
+        serializeMethod.Body.Instructions.AddRange([
+            Instruction.Create(OpCodes.Ldarg_0),
+            Instruction.Create(OpCodes.Box, serializeMethod.Parameters[0].ParameterType), // T!! value to object
+            Instruction.Create(OpCodes.Ldarga, serializeMethod.Parameters[0]), // load 'value'
+            Instruction.Create(OpCodes.Constrained, serializeMethod.Parameters[0].ParameterType),
+            Instruction.Create(OpCodes.Callvirt, assembly.MainModule.ImportReference(typeof(object).GetMethod("GetType"))),
+            Instruction.Create(OpCodes.Ldc_I4_1), // "true"
+            Instruction.Create(OpCodes.Call, es3TypeManagerGetOrCreateMethod),
+            Instruction.Create(OpCodes.Ldarg_1),
+            Instruction.Create(OpCodes.Call, newSerializeMethod),
+            Instruction.Create(OpCodes.Ret),
+            ]);
     }
 
     private static MethodDefinition AddNonGenericMethod(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType,

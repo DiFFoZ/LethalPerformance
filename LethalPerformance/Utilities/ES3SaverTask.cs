@@ -27,7 +27,7 @@ internal class ES3SaverTask
 
             file.Sync(new ES3Settings(path)
             {
-                encryptionType = ES3.EncryptionType.AES,
+                encryptionType = ES3.EncryptionType.None,
                 _location = ES3.Location.File
             });
         }

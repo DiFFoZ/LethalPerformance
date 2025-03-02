@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +26,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
     internal ES3SaverTask ES3SaverTask { get; } = new();
 
-    private void Awake()
+    protected void Awake()
     {
         Instance = this;
         Logger = base.Logger;
