@@ -4,11 +4,11 @@ using LethalPerformance.Patcher;
 namespace LethalPerformance.Utilities;
 internal class ES3SaverTask
 {
-    private readonly HashSet<string> m_ChangedSaves = new();
+    private readonly HashSet<ES3File> m_ChangedSaves = new();
 
-    public void ScheduleSaveFor(string path)
+    public void ScheduleSaveFor(ES3File file)
     {
-        m_ChangedSaves.Add(path);
+        m_ChangedSaves.Add(file);
     }
 
     public void SaveIfDirty()
@@ -18,10 +18,11 @@ internal class ES3SaverTask
             return;
         }
 
-        foreach (var path in m_ChangedSaves)
+        foreach (var file in m_ChangedSaves)
         {
-            if (!ES3File.cachedFiles.TryGetValue(path, out var file))
+            if (!TryGetPath(file, out var path))
             {
+                LethalPerformancePlugin.Instance.Logger.LogWarning($"Got unknown cached save");
                 continue;
             }
 
@@ -32,8 +33,23 @@ internal class ES3SaverTask
             });
         }
 
-        LethalPerformancePatcher.Logger.LogInfo($"Saved {m_ChangedSaves.Count} save(s)");
+        LethalPerformancePlugin.Instance.Logger.LogInfo($"Saved {m_ChangedSaves.Count} save(s)");
 
         m_ChangedSaves.Clear();
+    }
+
+    private static bool TryGetPath(ES3File file, out string? path)
+    {
+        foreach (var kv in ES3File.cachedFiles)
+        {
+            if (kv.Value == file)
+            {
+                path = kv.Key;
+                return true;
+            }
+        }
+
+        path = null;
+        return false;
     }
 }

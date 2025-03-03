@@ -13,8 +13,8 @@ using MonoMod.Utils;
 namespace LethalPerformance.Patcher;
 public class LethalPerformancePatcher
 {
-    public static Harmony? Harmony { get; set; }
-    public static ManualLogSource Logger { get; } = BepInEx.Logging.Logger.CreateLogSource("LethalPeformance.Patcher");
+    internal static Harmony? Harmony { get; set; }
+    internal static ManualLogSource Logger { get; } = BepInEx.Logging.Logger.CreateLogSource("LethalPerformance.Patcher");
     public static ConfigSaverTask ConfigSaverTask { get; } = new();
 
     public static void Finish()
@@ -76,6 +76,21 @@ public class LethalPerformancePatcher
         PatchLoad(assembly, es3Type, es3SettingsType);
 
         PatchSerialize(assembly, es3Type);
+
+        var es3FileType = assembly.MainModule.GetType("ES3File");
+        PatchFileSave(assembly, es3FileType, es3SettingsType);
+    }
+
+    private static void PatchFileSave(AssemblyDefinition assembly, TypeDefinition es3FileType, TypeDefinition es3SettingsType)
+    {
+        var saveMethod = es3FileType.Methods.FirstOrDefault(m => m.Name == "Save");
+
+        var newSaveMethod = AddNonGenericMethod(assembly, es3FileType, null,
+            "LethalPerformance_Save", MethodAttributes.Public);
+        saveMethod.Body.Instructions.InsertRange(0, [
+            Instruction.Create(OpCodes.Ldarg_0),
+            Instruction.Create(OpCodes.Call, newSaveMethod),
+        ]);
     }
 
     private static void PatchSave(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType)
@@ -91,7 +106,8 @@ public class LethalPerformancePatcher
             return;
         }
 
-        var newSaveMethod = AddNonGenericMethod(assembly, es3Type, es3SettingsType, "LethalPerformance_Save");
+        var parameter = new ParameterDefinition("settings", ParameterAttributes.None, es3SettingsType);
+        var newSaveMethod = AddNonGenericMethod(assembly, es3Type, parameter, "LethalPerformance_Save");
 
         origSaveMethod.Body.Instructions.InsertRange(0, [
             Instruction.Create(OpCodes.Ldarg, origSaveMethod.Parameters[^1]), // load ES3Settings
@@ -131,7 +147,8 @@ public class LethalPerformancePatcher
             return;
         }
 
-        var newLoadMethod = AddNonGenericMethod(assembly, es3Type, es3SettingsType, "LethalPerformance_Load");
+        var parameter = new ParameterDefinition("settings", ParameterAttributes.None, es3SettingsType);
+        var newLoadMethod = AddNonGenericMethod(assembly, es3Type, parameter, "LethalPerformance_Load");
 
         foreach (var origLoadMethod in origLoadMethods)
         {
@@ -178,14 +195,18 @@ public class LethalPerformancePatcher
             ]);
     }
 
-    private static MethodDefinition AddNonGenericMethod(AssemblyDefinition assembly, TypeDefinition es3Type, TypeReference es3SettingsType,
-        string name)
+    private static MethodDefinition AddNonGenericMethod(AssemblyDefinition assembly, TypeDefinition es3Type, ParameterDefinition? parameter,
+        string name, MethodAttributes attributes = MethodAttributes.Public | MethodAttributes.Static)
     {
         var saveMethod = new MethodDefinition(name,
-            MethodAttributes.Public | MethodAttributes.Static,
+            attributes,
             assembly.MainModule.TypeSystem.Void);
 
-        saveMethod.Parameters.Add(new ParameterDefinition("settings", ParameterAttributes.None, es3SettingsType));
+        if (parameter != null)
+        {
+            saveMethod.Parameters.Add(parameter);
+        }
+        
         saveMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
         es3Type.Methods.Add(saveMethod);

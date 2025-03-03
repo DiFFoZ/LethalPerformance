@@ -8,6 +8,14 @@ internal static class Patch_ES3File
     [HarmonyPrefix]
     public static void KeyExists(ES3Settings settings)
     {
-        Patch_ES3.LoadFileToCache(settings);
+        ES3Utilities.ForceToCache(settings);
+        ES3Utilities.LoadFileToCache(settings);
+    }
+
+    [HarmonyPatch("LethalPerformance_Save")] // added by preloader
+    [HarmonyPrefix]
+    public static void ScheduleSave(ES3File __instance)
+    {
+        LethalPerformancePlugin.Instance.ES3SaverTask.ScheduleSaveFor(__instance);
     }
 }
