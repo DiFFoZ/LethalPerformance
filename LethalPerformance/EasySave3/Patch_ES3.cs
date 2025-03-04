@@ -44,8 +44,9 @@ internal static class Patch_ES3
 
     [HarmonyPatch(nameof(ES3.GetKeys), [typeof(ES3Settings)])]
     [HarmonyPatch(nameof(ES3.KeyExists), [typeof(string), typeof(ES3Settings)])]
+    [HarmonyPatch(nameof(ES3.DeleteKey), [typeof(string), typeof(ES3Settings)])]
     [HarmonyPrefix]
-    internal static void GetKeys(ES3Settings settings)
+    internal static void UseCache(ES3Settings settings)
     {
         ES3Utilities.ForceToCache(settings);
         ES3Utilities.LoadFileToCache(settings);
