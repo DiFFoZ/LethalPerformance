@@ -37,16 +37,19 @@ internal static class NativeFindObjectOfTypePatch
 
     [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
     [HarmonyPrefix]
-    public static void FindObjectsFast(Type type, bool includeInactive, out Object[]? __result)
+    public static bool FindObjectsFast(Type type, bool includeInactive, out Object[]? __result)
     {
         ShowInProfilerType(type, true);
+        return !TryFindObjectsFast(type, includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
+            out __result);
     }
 
     [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
     [HarmonyPrefix]
-    public static void FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, out Object[]? __result)
+    public static bool FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, out Object[]? __result)
     {
         ShowInProfilerType(type, true);
+        return !TryFindObjectsFast(type, findObjectsInactive, out __result);
     }
 
     [Conditional("ENABLE_PROFILER")]
@@ -70,9 +73,8 @@ internal static class NativeFindObjectOfTypePatch
 
     public static bool TryFindObjectFast(Type type, FindObjectsInactive findObjectsInactive, out Object? result)
     {
-        if (UnsafeCacheManager.TryGetCachedReference(type, findObjectsInactive, out var cache))
+        if (UnsafeCacheManager.TryGetCachedReference(type, findObjectsInactive, out result))
         {
-            result = cache;
             return true;
         }
 
@@ -86,6 +88,16 @@ internal static class NativeFindObjectOfTypePatch
 
     public static bool TryFindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, out Object[]? result)
     {
+        if (UnsafeCacheManager.TryGetCachedReferences(type, findObjectsInactive, out result))
+        {
+            return true;
+        }
 
+#if ENABLE_PROFILER
+        LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} objects");
+#endif
+
+        result = null;
+        return false;
     }
 }

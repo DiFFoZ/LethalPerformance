@@ -27,6 +27,12 @@ internal static class UnsafeCacheManager
     {
         [typeof(PlayerVoiceIngameSettings)] = (inactive) =>
         {
+            if (inactive is FindObjectsInactive.Include)
+            {
+                LethalPerformancePlugin.Instance.Logger.LogWarning("Not expecting finding inactive PlayerVoiceIngameSettings");
+                return (false, null);
+            }
+
             if (!TryGetCachedBehaviour<DissonanceComms>(inactive, out var comms))
             {
                 return (false, null);
@@ -110,6 +116,11 @@ internal static class UnsafeCacheManager
                 cache = cachedInstances;
                 return true;
             }
+        }
+
+        if (s_MapGettingInstance.ContainsKey(type))
+        {
+            LethalPerformancePlugin.Instance.Logger.LogWarning($"Woah! Someone requests to search of all {type.Name} objects, even if it's singleton.\nPlease report to the dev");
         }
 
         cache = null;
