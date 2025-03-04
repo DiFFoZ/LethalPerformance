@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx.Bootstrap;
 using HarmonyLib;
+using LethalPerformance.Patcher.API;
 using UnityEngine;
 
 namespace LethalPerformance.Patches.Mods;
@@ -28,6 +30,12 @@ internal static class Patch_MoreSuits
         {
             LethalPerformancePlugin.Instance.Logger.LogWarning("Failed to find MoreSuits method to patch");
         }
+    }
+
+    [HarmonyCleanup]
+    public static Exception? Cleanup(Exception exception)
+    {
+        return HarmonyExceptionHandler.ReportException(exception);
     }
 
     [HarmonyPrepare]

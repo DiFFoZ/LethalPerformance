@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Dissonance;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace LethalPerformance.Caching;
 internal static class UnsafeCacheManager
 {
     private delegate (bool, Behaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive);
+    private delegate (bool, Behaviour[]?) TryGetInstances(FindObjectsInactive findObjectsInactive);
 
     private static readonly Dictionary<Type, TryGetInstance> s_MapGettingInstance = new()
     {
@@ -18,37 +21,31 @@ internal static class UnsafeCacheManager
         [typeof(GlobalEffects)] = (_) => (GlobalEffects.Instance, GlobalEffects.Instance),
         [typeof(IngamePlayerSettings)] = (_) => (true, IngamePlayerSettings.Instance),
         [typeof(SteamManager)] = (_) => (true, SteamManager.Instance),
-        // dissonance comms is also used in main menu, so checking for null here
-        [typeof(DissonanceComms)] = (_) =>
+    };
+
+    private static readonly Dictionary<Type, TryGetInstances> s_MapGettingInstances = new()
+    {
+        [typeof(PlayerVoiceIngameSettings)] = (inactive) =>
         {
-            if (StartOfRound.Instance != null && StartOfRound.Instance.voiceChatModule != null)
-            {
-                return (true, StartOfRound.Instance.voiceChatModule);
-            }
-            return (false, null);
-        },
-        // check the comment inside of TryGetOnlyActiveInstance
-        [typeof(QuickMenuManager)] = (findObjectInactive) =>
-        {
-            if (GameNetworkManager.Instance == null
-                || GameNetworkManager.Instance.localPlayerController == null
-                || GameNetworkManager.Instance.localPlayerController.quickMenuManager == null)
+            if (!TryGetCachedBehaviour<DissonanceComms>(inactive, out var comms))
             {
                 return (false, null);
             }
 
-            var menu = GameNetworkManager.Instance.localPlayerController.quickMenuManager;
-            if (findObjectInactive is FindObjectsInactive.Exclude && !menu.isActiveAndEnabled)
+            var voices = new PlayerVoiceIngameSettings[comms._players._players.Count];
+            for (var i = 0; i < voices.Length; i++)
             {
-                return (true, null);
+                var playback = (MonoBehaviour)comms._players._players[i].Playback!;
+                voices[i] = playback.GetComponent<PlayerVoiceIngameSettings>();
             }
 
-            return (true, menu);
+            return (true, voices);
         }
     };
 
     static UnsafeCacheManager()
     {
+        AddReference<DissonanceComms>("/Systems/DissonanceSetup");
         AddReference<RoundManager>("/Systems/GameSystems/RoundManager");
         AddReference<QuickMenuManager>("/Systems/GameSystems/QuickMenuManager");
         AddReference<TimeOfDay>("/Systems/GameSystems/TimeAndWeather");
@@ -103,6 +100,22 @@ internal static class UnsafeCacheManager
         return false;
     }
 
+    public static bool TryGetCachedReferences(Type type, FindObjectsInactive findObjectsInactive, out Object[]? cache)
+    {
+        if (s_MapGettingInstances.TryGetValue(type, out var cacheFunc))
+        {
+            (var isFound, Behaviour[]? cachedInstances) = cacheFunc(findObjectsInactive);
+            if (isFound)
+            {
+                cache = cachedInstances;
+                return true;
+            }
+        }
+
+        cache = null;
+        return false;
+    }
+
     public static void CleanupCache()
     {
         foreach (var r in UnsafeCachedInstance.UnsafeCachedInstances)
@@ -110,5 +123,17 @@ internal static class UnsafeCacheManager
             r.Cleanup();
         }
         // do not Clear the list
+    }
+
+    private static bool TryGetCachedBehaviour<T>(FindObjectsInactive findObjectsInactive, [NotNullWhen(true)] out T? result) where T : Behaviour
+    {
+        if (TryGetCachedReference(typeof(T), findObjectsInactive, out var cache))
+        {
+            result = (T)cache!;
+            return true;
+        }
+
+        result = null;
+        return false;
     }
 }

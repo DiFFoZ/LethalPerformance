@@ -35,15 +35,19 @@ internal static class NativeFindObjectOfTypePatch
             out __result);
     }
 
-#if ENABLE_PROFILER
-    [HarmonyPatch(nameof(Object.FindObjectsOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
     [HarmonyPrefix]
-    public static void FindObjectsFast(Type type)
+    public static void FindObjectsFast(Type type, bool includeInactive, out Object[]? __result)
     {
         ShowInProfilerType(type, true);
     }
-#endif
+
+    [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
+    [HarmonyPrefix]
+    public static void FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, out Object[]? __result)
+    {
+        ShowInProfilerType(type, true);
+    }
 
     [Conditional("ENABLE_PROFILER")]
     private static void ShowInProfilerType(Type type, bool findAllObjects)
@@ -64,11 +68,11 @@ internal static class NativeFindObjectOfTypePatch
         Profiler.EndSample();
     }
 
-    public static bool TryFindObjectFast(Type type, FindObjectsInactive findObjectsInactive, out Object? __result)
+    public static bool TryFindObjectFast(Type type, FindObjectsInactive findObjectsInactive, out Object? result)
     {
         if (UnsafeCacheManager.TryGetCachedReference(type, findObjectsInactive, out var cache))
         {
-            __result = cache;
+            result = cache;
             return true;
         }
 
@@ -76,7 +80,12 @@ internal static class NativeFindObjectOfTypePatch
         LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} object");
 #endif
 
-        __result = null;
+        result = null;
         return false;
+    }
+
+    public static bool TryFindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, out Object[]? result)
+    {
+
     }
 }
