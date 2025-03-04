@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Pre-release [0.0.106] 2025-03-04
+### Changed
+- Updated readme to include Lethal Sponge mod.
+### Fixed
+- Lag spike during saving due to deleting save keys.
+
 ## Pre-release [0.0.105] 2025-03-03
 ### Fixed
 - LCBetterSave and SmartItemSaving throwing exception, because of cached saving feature.
