@@ -18,6 +18,7 @@ internal class ES3SaverTask
             return;
         }
 
+        var count = 0;
         foreach (var file in m_ChangedSaves)
         {
             if (!TryGetPath(file, out var path))
@@ -26,6 +27,7 @@ internal class ES3SaverTask
                 continue;
             }
 
+            count++;
             file.Sync(new ES3Settings(path)
             {
                 encryptionType = ES3.EncryptionType.AES,
@@ -33,7 +35,7 @@ internal class ES3SaverTask
             });
         }
 
-        LethalPerformancePlugin.Instance.Logger.LogInfo($"Saved {m_ChangedSaves.Count} save(s)");
+        LethalPerformancePlugin.Instance.Logger.LogInfo($"Saved {count} save(s)");
 
         m_ChangedSaves.Clear();
     }
