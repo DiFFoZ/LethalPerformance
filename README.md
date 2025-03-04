@@ -25,6 +25,7 @@ Recommended to use with these mods:
 - [PathfindingLagFix](https://thunderstore.io/c/lethal-company/p/Zaggy1024/PathfindingLagFix/) by Zaggy1024 - makes the calculation of AI path to use time-slicing, resulting in smoother frametime.
 - [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) by fumiko & Zaggy1024 - stops rendering interior rooms that aren't visible.
 - [Loadstone](https://thunderstore.io/c/lethal-company/p/AdiBTW/Loadstone/) by AdiBTW - reduces stuttering during level loading.
+- [LethalSponge](https://thunderstore.io/c/lethal-company/p/Scoops/LethalSponge/) by Scoops - replaces original postprocessing shader into the custom one for better performance.
 
 ## Credits
 - Icon by [Lorc](https://lorcblog.blogspot.com/) via [game-icons.net](https://game-icons.net/)
