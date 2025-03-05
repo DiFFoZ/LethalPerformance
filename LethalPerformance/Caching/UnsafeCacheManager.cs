@@ -20,6 +20,21 @@ internal static class UnsafeCacheManager
         [typeof(GlobalEffects)] = (_) => (GlobalEffects.Instance, GlobalEffects.Instance),
         [typeof(IngamePlayerSettings)] = (_) => (true, IngamePlayerSettings.Instance),
         [typeof(SteamManager)] = (_) => (true, SteamManager.Instance),
+        [typeof(VehicleController)] = (_) =>
+        {
+            if (StartOfRound.Instance != null && StartOfRound.Instance.attachedVehicle != null)
+            {
+                return (true, StartOfRound.Instance.attachedVehicle);
+            }
+
+            if (RoundManager.Instance != null && RoundManager.Instance.VehiclesContainer != null)
+            {
+                var vehicle = RoundManager.Instance.VehiclesContainer.GetComponentInChildren<VehicleController>();
+                return (true, vehicle);
+            }
+
+            return (true, null);
+        }
     };
 
     private static readonly Dictionary<Type, TryGetInstances> s_MapGettingInstances = new()
