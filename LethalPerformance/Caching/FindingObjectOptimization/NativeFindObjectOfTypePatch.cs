@@ -35,7 +35,7 @@ internal static class NativeFindObjectOfTypePatch
             out __result);
     }
 
-    [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
+    [HarmonyPatch(nameof(Object.FindObjectsOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPrefix]
     public static bool FindObjectsFast(Type type, bool includeInactive, out Object[]? __result)
     {
