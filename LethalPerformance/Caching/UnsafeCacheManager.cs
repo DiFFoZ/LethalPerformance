@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dissonance;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace LethalPerformance.Caching;
 internal static class UnsafeCacheManager
@@ -27,22 +26,35 @@ internal static class UnsafeCacheManager
     {
         [typeof(PlayerVoiceIngameSettings)] = (inactive) =>
         {
-            if (inactive is FindObjectsInactive.Include)
-            {
-                LethalPerformancePlugin.Instance.Logger.LogWarning("Not expecting finding inactive PlayerVoiceIngameSettings");
-                return (false, null);
-            }
-
             if (!TryGetCachedBehaviour<DissonanceComms>(inactive, out var comms))
             {
                 return (false, null);
             }
 
-            var voices = new PlayerVoiceIngameSettings[comms._players._players.Count];
-            for (var i = 0; i < voices.Length; i++)
+            var activePlayers = comms._players._players;
+            var pooledPlaybacks = comms._playbackPool._pool._items;
+
+            var count = activePlayers.Count;
+            if (inactive is FindObjectsInactive.Include)
+            {
+                count += pooledPlaybacks.Count;
+            }
+
+            var voices = new PlayerVoiceIngameSettings[count];
+            for (var i = 0; i < activePlayers.Count; i++)
             {
                 var playback = (MonoBehaviour)comms._players._players[i].Playback!;
                 voices[i] = playback.GetComponent<PlayerVoiceIngameSettings>();
+            }
+
+            if (inactive is FindObjectsInactive.Include)
+            {
+                var i = activePlayers.Count;
+                foreach (var playback in pooledPlaybacks)
+                {
+                    voices[i] = playback.GetComponent<PlayerVoiceIngameSettings>();
+                    i++;
+                }
             }
 
             return (true, voices);
