@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dissonance;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace LethalPerformance.Caching;
 internal static class UnsafeCacheManager
@@ -49,17 +50,14 @@ internal static class UnsafeCacheManager
             var activePlayers = comms._players._players;
             var pooledPlaybacks = comms._playbackPool._pool._items;
 
-            var count = activePlayers.Count;
-            if (inactive is FindObjectsInactive.Include)
-            {
-                count += pooledPlaybacks.Count;
-            }
-
-            var voices = new PlayerVoiceIngameSettings[count];
+            using var _ = ListPool<PlayerVoiceIngameSettings>.Get(out var voices);
             for (var i = 0; i < activePlayers.Count; i++)
             {
-                var playback = (MonoBehaviour)comms._players._players[i].Playback!;
-                voices[i] = playback.GetComponent<PlayerVoiceIngameSettings>();
+                var playback = comms._players._players[i].Playback;
+                if (playback is MonoBehaviour behaviour && behaviour != null)
+                {
+                    voices.Add(behaviour.GetComponent<PlayerVoiceIngameSettings>());
+                }
             }
 
             if (inactive is FindObjectsInactive.Include)
@@ -72,7 +70,7 @@ internal static class UnsafeCacheManager
                 }
             }
 
-            return (true, voices);
+            return (true, voices.ToArray());
         }
     };
 
