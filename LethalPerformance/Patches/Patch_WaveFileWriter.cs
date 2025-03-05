@@ -65,7 +65,7 @@ internal static class Patch_WaveFileWriter
             new(OpCodes.Ldarg_1),
             new(OpCodes.Ldarg_2),
             new(OpCodes.Ldarg_3),
-            CodeInstruction.Call((WaveFileWriter x, float[] y, int _) => WriteSamples(x, y, _, _)),
+            CodeInstruction.Call(() => WriteSamples),
             new(OpCodes.Ret)
         ];
     }
