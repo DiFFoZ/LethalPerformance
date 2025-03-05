@@ -145,7 +145,7 @@ internal static class UnsafeCacheManager
 
         if (s_MapGettingInstance.ContainsKey(type))
         {
-            LethalPerformancePlugin.Instance.Logger.LogWarning($"Woah! Someone requests to search of all {type.Name} objects, even if it's singleton.\nPlease report to the dev");
+            LethalPerformancePlugin.Instance.Logger.LogWarning($"Woah! Someone requests to search of all {type.Name} objects, even if it's singleton");
         }
 
         cache = null;
