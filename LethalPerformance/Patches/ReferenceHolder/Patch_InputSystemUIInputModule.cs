@@ -4,18 +4,18 @@ using HarmonyLib;
 using LethalPerformance.Caching;
 using LethalPerformance.Utilities;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UI;
 
 namespace LethalPerformance.Patches.ReferenceHolder;
-[HarmonyPatch(typeof(EventSystem))]
-internal static class Patch_EventSystem
+[HarmonyPatch(typeof(InputSystemUIInputModule))]
+internal static class Patch_InputSystemUIInputModule
 {
     [HarmonyPatch("OnEnable")]
     [HarmonyPrefix]
-    public static void FindReferences(EventSystem __instance)
+    public static void FindReferences(InputSystemUIInputModule __instance)
     {
         var scene = __instance.gameObject.scene;
         if (!scene.IsSceneShip())
@@ -36,7 +36,7 @@ internal static class Patch_EventSystem
 
     [HarmonyPatch("OnDisable")]
     [HarmonyPrefix]
-    public static void CleanReferences(EventSystem __instance)
+    public static void CleanReferences(InputSystemUIInputModule __instance)
     {
         var scene = __instance.gameObject.scene;
         if (!scene.IsSceneShip())
