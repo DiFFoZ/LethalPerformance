@@ -1,6 +1,6 @@
-﻿#if ENABLE_PROFILER
-using HarmonyLib;
+﻿using HarmonyLib;
 using Unity.Profiling;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace LethalPerformance.Metrics;
@@ -8,6 +8,12 @@ namespace LethalPerformance.Metrics;
 [IgnoredByDeepProfiler]
 internal static class Patch_ProfilingSampler
 {
+    [HarmonyPrepare]
+    public static bool ShouldPatch()
+    {
+        return Debug.isDebugBuild;
+    }
+
     [HarmonyPatch(nameof(ProfilingSampler.Begin))]
     [HarmonyPostfix]
     public static void Begin(ProfilingSampler __instance)
@@ -22,4 +28,3 @@ internal static class Patch_ProfilingSampler
         __instance.inlineSampler?.End();
     }
 }
-#endif

@@ -1,7 +1,7 @@
-﻿#if ENABLE_PROFILER
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HarmonyLib;
 using Unity.Profiling;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace LethalPerformance.Metrics;
@@ -10,6 +10,12 @@ namespace LethalPerformance.Metrics;
 internal static class Patch_ProfilingScope
 {
     private static readonly Stack<ProfilingScopeData> s_ProfilingScopeDatas = [];
+
+    [HarmonyPrepare]
+    public static bool ShouldPatch()
+    {
+        return Debug.isDebugBuild;
+    }
 
     [HarmonyPatch(MethodType.Constructor, [typeof(CommandBuffer), typeof(ProfilingSampler)])]
     [HarmonyPrefix]
@@ -46,4 +52,3 @@ internal static class Patch_ProfilingScope
         public ProfilingSampler? m_Sampler;
     }
 }
-#endif
