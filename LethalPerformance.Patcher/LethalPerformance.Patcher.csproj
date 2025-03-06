@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
-    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Patcher.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\patchers\DiFFoZ-LethalPerformance\LethalPerformance" />
+    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Patcher.dll" DestinationFolder="$(BepInExProfilePath)\patchers\DiFFoZ-LethalPerformance\LethalPerformance" />
   </Target>
 
 

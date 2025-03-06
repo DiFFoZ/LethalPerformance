@@ -4,4 +4,8 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <BepInExProfilePath>C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Aboba Gaming - DEV\BepInEx</BepInExProfilePath>
+  </PropertyGroup>
 </Project>
