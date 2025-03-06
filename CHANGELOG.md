@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Pre-release [0.0.110] 2025-03-06
+### Added
+- Caching of VehicleController, PlayerVoiceIngameSettings objects.
+### Changed
+- Make rendering sampler to be included in release build, so dev can use it.
+### Fixed
+- UnityExplorer may break caching system.
+
 ## [0.6.0] 2025-03-04
 ES3 caching is here! yay
 
