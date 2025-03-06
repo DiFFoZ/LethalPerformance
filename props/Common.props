@@ -6,6 +6,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BepInExProfilePath>C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Aboba Gaming - DEV\BepInEx</BepInExProfilePath>
+    <BepInExProfilePath>C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx</BepInExProfilePath>
   </PropertyGroup>
 </Project>
