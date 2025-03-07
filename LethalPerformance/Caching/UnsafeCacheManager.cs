@@ -54,19 +54,21 @@ internal static class UnsafeCacheManager
             for (var i = 0; i < activePlayers.Count; i++)
             {
                 var playback = comms._players._players[i].Playback;
-                if (playback is MonoBehaviour behaviour && behaviour != null)
+                if (playback is MonoBehaviour behaviour && behaviour != null
+                    && behaviour.TryGetComponent<PlayerVoiceIngameSettings>(out var voice))
                 {
-                    voices.Add(behaviour.GetComponent<PlayerVoiceIngameSettings>());
+                    voices.Add(voice);
                 }
             }
 
             if (inactive is FindObjectsInactive.Include)
             {
-                var i = activePlayers.Count;
                 foreach (var playback in pooledPlaybacks)
                 {
-                    voices[i] = playback.GetComponent<PlayerVoiceIngameSettings>();
-                    i++;
+                    if (playback.TryGetComponent<PlayerVoiceIngameSettings>(out var voice))
+                    {
+                        voices.Add(voice);
+                    }
                 }
             }
 
