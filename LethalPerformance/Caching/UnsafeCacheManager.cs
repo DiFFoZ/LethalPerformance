@@ -73,6 +73,16 @@ internal static class UnsafeCacheManager
             }
 
             return (true, voices.ToArray());
+        },
+        [typeof(VehicleController)] = (_) =>
+        {
+            if (RoundManager.Instance != null && RoundManager.Instance.VehiclesContainer != null)
+            {
+                var vehicles = RoundManager.Instance.VehiclesContainer.GetComponentsInChildren<VehicleController>();
+                return (true, vehicles);
+            }
+
+            return (true, []);
         }
     };
 
