@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] 2025-03-10
+### Added
+- Caching of VehicleController, PlayerVoiceIngameSettings objects.
+- Check for optimization to prevent vehicle to search dropship after delivery.
+### Changed
+- Make rendering sampler to be included in release build, so dev can use it.
+### Fixed
+- UnityExplorer may break caching system.
+- PerProfileSaves mod incompatibility.
+
 ## Pre-release [0.0.111] 2025-03-07
 ### Added
 - Check for optimization to prevent vehicle to search dropship after delivery.
