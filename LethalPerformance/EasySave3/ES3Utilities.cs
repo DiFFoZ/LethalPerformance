@@ -28,7 +28,13 @@ internal static class ES3Utilities
         var saveSettings = (ES3Settings)settings.Clone();
         saveSettings._location = ES3.Location.File;
 
-        var fullPath = ES3IO.persistentDataPath + "/" + settings.path;
+        // temporarily set location to file to get full path
+        var oldLocation = settings._location;
+        settings._location = ES3.Location.File;
+
+        var fullPath = settings.FullPath;
+
+        settings._location = oldLocation;
         if (!File.Exists(fullPath))
         {
             var es3File = new ES3File(saveSettings, syncWithFile: false);
