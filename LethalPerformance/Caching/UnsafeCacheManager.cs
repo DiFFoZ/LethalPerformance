@@ -28,13 +28,7 @@ internal static class UnsafeCacheManager
                 return (true, StartOfRound.Instance.attachedVehicle);
             }
 
-            if (RoundManager.Instance != null && RoundManager.Instance.VehiclesContainer != null)
-            {
-                var vehicle = RoundManager.Instance.VehiclesContainer.GetComponentInChildren<VehicleController>();
-                return (true, vehicle);
-            }
-
-            return (true, null);
+            return (false, null);
         }
     };
 
@@ -73,16 +67,6 @@ internal static class UnsafeCacheManager
             }
 
             return (true, voices.ToArray());
-        },
-        [typeof(VehicleController)] = (_) =>
-        {
-            if (RoundManager.Instance != null && RoundManager.Instance.VehiclesContainer != null)
-            {
-                var vehicles = RoundManager.Instance.VehiclesContainer.GetComponentsInChildren<VehicleController>();
-                return (true, vehicles);
-            }
-
-            return (true, []);
         }
     };
 
