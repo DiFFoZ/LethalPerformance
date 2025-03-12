@@ -1,4 +1,7 @@
-﻿using HarmonyLib;
+﻿// to not strip profiler methods
+#define ENABLE_PROFILER
+
+using HarmonyLib;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;

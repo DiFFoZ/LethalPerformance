@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// to not strip profiler methods
+#define ENABLE_PROFILER
+
+using System.Collections.Generic;
 using HarmonyLib;
 using Unity.Profiling;
 using UnityEngine;
