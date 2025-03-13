@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
 using HarmonyLib;
+using MonoMod.RuntimeDetour;
 using static System.Reflection.Emit.OpCodes;
 
 namespace LethalPerformance.Patcher.Patches;
@@ -35,7 +38,38 @@ internal static class Patch_Chainloader
         {
             LethalPerformancePatcher.Logger.LogWarning(e);
         }
+
+        DebugRemoveThreadSafetyCheck();
     }
+
+    private static void DebugRemoveThreadSafetyCheck()
+    {
+        if (!UnityEngine.Debug.isDebugBuild)
+        {
+            return;
+        }
+
+        // debug builds adds thread safety checks, that throws exception if you try to get value on non main thread.
+        // sadly, some mods are doing that, causing these mods not loaded correctly in development build.
+        
+
+        // todo: config value check
+
+        var unityPlayer = Process.GetCurrentProcess().Modules
+            .Cast<ProcessModule>()
+            .FirstOrDefault(p => p.ModuleName.Contains("UnityPlayer"))
+            ?.BaseAddress;
+
+        if (unityPlayer == null)
+        {
+            return;
+        }
+
+        const int offset = 0xfd9040; // ThreadAndSerializationSafeCheck::ReportError
+        NativeDetour detour = new NativeDetour(unityPlayer.Value + offset, MethodOf(StubMethod));
+    }
+
+    private static void StubMethod() { }
 
     private static MethodInfo MethodOf(Delegate @delegate) => @delegate.Method;
 
