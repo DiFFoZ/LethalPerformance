@@ -17,4 +17,10 @@ internal static class SceneUtilities
     {
         return scene.name == "SampleSceneRelay";
     }
+
+    public static Scene GetLastLoadedScene()
+    {
+        var sceneCount = SceneManager.sceneCount;
+        return SceneManager.GetSceneAt(sceneCount - 1);
+    }
 }
