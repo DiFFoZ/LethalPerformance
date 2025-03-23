@@ -60,8 +60,10 @@ internal static class Patch_StartOfRound
         }
 
         var isServer = NetworkManager.Singleton.IsServer;
-        WindowAPI.SetWindowText(handle, $"Lethal Company - {(isServer ? "Server" : "Client")}");
-        WindowAPI.SetConsoleTitle($"Lethal Company - {(isServer ? "Server" : "Client")}");
+        var id = NetworkManager.Singleton.LocalClientId;
+
+        WindowAPI.SetWindowText(handle, $"Lethal Company - {(isServer ? "Server" : "Client")} #{id}");
+        WindowAPI.SetConsoleTitle($"Lethal Company - {(isServer ? "Server" : "Client")} #{id}");
     }
 
     [HarmonyPatch(nameof(StartOfRound.PlayFirstDayShipAnimation))]
