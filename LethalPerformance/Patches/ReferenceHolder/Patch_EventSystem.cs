@@ -1,33 +1,28 @@
 ﻿using System;
 using GameNetcodeStuff;
+using HarmonyLib;
 using LethalPerformance.Caching;
-using LethalPerformance.Patcher.API;
 using LethalPerformance.Utilities;
 using UnityEngine;
-using UnityEngine.Pool;
+using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UI;
 
 namespace LethalPerformance.Patches.ReferenceHolder;
-internal static class MoonReferences
+[HarmonyPatch(typeof(EventSystem))]
+internal static class Patch_EventSystem
 {
-    [InitializeOnAwake]
-    internal static void Initialize()
+    [HarmonyPatch("OnEnable")]
+    [HarmonyPrefix]
+    public static void FindReferences(EventSystem __instance)
     {
-        LightProbes.lightProbesUpdated += UpdateReferences;
-    }
-
-    private static void UpdateReferences()
-    {
-        var scene = SceneUtilities.GetLastLoadedScene();
-        if (scene.IsSceneShip())
+        var scene = __instance.gameObject.scene;
+        if (!scene.IsSceneShip())
         {
-            CacheShip();
+            return;
         }
-    }
 
-    private static void CacheShip()
-    {
         try
         {
             UnsafeCacheManager.CacheInstances();
@@ -44,6 +39,7 @@ internal static class MoonReferences
         var go = GameObject.Find("/PlayersContainer");
         if (go == null)
         {
+            LethalPerformancePlugin.Instance.Logger.LogWarning("Failed to find Player container");
             return;
         }
 
@@ -55,11 +51,13 @@ internal static class MoonReferences
             if (player.usernameCanvas.TryGetComponent<CanvasScaler>(out var scaler))
             {
                 Object.Destroy(scaler);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed Username CanvasScaler");
             }
 
             if (player.usernameCanvas.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Object.Destroy(raycaster);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed Username GraphicRaycaster");
             }
         }
 
@@ -69,11 +67,13 @@ internal static class MoonReferences
             if (go.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Object.Destroy(raycaster);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed GraphicRaycaster of map screen");
             }
 
             if (go.TryGetComponent<CanvasScaler>(out var scaler))
             {
                 Object.Destroy(scaler);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed CanvasScaler of map screen");
             }
         }
 
@@ -83,11 +83,13 @@ internal static class MoonReferences
             if (go.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Object.Destroy(raycaster);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed GraphicRaycaster of quota monitor");
             }
 
             if (go.TryGetComponent<CanvasScaler>(out var scaler))
             {
                 Object.Destroy(scaler);
+                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed CanvasScaler of quota monitor");
             }
         }
 
