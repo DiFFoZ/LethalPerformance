@@ -22,9 +22,9 @@ internal class UnsafeCachedInstance<T> : UnsafeCachedInstance where T : Behaviou
         UnsafeCachedInstances.Add(this);
     }
 
-    public void SetInstance(T instance)
+    public void SetInstance(T? instance)
     {
-        if (Instance != null)
+        if (instance != null && Instance != null)
         {
             LethalPerformancePlugin.Instance.Logger.LogWarning($"{typeof(T).Name} is requested caching, while cached instance is still alive");
         }
