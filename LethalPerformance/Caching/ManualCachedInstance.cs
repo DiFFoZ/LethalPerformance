@@ -6,24 +6,24 @@ internal class ManualCachedInstance<T> : UnsafeCachedInstance<T> where T : Behav
     public ManualCachedInstance() : base()
     { }
 
-    public override (bool, Behaviour?) TryGetInstance(FindObjectsInactive findObjectsInactive)
+    public override InstanceResult TryGetInstance(FindObjectsInactive findObjectsInactive)
     {
         if (Instance == null)
         {
-            return (true, null);
+            return InstanceResult.NotFound(null);
         }
 
         if (findObjectsInactive is FindObjectsInactive.Include)
         {
-            return (true, Instance);
+            return InstanceResult.Found(Instance);
         }
 
         // .isActiveAndEnabled doesn't work until Awake method was called, using this to prevent that
         if (Instance!.enabled && Instance.gameObject.activeInHierarchy)
         {
-            return (true, Instance);
+            return InstanceResult.Found(Instance);
         }
 
-        return (true, null);
+        return InstanceResult.Found(null);
     }
 }
