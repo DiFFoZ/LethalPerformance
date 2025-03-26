@@ -1,13 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using DunGen;
 using HarmonyLib;
 using LethalPerformance.Patcher.API;
+using LethalPerformance.Utilities;
+using UnityEngine.Pool;
 using static System.Reflection.Emit.OpCodes;
 
 namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(EntranceTeleport))]
 internal static class Patch_EntranceTeleport
 {
+    [InitializeOnAwake]
+    private static void Initialize()
+    {
+        DungeonGenerator.OnAnyDungeonGenerationStatusChanged += DungeonGenerator_OnAnyDungeonGenerationStatusChanged;
+    }
+
+    private static void DungeonGenerator_OnAnyDungeonGenerationStatusChanged(DungeonGenerator generator, GenerationStatus status)
+    {
+        if (status is not GenerationStatus.Failed and not GenerationStatus.Complete)
+        {
+            return;
+        }
+
+        using var _ = ListPool<EntranceTeleport>.Get(out var list);
+        NetworkManagerUtilities.FindAllSpawnedNetworkBehaviour(list);
+
+        foreach (var teleport in list)
+        {
+            teleport.FindExitPoint();
+        }
+    }
+
     [HarmonyCleanup]
     public static Exception? Cleanup(Exception exception)
     {
@@ -19,8 +44,6 @@ internal static class Patch_EntranceTeleport
     public static IEnumerable<CodeInstruction> DoNotSearchEntrances(IEnumerable<CodeInstruction> instructions)
     {
         var matcher = new CodeMatcher(instructions);
-
-        // todo: listen to dungeon status change
 
         var checkForEnemiesIntervalField = typeof(EntranceTeleport)
             .GetField(nameof(EntranceTeleport.checkForEnemiesInterval), AccessTools.all);
