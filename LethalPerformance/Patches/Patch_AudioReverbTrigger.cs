@@ -30,6 +30,6 @@ internal static class Patch_AudioReverbTrigger
             .RemoveInstructions(3)
             .Insert(CodeInstruction.Call((GameObject x) => ObjectExtensions.ComparePlayerRagdollTag(x)));
 
-        return matcher.InstructionEnumeration();
+        return matcher.Instructions();
     }
 }

@@ -5,7 +5,7 @@ using HarmonyLib;
 using static System.Reflection.Emit.OpCodes;
 
 namespace LethalPerformance.Patches;
-[HarmonyPatch(typeof(RoundManager))]
+[HarmonyPatch]
 internal static class Patch_RoundManager
 {
     [HarmonyTargetMethod]
@@ -24,21 +24,17 @@ internal static class Patch_RoundManager
             .GetMethod(nameof(RoundManager.FindMainEntrancePosition), AccessTools.all);
 
         matcher
-            .Start()
             .MatchForward(false, [
             new(Call, findMainEntrancePositionMethod)
             ])
             .ThrowIfInvalid("Failed to find call of finding main entrance")
             .Advance(-2)
-            .Insert([
-                new(Call, SymbolExtensions.GetMethodInfo(() => IsDungeonLoaded))
-                ])
-            .AddLabelsAt(matcher.Pos - 1, matcher.Labels)
-            .RemoveInstructions(5)
-            .Opcode = Brtrue;
+            .Set(Call, SymbolExtensions.GetMethodInfo(() => IsDungeonLoaded))
+            .Advance(1)
+            .RemoveInstructions(4)
+            .SetOpcodeAndAdvance(Brtrue);
 
-
-        return instructions;
+        return matcher.Instructions();
     }
 
     private static bool IsDungeonLoaded()
