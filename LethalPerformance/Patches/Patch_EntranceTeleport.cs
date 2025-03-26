@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using DunGen;
 using HarmonyLib;
+using LethalPerformance.Caching;
 using LethalPerformance.Patcher.API;
 using LethalPerformance.Utilities;
+using UnityEngine;
 using UnityEngine.Pool;
 using static System.Reflection.Emit.OpCodes;
 
@@ -15,6 +17,15 @@ internal static class Patch_EntranceTeleport
     private static void Initialize()
     {
         DungeonGenerator.OnAnyDungeonGenerationStatusChanged += DungeonGenerator_OnAnyDungeonGenerationStatusChanged;
+        UnsafeCacheManager.AddActionToMap(typeof(EntranceTeleport), GetEntranceTeleports);
+    }
+
+    private static InstancesResult GetEntranceTeleports(FindObjectsInactive inactive)
+    {
+        using var _ = ListPool<EntranceTeleport>.Get(out var list);
+        NetworkManagerUtilities.FindAllSpawnedNetworkBehaviour(list);
+
+        return InstancesResult.Found(list.ToArray());
     }
 
     private static void DungeonGenerator_OnAnyDungeonGenerationStatusChanged(DungeonGenerator generator, GenerationStatus status)
