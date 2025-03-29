@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using DunGen;
 using HarmonyLib;
@@ -42,6 +43,7 @@ internal static class Patch_RoundManager
         var dungeon = Object.FindAnyObjectByType<RuntimeDungeon>();
         if (dungeon == null)
         {
+            LethalPerformancePlugin.Instance.Logger.LogWarning("Failed to find runtime dungeon!!!");
             return false;
         }
 

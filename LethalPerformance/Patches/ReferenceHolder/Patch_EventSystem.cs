@@ -10,6 +10,9 @@ using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UI;
 
 namespace LethalPerformance.Patches.ReferenceHolder;
+/// <summary>
+/// Handles caching of ship scene
+/// </summary>
 [HarmonyPatch(typeof(EventSystem))]
 internal static class Patch_EventSystem
 {
@@ -51,13 +54,11 @@ internal static class Patch_EventSystem
             if (player.usernameCanvas.TryGetComponent<CanvasScaler>(out var scaler))
             {
                 Object.Destroy(scaler);
-                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed Username CanvasScaler");
             }
 
             if (player.usernameCanvas.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Object.Destroy(raycaster);
-                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed Username GraphicRaycaster");
             }
         }
 
@@ -67,13 +68,11 @@ internal static class Patch_EventSystem
             if (go.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Object.Destroy(raycaster);
-                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed GraphicRaycaster of map screen");
             }
 
             if (go.TryGetComponent<CanvasScaler>(out var scaler))
             {
                 Object.Destroy(scaler);
-                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed CanvasScaler of map screen");
             }
         }
 
@@ -83,13 +82,11 @@ internal static class Patch_EventSystem
             if (go.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Object.Destroy(raycaster);
-                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed GraphicRaycaster of quota monitor");
             }
 
             if (go.TryGetComponent<CanvasScaler>(out var scaler))
             {
                 Object.Destroy(scaler);
-                LethalPerformancePlugin.Instance.Logger.LogInfo("Destroyed CanvasScaler of quota monitor");
             }
         }
 
