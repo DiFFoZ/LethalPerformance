@@ -10,7 +10,7 @@ internal class ManualCachedInstance<T> : UnsafeCachedInstance<T> where T : Behav
     {
         if (Instance == null)
         {
-            return InstanceResult.NotFound(null);
+            return InstanceResult.Found(null);
         }
 
         if (findObjectsInactive is FindObjectsInactive.Include)
