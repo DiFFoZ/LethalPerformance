@@ -12,6 +12,8 @@
     </RestoreAdditionalProjectSources>
   </PropertyGroup>
 
+  <Import Project="..\props\Common.props" />
+
   <PropertyGroup>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
