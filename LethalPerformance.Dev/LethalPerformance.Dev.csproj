@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
-    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Dev.dll" DestinationFolder="C:\Users\$(DiFFoZ)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default\BepInEx\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
+    <Copy SourceFiles="$(OutputPath)/LethalPerformance.Dev.dll" DestinationFolder="$(BepInExProfilePath)\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
   </Target>
 
 </Project>
