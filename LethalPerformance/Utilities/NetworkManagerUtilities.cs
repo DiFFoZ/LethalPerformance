@@ -15,7 +15,7 @@ internal static class NetworkManagerUtilities
 
         foreach (var obj in manager.SpawnManager.SpawnedObjectsList)
         {
-            var o = obj.GetComponentInParent<T>();
+            var o = obj.GetComponentInChildren<T>();
             if (o != null)
             {
                 spawnedObjects.Add(o);
