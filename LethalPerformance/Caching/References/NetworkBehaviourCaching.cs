@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using LethalPerformance.Patcher.API;
 using LethalPerformance.Utilities;
-using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.Pool;
 
 namespace LethalPerformance.Caching.References;
@@ -36,22 +37,31 @@ internal static class NetworkBehaviourCaching
     internal static void Initialize()
     {
         // maybe add another actionToMap method that only allows 1 instance globally, so we don't allocate array
+        var method = typeof(NetworkBehaviourCaching)
+            .GetMethod(nameof(FindWithSpawnedBehaviours), AccessTools.all);
 
         foreach (var type in s_TypesToCache)
         {
-            UnsafeCacheManager.AddActionToMap(type, (inactive) =>
-            {
-                if (inactive == UnityEngine.FindObjectsInactive.Include)
-                {
-                    LethalPerformancePlugin.Instance.Logger.LogWarning($"{type.Name} search called with inactive objects, probably will cause incompatibility!");
-                }
+            var genericMethod = method.MakeGenericMethod(type);
 
-                using var _ = ListPool<NetworkBehaviour>.Get(out var list);
+            var @delegate = (UnsafeCacheManager.TryGetInstances)
+                Delegate.CreateDelegate(typeof(UnsafeCacheManager.TryGetInstances), genericMethod);
 
-                NetworkManagerUtilities.FindAllSpawnedNetworkBehaviour(type, list);
-
-                return InstancesResult.Found(list.ToArray());
-            });
+            UnsafeCacheManager.AddActionToMap(type, @delegate);
         }
+    }
+
+    private static InstancesResult FindWithSpawnedBehaviours<T>(FindObjectsInactive inactive) where T : Object
+    {
+        if (inactive == FindObjectsInactive.Include)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogWarning($"{typeof(T).Name} search called with inactive objects, probably will cause incompatibility!");
+        }
+
+        using var _ = ListPool<T>.Get(out var list);
+
+        NetworkManagerUtilities.FindAllSpawnedNetworkBehaviour(list);
+
+        return InstancesResult.Found(list.ToArray() as Behaviour[]);
     }
 }
