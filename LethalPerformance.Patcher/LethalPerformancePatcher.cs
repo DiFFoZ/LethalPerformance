@@ -30,6 +30,8 @@ public class LethalPerformancePatcher
 
         TomlTypeConverter.TypeConverters[typeof(string)] = new StringTomlConverter();
         TomlTypeConverter.TypeConverters[typeof(bool)] = new BoolTomlConverter();
+
+        MonoJitConfig.Initialize();
     }
 
     // cannot be removed, BepInEx checks it
