@@ -17,38 +17,65 @@ internal static class NativeFindObjectOfTypePatch
         return HarmonyExceptionHandler.ReportException(exception);
     }
 
+    // HarmonyX bullshit, see the differences from the original project
+    // https://github.com/BepInEx/HarmonyX/wiki/Difference-between-Harmony-and-HarmonyX#workaround
+
     [HarmonyPatch(nameof(Object.FindAnyObjectByType), [typeof(Type), typeof(FindObjectsInactive)])]
     [HarmonyPatch(nameof(Object.FindFirstObjectByType), [typeof(Type), typeof(FindObjectsInactive)])]
     [HarmonyPrefix]
-    public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, out Object? __result)
+    public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, bool __runOriginal, out Object? __result)
     {
         ShowInProfilerType(type, false);
+        if (!__runOriginal)
+        {
+            __result = null;
+            return false;
+        }
+
         return !TryFindObjectFast(type, findObjectsInactive, out __result);
     }
 
     [HarmonyPatch(nameof(Object.FindObjectOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPrefix]
-    public static bool FindObjectFast(Type type, bool includeInactive, out Object? __result)
+    public static bool FindObjectFast(Type type, bool includeInactive, bool __runOriginal, out Object? __result)
     {
         ShowInProfilerType(type, false);
+        if (!__runOriginal)
+        {
+            __result = null;
+            return false;
+        }
+
         return !TryFindObjectFast(type, includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
             out __result);
     }
 
     [HarmonyPatch(nameof(Object.FindObjectsOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPrefix]
-    public static bool FindObjectsFast(Type type, bool includeInactive, out Object[]? __result)
+    public static bool FindObjectsFast(Type type, bool includeInactive, bool __runOriginal, out Object[]? __result)
     {
         ShowInProfilerType(type, true);
+        if (!__runOriginal)
+        {
+            __result = null;
+            return false;
+        }
+
         return !TryFindObjectsFast(type, includeInactive ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
             out __result);
     }
 
     [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
     [HarmonyPrefix]
-    public static bool FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, out Object[]? __result)
+    public static bool FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, bool __runOriginal, out Object[]? __result)
     {
         ShowInProfilerType(type, true);
+        if (!__runOriginal)
+        {
+            __result = null;
+            return false;
+        }
+
         return !TryFindObjectsFast(type, findObjectsInactive, out __result);
     }
 
