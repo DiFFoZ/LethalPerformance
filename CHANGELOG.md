@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] 2025-04-12
+### Added
+- Check for internal flag from HarmonyX for better mod compatibility.
+
 ## [1.1.0] 2025-04-12
 Note: some mods are causing some entrance teleports to be not found. Tracking issue: https://github.com/DiFFoZ/LethalPerformance/issues/15
 
