@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using HarmonyLib;
-using LethalPerformance.Caching;
 using LethalPerformance.Patcher.API;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -23,12 +22,11 @@ internal static class NativeFindObjectOfTypePatch
     [HarmonyPatch(nameof(Object.FindAnyObjectByType), [typeof(Type), typeof(FindObjectsInactive)])]
     [HarmonyPatch(nameof(Object.FindFirstObjectByType), [typeof(Type), typeof(FindObjectsInactive)])]
     [HarmonyPrefix]
-    public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, bool __runOriginal, out Object? __result)
+    public static bool FindObjectFast(Type type, FindObjectsInactive findObjectsInactive, bool __runOriginal, ref Object? __result)
     {
         ShowInProfilerType(type, false);
         if (!__runOriginal)
         {
-            __result = null;
             return false;
         }
 
@@ -37,12 +35,11 @@ internal static class NativeFindObjectOfTypePatch
 
     [HarmonyPatch(nameof(Object.FindObjectOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPrefix]
-    public static bool FindObjectFast(Type type, bool includeInactive, bool __runOriginal, out Object? __result)
+    public static bool FindObjectFast(Type type, bool includeInactive, bool __runOriginal, ref Object? __result)
     {
         ShowInProfilerType(type, false);
         if (!__runOriginal)
         {
-            __result = null;
             return false;
         }
 
@@ -52,12 +49,11 @@ internal static class NativeFindObjectOfTypePatch
 
     [HarmonyPatch(nameof(Object.FindObjectsOfType), [typeof(Type), typeof(bool)])]
     [HarmonyPrefix]
-    public static bool FindObjectsFast(Type type, bool includeInactive, bool __runOriginal, out Object[]? __result)
+    public static bool FindObjectsFast(Type type, bool includeInactive, bool __runOriginal, ref Object[]? __result)
     {
         ShowInProfilerType(type, true);
         if (!__runOriginal)
         {
-            __result = null;
             return false;
         }
 
@@ -67,12 +63,11 @@ internal static class NativeFindObjectOfTypePatch
 
     [HarmonyPatch(nameof(Object.FindObjectsByType), [typeof(Type), typeof(FindObjectsInactive), typeof(FindObjectsSortMode)])]
     [HarmonyPrefix]
-    public static bool FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, bool __runOriginal, out Object[]? __result)
+    public static bool FindObjectsFast(Type type, FindObjectsInactive findObjectsInactive, bool __runOriginal, ref Object[]? __result)
     {
         ShowInProfilerType(type, true);
         if (!__runOriginal)
         {
-            __result = null;
             return false;
         }
 
