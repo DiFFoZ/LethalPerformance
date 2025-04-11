@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Configuration;
@@ -32,6 +33,31 @@ public class LethalPerformancePatcher
         TomlTypeConverter.TypeConverters[typeof(bool)] = new BoolTomlConverter();
 
         MonoJitConfig.Initialize();
+        WarnIfTerbiumInstalled();
+    }
+
+    private static void WarnIfTerbiumInstalled()
+    {
+        // BepInEx.Patcher doesn't exists on nuget feed :(
+
+        var patcherPluginsList = (IList)Type.GetType("BepInEx.Preloader.Patching.AssemblyPatcher,BepInEx.Preloader")
+            .GetProperty("PatcherPlugins", AccessTools.all)
+            .GetGetMethod()
+            .Invoke(null, null);
+
+        var typeNameProperty = patcherPluginsList[0]
+            .GetType()
+            .GetProperty("TypeName", AccessTools.all);
+
+        foreach (var patcher in patcherPluginsList)
+        {
+            var typeName = (string)typeNameProperty.GetGetMethod().Invoke(patcher, null);
+            if (typeName == "Terbium.TerbiumPreloader")
+            {
+                Logger.LogWarning("Terbium mod installed, for better compatibility remove it.");
+                break;
+            }
+        }
     }
 
     // cannot be removed, BepInEx checks it

@@ -13,6 +13,7 @@ Note: some mods are causing some entrance teleports to be not found. Tracking is
 - Caching of moon objects (ItemDropship, RuntimeDungeon).
 - Enable all optimization of Mono JIT, expect of aggressive inlining.
 - Warning tip if entrance teleport are broken by some mod.
+- Warning log if Terbium mod is installed.
 
 ## [1.0.0] 2025-03-10
 ### Added
