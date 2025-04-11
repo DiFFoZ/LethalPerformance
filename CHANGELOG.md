@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] 2025-04-12
+Note: some mods are causing some entrance teleports to be not found. Tracking issue: https://github.com/DiFFoZ/LethalPerformance/issues/15
+
+### Added
+- Caching of many networked objects (EntranceTeleport, VehicleController, Landmine, etc).
+- Caching of moon objects (ItemDropship, RuntimeDungeon).
+- Enable all optimization of Mono JIT, expect of aggressive inlining.
+- Warning tip if entrance teleport are broken by some mod.
+
 ## [1.0.0] 2025-03-10
 ### Added
 - Caching of VehicleController, PlayerVoiceIngameSettings objects.
