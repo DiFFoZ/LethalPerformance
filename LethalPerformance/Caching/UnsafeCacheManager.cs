@@ -94,6 +94,11 @@ internal static class UnsafeCacheManager
         s_MapGettingInstances[type] = action;
     }
 
+    public static bool RemoveActionToMap(Type type)
+    {
+        return s_MapGettingInstances.Remove(type);
+    }
+
     public static void CacheInstances()
     {
         foreach (var uci in UnsafeCachedInstance.UnsafeCachedInstances)
