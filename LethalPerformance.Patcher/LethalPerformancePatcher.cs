@@ -233,8 +233,8 @@ public class LethalPerformancePatcher
         {
             saveMethod.Parameters.Add(parameter);
         }
-        
-        saveMethod.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+        AssemblyPatcherUtilities.StubMethod(saveMethod.Body.GetILProcessor());
 
         es3Type.Methods.Add(saveMethod);
         return saveMethod;

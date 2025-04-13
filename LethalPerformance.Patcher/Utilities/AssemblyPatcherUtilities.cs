@@ -33,7 +33,7 @@ internal static class AssemblyPatcherUtilities
         type.Methods.Add(method);
     }
 
-    private static void StubMethod(ILProcessor processor)
+    public static void StubMethod(ILProcessor processor)
     {
         for (var i = 0; i < 32; i++)
         {
