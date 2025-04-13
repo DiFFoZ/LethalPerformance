@@ -28,6 +28,12 @@
       <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
       <Strip>false</Strip>
     </Publicize>
+    <Publicize Include="Unity.Netcode.Runtime">
+      <PublicizeTarget>all</PublicizeTarget>
+      <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
+      <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
+      <Strip>false</Strip>
+    </Publicize>
     <Publicize Include="DissonanceVoip">
       <PublicizeTarget>all</PublicizeTarget>
       <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
