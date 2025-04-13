@@ -27,7 +27,7 @@ internal static class NetworkManagerUtilities
             }
 
             var o = obj.GetComponentInChildren(type);
-            if (o != null)
+            if (o != null && ((NetworkBehaviour)o).NetworkObject == obj)
             {
                 spawnedObjects.Add(o);
             }
