@@ -11,7 +11,7 @@ internal static unsafe class MonoJitConfig
 
     public static void Initialize()
     {
-        fixed (byte* arg = "-O=all,-aggressive-inlining\0"u8)
+        fixed (byte* arg = "-O=all,-aggressive-inlining,-float32\0"u8)
         {
             mono_jit_parse_options(1, &arg);
         }
