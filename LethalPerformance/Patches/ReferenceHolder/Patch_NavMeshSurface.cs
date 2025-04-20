@@ -1,14 +1,10 @@
-﻿#define UNITY_ASSERTIONS
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using DunGen;
 using HarmonyLib;
 using LethalPerformance.Caching;
 using LethalPerformance.Utilities;
 using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
@@ -43,19 +39,33 @@ internal static class Patch_NavMeshSurface
             return;
         }
 
-        s_LastCalledSceneId = sceneHandle;
+        if (scene.rootCount == 0)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogWarning("New scene loading triggered navmesh, but no roots on the scene! Mod initializing navmesh early?\n"
+                + Environment.StackTrace);
 
-        FindDropship(scene);
-        FindDungeon(scene);
+            return;
+        }
+
+        var found = FindDropship(scene) && FindDungeon(scene);
+        if (!found)
+        {
+            LethalPerformancePlugin.Instance.Logger.LogWarning("New scene loading triggered navmesh, but nothing found! Mod initializing navmesh early?\n"
+                + Environment.StackTrace);
+
+            return;
+        }
+
+        s_LastCalledSceneId = sceneHandle;
     }
 
-    private static void FindDungeon(Scene scene)
+    private static bool FindDungeon(Scene scene)
     {
         var dungeonGeneratorObject = GameObject.Find("/Systems/LevelGeneration/DungeonGenerator");
         if (dungeonGeneratorObject != null && dungeonGeneratorObject.TryGetComponent<RuntimeDungeon>(out var dungeon))
         {
             s_RuntimeDungeon.SetInstance(dungeon);
-            return;
+            return true;
         }
 
         using var _ = ListPool<GameObject>.Get(out var list);
@@ -70,17 +80,19 @@ internal static class Patch_NavMeshSurface
             }
 
             s_RuntimeDungeon.SetInstance(dungeon);
-            return;
+            return true;
         }
+
+        return false;
     }
 
-    private static void FindDropship(Scene scene)
+    private static bool FindDropship(Scene scene)
     {
         var itemShipObject = GameObject.Find("/Systems/ItemShipAnimContainer/ItemShip");
         if (itemShipObject != null && itemShipObject.TryGetComponent<ItemDropship>(out var dropship))
         {
             s_ItemDropship.SetInstance(dropship);
-            return;
+            return true;
         }
 
         using var _ = ListPool<GameObject>.Get(out var list);
@@ -95,8 +107,10 @@ internal static class Patch_NavMeshSurface
             }
 
             s_ItemDropship.SetInstance(dropship);
-            return;
+            return true;
         }
+
+        return false;
     }
 
     [HarmonyPatch("OnDisable")]
