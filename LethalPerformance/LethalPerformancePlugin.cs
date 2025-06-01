@@ -33,7 +33,7 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         WorkingDirectory = new FileInfo(Info.Location).DirectoryName;
         Configuration = new(base.Config);
 
-#if ENABLE_PROFILER || true
+#if ENABLE_PROFILER
         // disable overhead of stack trace in dev build
         Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
         Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);

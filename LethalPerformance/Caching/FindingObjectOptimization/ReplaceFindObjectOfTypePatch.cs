@@ -84,7 +84,6 @@ internal static class ReplaceFindObjectOfTypePatch
         yield return type.GetMethod(nameof(StartOfRound.SetTimeAndPlanetToSavedSettings), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.SetShipReadyToLand), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.SetShipDoorsOverheatClientRpc), AccessTools.all);
-        yield return type.GetMethod(nameof(StartOfRound.SetPlanetsMold), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.ResetShip), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.ResetPlayersLoadedValueClientRpc), AccessTools.all);
         yield return type.GetMethod(nameof(StartOfRound.ResetMoldStates), AccessTools.all);
