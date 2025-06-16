@@ -13,6 +13,12 @@ public class ConfigSaverTask
 
     public void ScheduleSaveFor(ConfigFile configFile)
     {
+        if (configFile == null)
+        {
+            LethalPerformancePatcher.Logger.LogWarning("Null config file passed for save\n" + Environment.StackTrace);
+            return;
+        }
+
         if (m_IgnoredConfigFiles.Contains(configFile))
         {
             return;
