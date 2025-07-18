@@ -4,6 +4,7 @@ using System.Reflection;
 using HarmonyLib;
 using LethalPerformance.Patcher.API;
 using LethalPerformance.Utilities;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -22,13 +23,15 @@ internal static class NetworkBehaviourCaching
         typeof(TVScript),
         typeof(EnemyVent),
         typeof(TerminalAccessibleObject),
-        typeof(SteamValveHazard),
         typeof(DoorLock),
         typeof(UnlockableSuit),
         typeof(Landmine),
         typeof(Turret),
         typeof(SpikeRoofTrap),
-        typeof(StoryLog)
+        typeof(StoryLog),
+        typeof(EntranceTeleport)
+        // commented, because it's not longer network behaviour
+        //typeof(SteamValveHazard),
         // signal translator
         // enemy ai
     };
@@ -43,22 +46,15 @@ internal static class NetworkBehaviourCaching
 
         foreach (var type in s_TypesToCache)
         {
-            AddActionToMap(type);
+#if ENABLE_PROFILER
+            if (!type.IsAssignableFrom(typeof(NetworkBehaviour)))
+            {
+                throw new Exception($"{type} is no longer behaviour");
+            }
+#endif
+
+                AddActionToMap(type);
         }
-
-        // see config description why it is separated
-
-        LethalPerformancePlugin.Instance.Configuration.CacheEntranceTeleports.SettingChanged += CacheEntranceTeleports_SettingChanged;
-        if (LethalPerformancePlugin.Instance.Configuration.CacheEntranceTeleports.Value)
-        {
-            CacheEntranceTeleports_SettingChanged(null!, null!);
-        }
-    }
-
-    private static void CacheEntranceTeleports_SettingChanged(object sender, EventArgs e)
-    {
-        UnsafeCacheManager.RemoveActionToMap(typeof(EntranceTeleport));
-        AddActionToMap(typeof(EntranceTeleport));
     }
 
     private static void AddActionToMap(Type type)
