@@ -27,7 +27,6 @@ internal static class HDRenderPipelineAssetOptimizer
         ref var frameSettings = ref settings.GetDefaultFrameSettings(FrameSettingsRenderType.Camera);
         frameSettings.SetEnabled(FrameSettingsField.StopNaN, false);
         frameSettings.SetEnabled(FrameSettingsField.DepthPrepassWithDeferredRendering, true);
-        frameSettings.SetEnabled(FrameSettingsField.ClearGBuffers, true);
         frameSettings.SetEnabled(FrameSettingsField.Shadowmask, false);
         LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled StopNan and enabled DepthPrepassWithDeferredRendering globally");
 
