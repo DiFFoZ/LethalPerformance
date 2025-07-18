@@ -7,8 +7,12 @@ using LethalPerformance.API;
 using LethalPerformance.Patcher.API;
 
 namespace LethalPerformance.Caching.FindingObjectOptimization;
-[HarmonyPatch]
-[HarmonyPriority(Priority.VeryLow)]
+
+// commented out harmony patch for speeding up patching.
+// As this harmony patch may slow start up due to patching a lot of methods that are used by others too.
+
+//[HarmonyPatch]
+//[HarmonyPriority(Priority.VeryLow)]
 internal static class ReplaceFindObjectOfTypePatch
 {
     private static readonly Dictionary<Type, MethodInfo> s_MapGettingInstance = new()
