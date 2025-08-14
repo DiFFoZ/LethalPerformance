@@ -2,6 +2,7 @@
 using DunGen;
 using HarmonyLib;
 using LethalPerformance.Caching;
+using LethalPerformance.Extensions;
 using LethalPerformance.Utilities;
 using Unity.AI.Navigation;
 using UnityEngine;
@@ -28,6 +29,7 @@ internal static class Patch_NavMeshSurface
     public static void OnEnable()
     {
         var scene = SceneUtilities.GetLastLoadedScene();
+        LethalPerformancePlugin.Instance.Logger.LogDebug("Loaded new scene");
         if (!scene.IsValid())
         {
             return;
@@ -115,9 +117,10 @@ internal static class Patch_NavMeshSurface
 
     [HarmonyPatch("OnDisable")]
     [HarmonyPostfix]
-    public static void OnDisable()
+    public static void OnDisable(NavMeshSurface __instance)
     {
         var scene = SceneUtilities.GetLastLoadedScene();
+        LethalPerformancePlugin.Instance.Logger.LogDebug("Unloaded scene\n" + __instance.transform.GetScenePath());
         if (!scene.IsValid())
         {
             return;
