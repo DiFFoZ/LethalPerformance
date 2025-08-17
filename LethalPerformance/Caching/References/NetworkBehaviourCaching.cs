@@ -47,7 +47,7 @@ internal static class NetworkBehaviourCaching
         foreach (var type in s_TypesToCache)
         {
 #if ENABLE_PROFILER
-            if (!type.IsAssignableFrom(typeof(NetworkBehaviour)))
+            if (!typeof(NetworkBehaviour).IsAssignableFrom(type))
             {
                 throw new Exception($"{type} is no longer behaviour");
             }
