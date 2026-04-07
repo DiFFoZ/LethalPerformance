@@ -67,7 +67,7 @@ internal static class UnsafeCacheManager
         AddReference<TimeOfDay>("/Systems/GameSystems/TimeAndWeather");
         AddReference<SoundManager>("/Systems/GameSystems/SoundManager");
         AddReference<ShipBuildModeManager>("/Systems/GameSystems/ShipBuildMode");
-        AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpread");
+        AddReference<MoldSpreadManager>("/Systems/GameSystems/Misc/MoldSpreadManager");
         AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
         AddReference<BeltBagInventoryUI>("/Systems/UI/Canvas/IngamePlayerHUD/BeltBagUI");
         AddReference<AudioListener>("/Systems/Audios/PlayerAudioListener");
