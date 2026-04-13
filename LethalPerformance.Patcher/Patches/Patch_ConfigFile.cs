@@ -139,8 +139,11 @@ internal static class Patch_ConfigFile
                 writer.Write(instance._ownerMetadata.Name);
                 writer.Write(" v");
 
-                instance._ownerMetadata.Version.TryFormat(buffer, out var charsWritten);
-                writer.WriteLine(buffer.Slice(0, charsWritten));
+                if (instance._ownerMetadata.Version != null)
+                {
+                    instance._ownerMetadata.Version.TryFormat(buffer, out var charsWritten);
+                    writer.WriteLine(buffer.Slice(0, charsWritten));
+                }
 
                 writer.Write("## Plugin GUID: ");
                 writer.WriteLine(instance._ownerMetadata.GUID);
