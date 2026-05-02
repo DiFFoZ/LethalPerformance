@@ -16,6 +16,12 @@ internal static unsafe class Patch_HDCamera
         return HarmonyExceptionHandler.ReportException(exception);
     }
 
+    [HarmonyPrepare]
+    public static bool ShouldPatch()
+    {
+        return !Dependencies.IsModLoaded(Dependencies.LethalCompanyVR);
+    }
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(HDCamera.UpdateShaderVariablesXRCB))]
     public static unsafe bool Prefix(HDCamera __instance, ref ShaderVariablesXR cb)
