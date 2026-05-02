@@ -65,7 +65,8 @@ internal static class Patch_Chainloader
             return;
         }
 
-        const int offset = 0xfd9040; // ThreadAndSerializationSafeCheck::ReportError
+        // Updated to unity 2022.3.62f2
+        const int offset = 0x101F620; // ThreadAndSerializationSafeCheck::ReportError
         NativeDetour detour = new NativeDetour(unityPlayer.Value + offset, MethodOf(StubMethod));
     }
 
