@@ -22,6 +22,17 @@ internal static class MoonCachingPatch
 
     private static int s_LastCalledSceneId = -1;
 
+    // TODO
+    // RandomScrapSpawn
+    // SteamValveHazard(?)
+    // PreCacheBounds (patch it)
+    // EnemyAINestSpawnObject
+    // RandomMapObject
+    // SpawnSyncedObject(?)
+    // DungenCharacter
+    // AdjacentRoomCullingModified
+    // DungeonGenerator.InnerGenerate -> DungenCharacter (remove)
+
     [HarmonyPatch(typeof(NavMeshSurface))]
     private static class Patch_NavMeshSurface
     {

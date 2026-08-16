@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dissonance;
+using DunGen;
 using LethalPerformance.Caching.References;
 using Unity.AI.Navigation;
 using UnityEngine;
@@ -20,7 +21,16 @@ internal static class UnsafeCacheManager
         [typeof(HUDManager)] = (_) => new(HUDManager.Instance, HUDManager.Instance),
         [typeof(GlobalEffects)] = (_) => new(GlobalEffects.Instance, GlobalEffects.Instance),
         [typeof(IngamePlayerSettings)] = (_) => InstanceResult.Found(IngamePlayerSettings.Instance),
-        [typeof(SteamManager)] = (_) => InstanceResult.Found(SteamManager.Instance)
+        [typeof(SteamManager)] = (_) => InstanceResult.Found(SteamManager.Instance),
+        [typeof(Dungeon)] = (inactive) =>
+        {
+            if (!TryGetCachedBehaviour<RuntimeDungeon>(inactive, out var dungeon))
+            {
+                return InstanceResult.NotFound(null);
+            }
+
+            return InstanceResult.Found(dungeon.Generator.CurrentDungeon);
+        }
     };
 
     private static readonly Dictionary<Type, TryGetInstances> s_MapGettingInstances = new()

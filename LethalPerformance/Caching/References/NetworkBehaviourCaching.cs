@@ -36,7 +36,8 @@ internal static class NetworkBehaviourCaching
         typeof(AutoParentToShip),
         typeof(PlaceableObjectsSurface),
         typeof(InteractTrigger),
-        typeof(BridgeTriggerType2)
+        typeof(BridgeTriggerType2),
+        typeof(AnimatedObjectTrigger),
         // todo add:
         // signal translator
 
