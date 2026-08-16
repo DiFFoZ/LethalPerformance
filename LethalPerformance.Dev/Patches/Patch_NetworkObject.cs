@@ -18,7 +18,7 @@ internal static class Patch_NetworkObject
         var matcher = new CodeMatcher(instructions);
 
         matcher.MatchForward(false, [
-            new (OpCodes.Ldstr, "Destroy a spawned NetworkObject on a non-host client is not valid. Call Destroy or Despawn on the server/host instead.")
+            new (OpCodes.Ldstr, "[Invalid Destroy][{0}][NetworkObjectId:{1}] Destroy a spawned {2} on a non-host client is not valid. Call {3} or {4} on the server/host instead.")
             ])
             .Insert([
                 new(OpCodes.Ldarg_0),
