@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using HarmonyLib;
 using LethalPerformance.Patcher.API;
@@ -83,10 +84,16 @@ internal static class NativeFindObjectOfTypePatch
             name += " (all objects)";
         }
 
-        LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
-        if (findAllObjects)
+        var ignoredTypes = new HashSet<Type>
         {
-            //LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
+            typeof(Light),
+            typeof(SandWormAI)
+        };
+
+        LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
+        if (findAllObjects && !ignoredTypes.Contains(type))
+        {
+            LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
         }
 
         Profiler.BeginSample(name);

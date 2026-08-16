@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Dissonance;
 using DunGen;
 using LethalPerformance.Caching.References;
@@ -78,6 +79,21 @@ internal static class UnsafeCacheManager
             }
 
             return InstancesResult.Found(NavMeshModifierVolume.s_NavMeshModifiers.ToArray());
+        },
+        [typeof(DunGen.DungenCharacter)] = (_) => InstancesResult.Found([]), // Not used by the game, but library still tries to search them
+        [typeof(DunGen.Tile)] = (inactive) =>
+        {
+            if (!TryGetCachedBehaviour<RuntimeDungeon>(inactive, out var dungeon))
+            {
+                return InstancesResult.NotFound(null);
+            }
+
+            if (dungeon.Generator.CurrentDungeon == null)
+            {
+                return InstancesResult.Found([]);
+            }
+
+            return InstancesResult.Found(dungeon.Generator.CurrentDungeon.AllTiles.ToArray());
         }
     };
 
@@ -93,6 +109,7 @@ internal static class UnsafeCacheManager
         AddReference<StormyWeather>("/Systems/GameSystems/TimeAndWeather/Stormy");
         AddReference<BeltBagInventoryUI>("/Systems/UI/Canvas/IngamePlayerHUD/BeltBagUI");
         AddReference<AudioListener>("/Systems/Audios/PlayerAudioListener");
+        AddReference<AdjacentRoomCullingModified>("/Systems/Rendering/OcclusionCullingObject");
 
         AddReference<Terminal>("/Environment/HangarShip/Terminal/TerminalTrigger/TerminalScript");
         AddReference<StartMatchLever>("/Environment/HangarShip/StartGameLever");
