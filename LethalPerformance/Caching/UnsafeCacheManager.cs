@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dissonance;
 using LethalPerformance.Caching.References;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -57,6 +58,16 @@ internal static class UnsafeCacheManager
             }
 
             return InstancesResult.Found(voices.ToArray());
+        },
+        [typeof(NavMeshModifierVolume)] = (inactive) =>
+        {
+            if (inactive is FindObjectsInactive.Include)
+            {
+                // copied from NetworkBehaviourCaching.FindWithSpawnedBehaviours
+                LethalPerformancePlugin.Instance.Logger.LogWarning($"{nameof(NavMeshModifierVolume)} search called with inactive objects, probably will cause incompatibility!");
+            }
+
+            return InstancesResult.Found(NavMeshModifierVolume.s_NavMeshModifiers.ToArray());
         }
     };
 
@@ -149,6 +160,7 @@ internal static class UnsafeCacheManager
     public static bool TryGetCachedReferences(Type type, FindObjectsInactive findObjectsInactive, out Object[]? cache)
     {
         RegisterEnemyTypes(type);
+        RegisterItemTypes(type);
 
         {
             if (s_MapGettingInstances.TryGetValue(type, out var cacheFunc))
@@ -211,6 +223,21 @@ internal static class UnsafeCacheManager
         }
 
         if (!typeof(EnemyAI).IsAssignableFrom(type))
+        {
+            return;
+        }
+
+        NetworkBehaviourCaching.AddActionToMap(type);
+    }
+
+    private static void RegisterItemTypes(Type type)
+    {
+        if (s_MapGettingInstances.ContainsKey(type))
+        {
+            return;
+        }
+
+        if (!typeof(GrabbableObject).IsAssignableFrom(type))
         {
             return;
         }

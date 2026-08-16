@@ -39,6 +39,12 @@
       <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
       <Strip>false</Strip>
     </Publicize>
+    <Publicize Include="Unity.AI.Navigation">
+	  <PublicizeTarget>all</PublicizeTarget>
+	  <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
+	  <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
+	  <Strip>false</Strip>
+    </Publicize>
   </ItemGroup>
 
   <ItemGroup>

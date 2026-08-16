@@ -31,6 +31,11 @@ internal static class NetworkBehaviourCaching
         typeof(StoryLog),
         typeof(EntranceTeleport),
         typeof(EnemyAI),
+        typeof(ItemCharger),
+        typeof(BridgeTrigger),
+        typeof(AutoParentToShip),
+        typeof(PlaceableObjectsSurface),
+        typeof(InteractTrigger),
         // todo add:
         // signal translator
 
@@ -48,12 +53,14 @@ internal static class NetworkBehaviourCaching
 
         foreach (var type in s_TypesToCache)
         {
-#if ENABLE_PROFILER
             if (!typeof(NetworkBehaviour).IsAssignableFrom(type))
             {
+#if ENABLE_PROFILER
                 throw new Exception($"{type} is no longer behaviour");
-            }
+#else
+                continue;
 #endif
+            }
 
             AddActionToMap(type);
         }
