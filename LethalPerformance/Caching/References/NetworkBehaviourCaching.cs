@@ -29,18 +29,20 @@ internal static class NetworkBehaviourCaching
         typeof(Turret),
         typeof(SpikeRoofTrap),
         typeof(StoryLog),
-        typeof(EntranceTeleport)
+        typeof(EntranceTeleport),
+        typeof(EnemyAI),
+        // todo add:
+        // signal translator
+
         // commented, because it's not longer network behaviour
         //typeof(SteamValveHazard),
-        // signal translator
-        // enemy ai
     };
 
     private static readonly MethodInfo s_FindWithSpawnedBehaviours = typeof(NetworkBehaviourCaching)
             .GetMethod(nameof(FindWithSpawnedBehaviours), AccessTools.all);
 
     [InitializeOnAwake]
-    internal static void Initialize()
+    private static void Initialize()
     {
         // maybe add another actionToMap method that only allows 1 instance globally, so we don't allocate array
 
@@ -53,11 +55,11 @@ internal static class NetworkBehaviourCaching
             }
 #endif
 
-                AddActionToMap(type);
+            AddActionToMap(type);
         }
     }
 
-    private static void AddActionToMap(Type type)
+    public static void AddActionToMap(Type type)
     {
         var genericMethod = s_FindWithSpawnedBehaviours.MakeGenericMethod(type);
 

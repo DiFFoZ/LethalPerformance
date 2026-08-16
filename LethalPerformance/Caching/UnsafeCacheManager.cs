@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Dissonance;
+using LethalPerformance.Caching.References;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -13,10 +14,10 @@ internal static class UnsafeCacheManager
 
     private static readonly Dictionary<Type, TryGetInstance> s_MapGettingInstance = new()
     {
-        [typeof(StartOfRound)] = (_) => new (StartOfRound.Instance, StartOfRound.Instance),
+        [typeof(StartOfRound)] = (_) => new(StartOfRound.Instance, StartOfRound.Instance),
         [typeof(GameNetworkManager)] = (_) => InstanceResult.Found(GameNetworkManager.Instance),
-        [typeof(HUDManager)] = (_) => new (HUDManager.Instance, HUDManager.Instance),
-        [typeof(GlobalEffects)] = (_) => new (GlobalEffects.Instance, GlobalEffects.Instance),
+        [typeof(HUDManager)] = (_) => new(HUDManager.Instance, HUDManager.Instance),
+        [typeof(GlobalEffects)] = (_) => new(GlobalEffects.Instance, GlobalEffects.Instance),
         [typeof(IngamePlayerSettings)] = (_) => InstanceResult.Found(IngamePlayerSettings.Instance),
         [typeof(SteamManager)] = (_) => InstanceResult.Found(SteamManager.Instance)
     };
@@ -147,6 +148,8 @@ internal static class UnsafeCacheManager
 
     public static bool TryGetCachedReferences(Type type, FindObjectsInactive findObjectsInactive, out Object[]? cache)
     {
+        RegisterEnemyTypes(type);
+
         {
             if (s_MapGettingInstances.TryGetValue(type, out var cacheFunc))
             {
@@ -198,5 +201,20 @@ internal static class UnsafeCacheManager
 
         result = null;
         return false;
+    }
+
+    private static void RegisterEnemyTypes(Type type)
+    {
+        if (s_MapGettingInstances.ContainsKey(type))
+        {
+            return;
+        }
+
+        if (!typeof(EnemyAI).IsAssignableFrom(type))
+        {
+            return;
+        }
+
+        NetworkBehaviourCaching.AddActionToMap(type);
     }
 }
