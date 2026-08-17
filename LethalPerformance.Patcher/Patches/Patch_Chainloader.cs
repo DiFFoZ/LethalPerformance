@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
 using HarmonyLib;
+using LethalPerformance.Patcher.Utilities;
 using MonoMod.RuntimeDetour;
 using static System.Reflection.Emit.OpCodes;
 
@@ -44,30 +43,24 @@ internal static class Patch_Chainloader
 
     private static void DebugRemoveThreadSafetyCheck()
     {
-        if (!UnityEngine.Debug.isDebugBuild)
+        // debug builds adds thread safety checks, that throws exception if you try to get value on non main thread.
+        // sadly, some mods are doing that, causing these mods not loaded correctly in development build.
+
+        // todo: config value check
+
+        if (!UnityPlayerModule.TryInitialize())
         {
             return;
         }
 
-        // debug builds adds thread safety checks, that throws exception if you try to get value on non main thread.
-        // sadly, some mods are doing that, causing these mods not loaded correctly in development build.
-        
-
-        // todo: config value check
-
-        var unityPlayer = Process.GetCurrentProcess().Modules
-            .Cast<ProcessModule>()
-            .FirstOrDefault(p => p.ModuleName.Contains("UnityPlayer"))
-            ?.BaseAddress;
-
-        if (unityPlayer == null)
+        if (!UnityPlayerModule.IsDebugBuild)
         {
             return;
         }
 
         // Updated to unity 2022.3.62f2
         const int offset = 0x101F620; // ThreadAndSerializationSafeCheck::ReportError
-        NativeDetour detour = new NativeDetour(unityPlayer.Value + offset, MethodOf(StubMethod));
+        NativeDetour detour = new NativeDetour(UnityPlayerModule.GetRva(offset), MethodOf(StubMethod));
     }
 
     private static void StubMethod() { }
