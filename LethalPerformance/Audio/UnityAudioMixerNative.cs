@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LethalPerformance.Patcher.Utilities;
 using UnityEngine.Audio;
@@ -18,9 +17,7 @@ internal static unsafe class UnityAudioMixerNative
 
     private static ChannelGroupGetDspHead? s_GetDspHead;
     private static DspGetNumInputs? s_GetNumInputs;
-    private static DspGetNumInputs? s_GetNumOutputs;
     private static DspGetInput? s_GetInput;
-    private static DspGetInput? s_GetOutput;
     private static DspGetInfo? s_GetInfo;
     private static DspSetBypass? s_SetBypass;
     private static AudioMixerGetChannelGroup? s_GetChannelGroup;
@@ -86,12 +83,12 @@ internal static unsafe class UnityAudioMixerNative
         }
 
         var dsp = FindEffectDsp(group, effect);
-        if (dsp == IntPtr.Zero || s_SetBypass == null)
+        if (dsp == IntPtr.Zero)
         {
             return false;
         }
 
-        return s_SetBypass(dsp, bypass ? (byte)1 : (byte)0) == c_FmodOk;
+        return s_SetBypass!(dsp, bypass ? (byte)1 : (byte)0) == c_FmodOk;
     }
 
     private static void ApplyKnownLayoutFallback()
@@ -120,18 +117,14 @@ internal static unsafe class UnityAudioMixerNative
         var getDspHead = ResolveFunction(developmentRva: 0x2327510); // FMOD::ChannelGroup::getDSPHead
         var getInfo = ResolveFunction(developmentRva: 0x23283e0); // FMOD::DSP::getInfo
         var getInput = ResolveFunction(developmentRva: 0x2328450); // FMOD::DSP::getInput
-        var getOutput = ResolveFunction(developmentRva: 0x2328500); // FMOD::DSP::getOutput
         var getNumInputs = ResolveFunction(developmentRva: 0x23284a0); // FMOD::DSP::getNumInputs
-        var getNumOutputs = ResolveFunction(developmentRva: 0x23284d0); // FMOD::DSP::getNumOutputs
         var getChannelGroup = ResolveFunction(developmentRva: 0x149fb20); // AudioMixer::GetFMODChannelGroup
 
         s_SetBypass = Marshal.GetDelegateForFunctionPointer<DspSetBypass>(setBypass);
         s_GetDspHead = Marshal.GetDelegateForFunctionPointer<ChannelGroupGetDspHead>(getDspHead);
         s_GetInfo = Marshal.GetDelegateForFunctionPointer<DspGetInfo>(getInfo);
         s_GetInput = Marshal.GetDelegateForFunctionPointer<DspGetInput>(getInput);
-        s_GetOutput = Marshal.GetDelegateForFunctionPointer<DspGetInput>(getOutput);
         s_GetNumInputs = Marshal.GetDelegateForFunctionPointer<DspGetNumInputs>(getNumInputs);
-        s_GetNumOutputs = Marshal.GetDelegateForFunctionPointer<DspGetNumInputs>(getNumOutputs);
         s_GetChannelGroup = Marshal.GetDelegateForFunctionPointer<AudioMixerGetChannelGroup>(getChannelGroup);
 
         return true;
@@ -148,73 +141,44 @@ internal static unsafe class UnityAudioMixerNative
     private static IntPtr FindEffectDsp(AudioMixerGroup group, MixerEffect effect)
     {
         var channelGroup = GetChannelGroup(group);
-        if (channelGroup == IntPtr.Zero || s_GetDspHead == null)
+        if (channelGroup == IntPtr.Zero)
         {
             return IntPtr.Zero;
         }
 
-        if (s_GetDspHead(channelGroup, out var head) != c_FmodOk || head == IntPtr.Zero)
+        if (s_GetDspHead!(channelGroup, out var dsp) != c_FmodOk || dsp == IntPtr.Zero)
         {
             return IntPtr.Zero;
         }
 
-        var visited = new HashSet<IntPtr>();
-        var queue = new Queue<IntPtr>();
-        queue.Enqueue(head);
-
-        while (queue.Count > 0)
+        // ChannelGroup inserts are a serial chain from the head toward the tail.
+        // Only follow input 0 so child ChannelGroups (multiple inputs on the mix DSP) are not visited.
+        for (var i = 0; i < 16 && dsp != IntPtr.Zero; i++)
         {
-            var dsp = queue.Dequeue();
-            if (!visited.Add(dsp))
-            {
-                continue;
-            }
-
             if (IsTargetEffect(dsp, effect))
             {
                 return dsp;
             }
 
-            EnqueueConnected(dsp, queue, inputs: true);
-            EnqueueConnected(dsp, queue, inputs: false);
+            if (s_GetNumInputs!(dsp, out var count) != c_FmodOk || count <= 0)
+            {
+                break;
+            }
+
+            if (s_GetInput!(dsp, 0, out dsp, out _) != c_FmodOk)
+            {
+                break;
+            }
         }
 
         return IntPtr.Zero;
     }
 
-    private static void EnqueueConnected(IntPtr dsp, Queue<IntPtr> queue, bool inputs)
-    {
-        var getCount = inputs ? s_GetNumInputs : s_GetNumOutputs;
-        var getNode = inputs ? s_GetInput : s_GetOutput;
-        if (getCount == null || getNode == null)
-        {
-            return;
-        }
-
-        if (getCount(dsp, out var count) != c_FmodOk || count <= 0 || count > 32)
-        {
-            return;
-        }
-
-        for (var i = 0; i < count; i++)
-        {
-            if (getNode(dsp, i, out var connected, out _) == c_FmodOk && connected != IntPtr.Zero)
-            {
-                queue.Enqueue(connected);
-            }
-        }
-    }
-
     private static bool IsTargetEffect(IntPtr dsp, MixerEffect effect)
     {
-        if (s_GetInfo == null)
-        {
-            return false;
-        }
-
         var nameBuffer = stackalloc byte[c_NameBufferLength];
         var dummy = 0;
-        if (s_GetInfo(dsp, (IntPtr)nameBuffer, (IntPtr)(&dummy), (IntPtr)(&dummy),
+        if (s_GetInfo!(dsp, (IntPtr)nameBuffer, (IntPtr)(&dummy), (IntPtr)(&dummy),
                 (IntPtr)(&dummy), (IntPtr)(&dummy)) != c_FmodOk)
         {
             return false;
@@ -225,8 +189,6 @@ internal static unsafe class UnityAudioMixerNative
         {
             return false;
         }
-
-        LethalPerformancePlugin.Instance.Logger.LogInfo(name);
 
         return effect switch
         {
