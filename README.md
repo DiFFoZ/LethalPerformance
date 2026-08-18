@@ -29,7 +29,7 @@ Another mod likely prevented an entrance teleport from spawning correctly. Expec
 Remove Terbium for better compatibility with LethalPerformance.
 
 ## Recommended mods
-For a preconfigured set of performance mods that can be added to any modpack, use [Starter Pack](https://thunderstore.io/c/lethal-company/p/ThecheeseXD/Starter_Pack/) by ThecheeseXD.
+For a preconfigured set of performance and bug fixes mods that can be added to any modpack, use [Starter Pack](https://thunderstore.io/c/lethal-company/p/ThecheeseXD/Starter_Pack/) by ThecheeseXD.
 
 LethalPerformance also works well with:
 - [LethalFixes](https://thunderstore.io/c/lethal-company/p/Dev1A3/LethalFixes/) by Dev1A3 - fixes lag spikes caused by Dissonance and RPC logging and more.
@@ -37,7 +37,8 @@ LethalPerformance also works well with:
 - [BepInEx Faster Load AssetBundles Patcher](https://thunderstore.io/c/lethal-company/p/DiFFoZ/BepInEx_Faster_Load_AssetBundles_Patcher/) by DiFFoZ - reduces RAM usage and speeds up asset loading, leading to smoother frametime.
 - [PathfindingLagFix](https://thunderstore.io/c/lethal-company/p/Zaggy1024/PathfindingLagFix/) by Zaggy1024 - makes the calculation of AI path to use time-slicing, resulting in smoother frametime.
 - [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) by fumiko & Zaggy1024 - stops rendering interior rooms that aren't visible.
-- [LethalSponge](https://thunderstore.io/c/lethal-company/p/Scoops/LethalSponge/) by Scoops - replaces original postprocessing shader into the custom one for better performance.
+- [LethalSponge](https://thunderstore.io/c/lethal-company/p/Scoops/LethalSponge/) by Scoops - frame limiting cameras in the ship, creating LOD for items and more.
+- [ReXuvination](https://thunderstore.io/c/lethal-company/p/XuXiaolan/ReXuvination/) by XuXiaolan - optimizes colliders that unnecessarily calling OnTriggerStay message.
 
 ## Credits
 - Icon by [Lorc](https://lorcblog.blogspot.com/) via [game-icons.net](https://game-icons.net/)
