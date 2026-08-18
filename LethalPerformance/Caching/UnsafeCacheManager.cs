@@ -72,6 +72,8 @@ internal static class UnsafeCacheManager
         },
         [typeof(NavMeshModifierVolume)] = (inactive) =>
         {
+            // Used in GetOutsideAINodes to filter nodes that are underwater (area 12)
+
             if (inactive is FindObjectsInactive.Include)
             {
                 // copied from NetworkBehaviourCaching.FindWithSpawnedBehaviours

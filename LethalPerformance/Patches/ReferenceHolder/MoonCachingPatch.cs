@@ -17,7 +17,7 @@ internal static class MoonCachingPatch
 {
     private static readonly UnsafeCachedInstance<ItemDropship> s_ItemDropship
         = UnsafeCacheManager.AddReferenceToMap(new ManualCachedInstance<ItemDropship>());
-    private static readonly UnsafeCachedInstance<RuntimeDungeon> s_RuntimeDungeon
+    internal static readonly UnsafeCachedInstance<RuntimeDungeon> s_RuntimeDungeon
         = UnsafeCacheManager.AddReferenceToMap(new ManualCachedInstance<RuntimeDungeon>());
 
     private static int s_LastCalledSceneId = -1;
@@ -50,18 +50,12 @@ internal static class MoonCachingPatch
 
             if (scene.rootCount == 0)
             {
-                LethalPerformancePlugin.Instance.Logger.LogWarning("New scene loading triggered navmesh, but no roots on the scene! Mod initializing navmesh early?\n"
-                    + Environment.StackTrace);
-
                 return;
             }
 
             var found = FindDropship(scene) && FindDungeon(scene);
             if (!found)
             {
-                LethalPerformancePlugin.Instance.Logger.LogWarning("New scene loading triggered navmesh, but nothing found! Mod initializing navmesh early?\n"
-                    + Environment.StackTrace);
-
                 return;
             }
 
@@ -70,9 +64,15 @@ internal static class MoonCachingPatch
 
         private static bool FindDungeon(Scene scene)
         {
+            RuntimeDungeon dungeon;
+
             var dungeonGeneratorObject = GameObject.Find("/Systems/LevelGeneration/DungeonGenerator");
-            if (dungeonGeneratorObject != null && dungeonGeneratorObject.TryGetComponent<RuntimeDungeon>(out var dungeon))
+            if (dungeonGeneratorObject != null)
             {
+                // moon on old version may use old dungen reference
+                // so if it's not resolved then just set dungeon to null
+                // and try to expect LLL to create it for us.
+                dungeonGeneratorObject.TryGetComponent(out dungeon);
                 s_RuntimeDungeon.SetInstance(dungeon);
                 return true;
             }
