@@ -7,7 +7,10 @@ namespace LethalPerformance.Audio;
 
 internal enum MixerEffect
 {
-    PitchShifter
+    // When adding effect, please register the name in IsTargetEffect
+    PitchShifter,
+    Chorus,
+    Compressor
 }
 
 internal static unsafe class UnityAudioMixerNative
@@ -58,7 +61,6 @@ internal static unsafe class UnityAudioMixerNative
 
         if (!UnityPlayerModule.TryInitialize())
         {
-            LethalPerformancePlugin.Instance.Logger.LogWarning("UnityPlayer module was not found");
             return false;
         }
 
@@ -66,8 +68,6 @@ internal static unsafe class UnityAudioMixerNative
 
         if (!TryResolveFmodFunctions())
         {
-            LethalPerformancePlugin.Instance.Logger.LogWarning(
-                "Failed to resolve AudioMixer native functions. RVA = Ghidra address minus image base (usually 180000000).");
             return false;
         }
 
@@ -96,7 +96,7 @@ internal static unsafe class UnityAudioMixerNative
         // AudioMixerGroup::GetGroupInGUIDListRecursive compares m_GroupID then the next 12 bytes.
         // Development Object is 0x20 larger than release (0x7C vs 0x5C).
 
-        if (IsDevelopmentPlayer())
+        if (UnityPlayerModule.IsDebugBuild)
         {
             s_GroupIdOffset = 0x7C;
         }
@@ -106,19 +106,14 @@ internal static unsafe class UnityAudioMixerNative
         }
     }
 
-    private static bool IsDevelopmentPlayer()
-    {
-        return true;
-    }
-
     private static bool TryResolveFmodFunctions()
     {
-        var setBypass = ResolveFunction(developmentRva: 0x23286e0); // FMOD::DSP::setBypass
-        var getDspHead = ResolveFunction(developmentRva: 0x2327510); // FMOD::ChannelGroup::getDSPHead
-        var getInfo = ResolveFunction(developmentRva: 0x23283e0); // FMOD::DSP::getInfo
-        var getInput = ResolveFunction(developmentRva: 0x2328450); // FMOD::DSP::getInput
-        var getNumInputs = ResolveFunction(developmentRva: 0x23284a0); // FMOD::DSP::getNumInputs
-        var getChannelGroup = ResolveFunction(developmentRva: 0x149fb20); // AudioMixer::GetFMODChannelGroup
+        var setBypass = ResolveFunction         (0x23286e0, 0x16cdfa0); // FMOD::DSP::setBypass
+        var getDspHead = ResolveFunction        (0x2327510, 0x16cd8b0); // FMOD::ChannelGroup::getDSPHead
+        var getInfo = ResolveFunction           (0x23283e0, 0x16cdcd0); // FMOD::DSP::getInfo
+        var getInput = ResolveFunction          (0x2328450, 0x16cdd40); // FMOD::DSP::getInput
+        var getNumInputs = ResolveFunction      (0x23284a0, 0x16cdd90); // FMOD::DSP::getNumInputs
+        var getChannelGroup = ResolveFunction   (0x149fb20, 0xbc88b0); // AudioMixer::GetFMODChannelGroup
 
         s_SetBypass = Marshal.GetDelegateForFunctionPointer<DspSetBypass>(setBypass);
         s_GetDspHead = Marshal.GetDelegateForFunctionPointer<ChannelGroupGetDspHead>(getDspHead);
@@ -130,9 +125,9 @@ internal static unsafe class UnityAudioMixerNative
         return true;
     }
 
-    private static IntPtr ResolveFunction(int developmentRva)
+    private static IntPtr ResolveFunction(int developmentRva, int releaseRva)
     {
-        var rva = UnityPlayerModule.IsDebugBuild ? developmentRva : 0;
+        var rva = UnityPlayerModule.IsDebugBuild ? developmentRva : releaseRva;
         var address = UnityPlayerModule.GetRva(rva);
 
         return address;
@@ -193,6 +188,8 @@ internal static unsafe class UnityAudioMixerNative
         return effect switch
         {
             MixerEffect.PitchShifter => name.Contains("FMOD Pitch Shifter", StringComparison.OrdinalIgnoreCase),
+            MixerEffect.Chorus => name.Contains("FMOD Chorus", StringComparison.OrdinalIgnoreCase),
+            MixerEffect.Compressor => name.Contains("FMOD Compressor", StringComparison.OrdinalIgnoreCase),
             _ => false
         };
     }

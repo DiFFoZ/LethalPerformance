@@ -93,7 +93,7 @@ internal static class NativeFindObjectOfTypePatch
         LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
         if (findAllObjects && !ignoredTypes.Contains(type))
         {
-            LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
+            //LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
         }
 
         Profiler.BeginSample(name);

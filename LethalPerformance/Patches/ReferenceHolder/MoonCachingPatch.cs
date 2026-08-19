@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
 using DunGen;
 using HarmonyLib;
+using LethalPerformance.Audio;
 using LethalPerformance.Caching;
 using LethalPerformance.Utilities;
 using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
@@ -66,6 +69,53 @@ internal static class MoonCachingPatch
             }
 
             s_LastCalledSceneId = sceneHandle;
+
+            OptimizeAudioMixers();
+        }
+
+        private static void OptimizeAudioMixers()
+        {
+            // From what I understand not used audiomixer's from mods still processed with all effects,
+            // and one of effect is pitch shifter that causing high processing time compared to other effects.
+            // 
+            // So finding all audio mixers and set bypass to reduce time processing.
+
+            // TODO:
+            // move it after generating dungeon (dawn lib is now hotloading dungeons)
+
+            var gameMixer = SoundManager.Instance.diageticMixer;
+            var musicMixer = GameObject.Find("/Systems/Audios/Music1").GetComponent<AudioSource>().outputAudioMixerGroup.audioMixer;
+
+            var snapshots = Resources.FindObjectsOfTypeAll<AudioMixerSnapshot>().ToList();
+            LethalPerformancePlugin.Instance.Logger.LogDebug("Found snaphots: " + snapshots.Count.ToString());
+
+            foreach (var mixer in Resources.FindObjectsOfTypeAll<AudioMixer>())
+            {
+                if (mixer == gameMixer || mixer == musicMixer)
+                {
+                    LethalPerformancePlugin.Instance.Logger.LogDebug($"skipped real {mixer.name}");
+                    continue;
+                }
+
+                var groups = mixer.FindMatchingGroups(string.Empty);
+                foreach (var group in groups)
+                {
+                    var succ = UnityAudioMixerNative.SetEffectBypass(group, MixerEffect.PitchShifter, true);
+                    var succ2 = UnityAudioMixerNative.SetEffectBypass(group, MixerEffect.Compressor, true);
+                    var succ3 = UnityAudioMixerNative.SetEffectBypass(group, MixerEffect.Chorus, true);
+                    //LethalPerformancePlugin.Instance.Logger.LogDebug($"{succ} {succ2} {succ3}");
+                }
+
+                // Removes snapshots that are from the mods (they are not used)
+                foreach (var snapshot in snapshots.Where(s => s.audioMixer == mixer).ToList())
+                {
+                    Object.DestroyImmediate(snapshot, true);
+                    snapshots.Remove(snapshot);
+                }
+            }
+
+            // 5 in diegetic and 1 nondiegetic
+            LethalPerformancePlugin.Instance.Logger.LogDebug("Left snaphots (should be 6): " + snapshots.Count.ToString());
         }
 
         private static bool FindDungeon(Scene scene)
