@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using HarmonyLib;
 using LethalPerformance.Patcher.API;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -86,8 +87,20 @@ internal static class NativeFindObjectOfTypePatch
 
         var ignoredTypes = new HashSet<Type>
         {
+            // CameraOverhaul searches them every second
             typeof(Light),
-            typeof(SandWormAI)
+            typeof(SandWormAI),
+            // ---
+            // outside enemies loves to search for outside nodes
+            typeof(NavMeshModifierVolume),
+            typeof(PreInitSceneScript),
+            typeof(TerrainGraphicSettings),
+            typeof(SaveFileUISlot),
+            typeof(MenuManager),
+            typeof(SettingsOption),
+            typeof(UnlockableSuit),
+            typeof(PlaceableShipObject)
+            // ---
         };
 
         LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
