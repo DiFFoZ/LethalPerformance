@@ -80,8 +80,12 @@ internal static class MoonCachingPatch
             var gameMixer = SoundManager.Instance.diageticMixer;
             var musicMixer = GameObject.Find("/Systems/Audios/Music1").GetComponent<AudioSource>().outputAudioMixerGroup.audioMixer;
 
-            var snapshots = Resources.FindObjectsOfTypeAll<AudioMixerSnapshot>().ToList();
-            LethalPerformancePlugin.Instance.Logger.LogDebug("Found snaphots: " + snapshots.Count.ToString());
+            if (gameMixer == null || musicMixer == null)
+            {
+                return;
+            }
+
+            // Deleting AudioMixerSnapshot would crash the game when reloading a lobby.
 
             foreach (var mixer in Resources.FindObjectsOfTypeAll<AudioMixer>())
             {
@@ -99,17 +103,7 @@ internal static class MoonCachingPatch
                     var succ3 = UnityAudioMixerNative.SetEffectBypass(group, MixerEffect.Chorus, true);
                     //LethalPerformancePlugin.Instance.Logger.LogDebug($"{succ} {succ2} {succ3}");
                 }
-
-                // Removes snapshots that are from the mods (they are not used)
-                foreach (var snapshot in snapshots.Where(s => s.audioMixer == mixer).ToList())
-                {
-                    Object.DestroyImmediate(snapshot, true);
-                    snapshots.Remove(snapshot);
-                }
             }
-
-            // 5 in diegetic and 1 nondiegetic
-            LethalPerformancePlugin.Instance.Logger.LogDebug("Left snaphots (should be 6): " + snapshots.Count.ToString());
         }
 
         private static bool FindDungeon(Scene scene)
