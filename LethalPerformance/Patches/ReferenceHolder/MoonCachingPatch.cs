@@ -18,10 +18,13 @@ namespace LethalPerformance.Patches.ReferenceHolder;
 /// </summary>
 internal static class MoonCachingPatch
 {
+    // When adding new cached instance, clear the instance at the dereference method
     private static readonly UnsafeCachedInstance<ItemDropship> s_ItemDropship
         = UnsafeCacheManager.AddReferenceToMap(new ManualCachedInstance<ItemDropship>());
     internal static readonly UnsafeCachedInstance<RuntimeDungeon> s_RuntimeDungeon
         = UnsafeCacheManager.AddReferenceToMap(new ManualCachedInstance<RuntimeDungeon>());
+    private static readonly UnsafeCachedInstance<animatedSun> s_AnimatedSun
+        = UnsafeCacheManager.AddReferenceToMap(new ManualCachedInstance<animatedSun>());
 
     private static int s_LastCalledSceneId = -1;
 
@@ -56,7 +59,7 @@ internal static class MoonCachingPatch
                 return;
             }
 
-            var found = FindDropship(scene) && FindDungeon(scene);
+            var found = FindDropship(scene) && FindDungeon(scene) && FindAnimatedSun(scene);
             if (!found)
             {
                 return;
@@ -165,6 +168,44 @@ internal static class MoonCachingPatch
 
             return false;
         }
+
+        private static readonly string[] s_AnimatedSunPaths =
+        [
+            "/Environment/Lighting/BrightDay/Sun/SunAnimContainer",
+            "/Environment/Lighting/BrightDay/Sun/BlizzardSunAnimContainer", // Dine, Rend, Artifice
+        ];
+
+        private static bool FindAnimatedSun(Scene scene)
+        {
+            animatedSun sun;
+
+            foreach (var path in s_AnimatedSunPaths)
+            {
+                var sunAnimContainer = GameObject.Find(path);
+                if (sunAnimContainer != null && sunAnimContainer.TryGetComponent<animatedSun>(out sun))
+                {
+                    s_AnimatedSun.SetInstance(sun);
+                    return true;
+                }
+            }
+
+            using var _ = ListPool<GameObject>.Get(out var list);
+            scene.GetRootGameObjects(list);
+
+            foreach (var obj in list)
+            {
+                sun = obj.GetComponentInChildren<animatedSun>(includeInactive: false);
+                if (sun == null)
+                {
+                    continue;
+                }
+
+                s_AnimatedSun.SetInstance(sun);
+                return true;
+            }
+
+            return false;
+        }
     }
 
     [HarmonyPatch(typeof(ElevatorAnimationEvents))]
@@ -193,6 +234,7 @@ internal static class MoonCachingPatch
 
             s_ItemDropship.SetInstance(null);
             s_RuntimeDungeon.SetInstance(null);
+            s_AnimatedSun.SetInstance(null);
         }
     }
 }
