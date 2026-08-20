@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.Dev", "LethalPerformance.Dev\LethalPerformance.Dev.csproj", "{21CDD45C-104A-40FA-9D28-A40AD871AA2F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalPerformance.LLLCompact", "LethalPerformance.LLLCompact\LethalPerformance.LLLCompact.csproj", "{9BA3C124-77FA-428F-A8F2-CE0848751305}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21CDD45C-104A-40FA-9D28-A40AD871AA2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BA3C124-77FA-428F-A8F2-CE0848751305}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BA3C124-77FA-428F-A8F2-CE0848751305}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BA3C124-77FA-428F-A8F2-CE0848751305}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BA3C124-77FA-428F-A8F2-CE0848751305}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
