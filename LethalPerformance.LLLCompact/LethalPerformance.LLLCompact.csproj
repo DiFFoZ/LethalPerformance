@@ -6,11 +6,6 @@
         <DebugSymbols>true</DebugSymbols>
         <DebugType>embedded</DebugType>
         <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=/_/</PathMap>
-        <RestoreAdditionalProjectSources>
-			https://api.nuget.org/v3/index.json;
-			https://nuget.bepinex.dev/v3/index.json;
-			https://nuget.windows10ce.com/nuget/v3/index.json;
-		</RestoreAdditionalProjectSources>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(IAmDiFFoZ)=='true'">
@@ -20,16 +15,26 @@
     <ItemGroup>
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
-        <PackageReference Include="IAmBatby.LethalLevelLoader" Version="1.*" />
+        <PackageReference Include="IAmBatby-LethalLevelLoader" Version="1.*" />
 		<PackageReference Include="LethalCompany.GameLibs.Steam" Version="81.0.0-ngd.0" PrivateAssets="all" />
     </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+		<Publicize Include="LethalLevelLoader">
+			<PublicizeTarget>all</PublicizeTarget>
+			<PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
+			<IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
+			<Strip>false</Strip>
+		</Publicize>
+	</ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" />
     </ItemGroup>
 
     <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
-        <Copy SourceFiles="$(OutputPath)/LethalPerformance.Dev.dll" DestinationFolder="$(BepInExProfilePath)\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
+        <Copy SourceFiles="$(OutputPath)/LethalPerformance.LLLCompact.dll" DestinationFolder="$(BepInExProfilePath)\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
     </Target>
 
 </Project>

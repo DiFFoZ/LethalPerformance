@@ -16,6 +16,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BepInExProfilePath>C:\Users\$(USERNAME)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default3\BepInEx</BepInExProfilePath>
+    <BepInExProfilePath>C:\Users\$(USERNAME)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default2\BepInEx</BepInExProfilePath>
   </PropertyGroup>
 </Project>
