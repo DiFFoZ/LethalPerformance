@@ -33,6 +33,10 @@
         <ProjectReference Include="..\LethalPerformance.Patcher\LethalPerformance.Patcher.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Patches\" />
+    </ItemGroup>
+
     <Target Name="OutputToGaleProfile" AfterTargets="AfterBuild" Condition="$(IAmDiFFoZ)=='true'">
         <Copy SourceFiles="$(OutputPath)/LethalPerformance.LLLCompact.dll" DestinationFolder="$(BepInExProfilePath)\plugins\DiFFoZ-LethalPerformance\LethalPerformance" />
     </Target>
