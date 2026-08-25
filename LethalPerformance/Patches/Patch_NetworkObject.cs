@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using System.Text;
 using HarmonyLib;
+using LethalPerformance.Extensions;
 using LethalPerformance.Patcher;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace LethalPerformance.Dev.Patches;
 // moved from dev, don't forget to reenable it after
-// [HarmonyPatch(typeof(NetworkObject))]
+[HarmonyPatch(typeof(NetworkObject))]
 internal static class Patch_NetworkObject
 {
-    [HarmonyPatch("OnDestroy")]
+    [HarmonyPatch(nameof(NetworkObject.OnDestroy))]
     [HarmonyTranspiler]
     public static IEnumerable<CodeInstruction> LogObjectOnFailedDestroy(IEnumerable<CodeInstruction> instructions)
     {
@@ -27,23 +27,6 @@ internal static class Patch_NetworkObject
                 ]);
 
         return matcher.Instructions();
-    }
-
-    public static string GetScenePath(this Transform transform)
-    {
-        var sb = new StringBuilder();
-        sb.Append('/').Append(transform.name);
-
-        Transform parent;
-        while (parent = transform.parent)
-        {
-            sb.Insert(0, parent.name)
-                .Insert(0, '/');
-
-            transform = parent;
-        }
-
-        return sb.ToString();
     }
 
     public static void LogStacktrace(NetworkObject @object)
@@ -72,7 +55,7 @@ internal static class Patch_NetworkObject
 
         try
         {
-            LethalPerformancePatcher.Logger.LogFatal(GetScenePath(@object.transform));
+            LethalPerformancePatcher.Logger.LogFatal(@object.transform.GetScenePath());
         }
         catch { }
 
