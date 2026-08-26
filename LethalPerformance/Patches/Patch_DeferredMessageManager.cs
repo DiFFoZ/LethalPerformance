@@ -24,7 +24,7 @@ internal static class Patch_DeferredMessageManager
             }
 
             LethalPerformancePatcher.Logger.LogFatal(
-                $"{__instance.GetType().FullDescription()} sent RPC while not spawned (id:{__instance.NetworkObjectId}, path:{__instance.transform.GetScenePath()})");
+                $"{__instance.GetType().Assembly.GetName().FullName} sent RPC while not spawned (id:{__instance.NetworkObjectId}, path:{__instance.transform.GetScenePath()})");
             LethalPerformancePatcher.Logger.LogFatal(Environment.StackTrace);
         }
         catch (Exception ex)

@@ -26,7 +26,6 @@ internal static class MoonCachingPatch
     private static int s_LastCalledSceneId = -1;
 
     // TODO
-    // RandomScrapSpawn
     // SteamValveHazard(?)
     // EnemyAINestSpawnObject
     // RandomMapObject
@@ -51,20 +50,19 @@ internal static class MoonCachingPatch
                 return;
             }
 
-            if (scene.rootCount == 0)
+            var dropship = FindDropship(scene);
+            var dungeon = FindDungeon(scene);
+            var sun = FindAnimatedSun(scene);
+
+            LethalPerformancePlugin.Instance.Logger.LogInfo($"Found Dropship:{dropship}, Dungeon:{dungeon}, Sun:{sun}");
+
+            // Making it a bit more robust if one of object is missing, then we still proccess
+            if (dropship || dungeon || sun)
             {
-                return;
+                s_LastCalledSceneId = sceneHandle;
+
+                OptimizeAudioMixers();
             }
-
-            var found = FindDropship(scene) && FindDungeon(scene) && FindAnimatedSun(scene);
-            if (!found)
-            {
-                return;
-            }
-
-            s_LastCalledSceneId = sceneHandle;
-
-            OptimizeAudioMixers();
         }
 
         private static void OptimizeAudioMixers()
@@ -130,12 +128,8 @@ internal static class MoonCachingPatch
             RuntimeDungeon dungeon;
 
             var dungeonGeneratorObject = GameObject.Find("/Systems/LevelGeneration/DungeonGenerator");
-            if (dungeonGeneratorObject != null)
+            if (dungeonGeneratorObject != null && dungeonGeneratorObject.TryGetComponent(out dungeon))
             {
-                // moon on old version may use old dungen reference
-                // so if it's not resolved then just set dungeon to null
-                // and try to expect LLL to create it for us.
-                dungeonGeneratorObject.TryGetComponent(out dungeon);
                 s_RuntimeDungeon.SetInstance(dungeon);
                 return true;
             }
@@ -155,6 +149,7 @@ internal static class MoonCachingPatch
                 return true;
             }
 
+            s_RuntimeDungeon.SetInstance(null);
             return false;
         }
 
@@ -182,6 +177,7 @@ internal static class MoonCachingPatch
                 return true;
             }
 
+            s_ItemDropship.SetInstance(null);
             return false;
         }
 
@@ -220,6 +216,7 @@ internal static class MoonCachingPatch
                 return true;
             }
 
+            s_AnimatedSun.SetInstance(null);
             return false;
         }
     }
