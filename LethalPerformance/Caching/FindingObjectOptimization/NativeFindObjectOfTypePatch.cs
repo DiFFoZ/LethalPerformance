@@ -12,6 +12,24 @@ namespace LethalPerformance.Caching.FindingObjectOptimization;
 [HarmonyPatch(typeof(Object))]
 internal static class NativeFindObjectOfTypePatch
 {
+    private static readonly HashSet<Type> s_IgnoredProfilerTypes =
+    [
+        // CameraOverhaul searches them every second
+        typeof(Light),
+        typeof(SandWormAI),
+        // ---
+        // outside enemies loves to search for outside nodes
+        typeof(NavMeshModifierVolume),
+        typeof(PreInitSceneScript),
+        typeof(TerrainGraphicSettings),
+        typeof(SaveFileUISlot),
+        typeof(MenuManager),
+        typeof(SettingsOption),
+        typeof(UnlockableSuit),
+        typeof(PlaceableShipObject)
+        // ---
+    ];
+
     [HarmonyCleanup]
     public static Exception? Cleanup(Exception exception)
     {
@@ -79,32 +97,20 @@ internal static class NativeFindObjectOfTypePatch
     [Conditional("ENABLE_PROFILER")]
     private static void ShowInProfilerType(Type type, bool findAllObjects)
     {
+        // Spammed by Imperium
+        if (type == typeof(GameObject))
+        {
+            return;
+        }
+
         var name = "DiFFoZ.Find." + type.Name;
         if (findAllObjects)
         {
             name += " (all objects)";
         }
 
-        var ignoredTypes = new HashSet<Type>
-        {
-            // CameraOverhaul searches them every second
-            typeof(Light),
-            typeof(SandWormAI),
-            // ---
-            // outside enemies loves to search for outside nodes
-            typeof(NavMeshModifierVolume),
-            typeof(PreInitSceneScript),
-            typeof(TerrainGraphicSettings),
-            typeof(SaveFileUISlot),
-            typeof(MenuManager),
-            typeof(SettingsOption),
-            typeof(UnlockableSuit),
-            typeof(PlaceableShipObject)
-            // ---
-        };
-
         LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
-        if (findAllObjects && !ignoredTypes.Contains(type))
+        if (findAllObjects && !s_IgnoredProfilerTypes.Contains(type))
         {
             //LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
         }
@@ -121,7 +127,8 @@ internal static class NativeFindObjectOfTypePatch
         }
 
 #if ENABLE_PROFILER
-        LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} object");
+        if (type != typeof(GameObject))
+            LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} object");
 #endif
 
         result = null;
@@ -136,7 +143,8 @@ internal static class NativeFindObjectOfTypePatch
         }
 
 #if ENABLE_PROFILER
-        LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} objects");
+        if (type != typeof(GameObject))
+            LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} objects");
 #endif
 
         result = null;

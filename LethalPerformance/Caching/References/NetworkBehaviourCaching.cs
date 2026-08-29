@@ -78,7 +78,7 @@ internal static class NetworkBehaviourCaching
         UnsafeCacheManager.AddActionToMap(type, @delegate);
     }
 
-    private static InstancesResult FindWithSpawnedBehaviours<T>(FindObjectsInactive inactive) where T : Object
+    private static InstancesResult FindWithSpawnedBehaviours<T>(FindObjectsInactive inactive) where T : NetworkBehaviour
     {
         if (inactive == FindObjectsInactive.Include)
         {
