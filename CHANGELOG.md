@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Caching of enemies, items, and more networked objects (EnemyAI, item types, ItemCharger, BridgeTrigger, AnimatedObjectTrigger, InteractTrigger, and others).
+- Caching of FloodWeather, animatedSun, dungeon tiles, and NavMeshModifierVolume.
+- Scrap spawning uses the cached RandomScrapSpawn instead of searching the scene.
+- Audio optimizations: unused mixers from other mods are destroyed when a moon loads, and unused voice pitch shifter effects are bypassed.
+### Changed
+- Moon object caching is more robust when dropship, dungeon, or sun is missing.
+- Updated README.
+
 ## [1.2.6] 2026-08-10
 ### Changed
 - Removed ground normal optimization as it was optimized by Zeekerss.

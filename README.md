@@ -8,8 +8,6 @@ For support or discussion, use the [Discord channel](https://discord.gg/XeyYqRdR
 - Reduces allocations and main-thread work in common paths.
 - Reduces save-related hitching by caching Easy Save 3 file data and scheduling saves.
 - Tunes HDRP defaults to reduce unnecessary memory use, including the reflection-probe texture cache.
-- Includes compatibility optimizations for supported mods, including MoreSuits.
-- Keeps Unity profiling scopes available in development builds for diagnosing rendering performance.
 
 ## Useful shortcut
 Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> to open the Unity log folder. This is useful when reporting a problem.
