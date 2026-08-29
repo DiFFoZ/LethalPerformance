@@ -15,7 +15,6 @@ namespace LethalPerformance;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency(Dependencies.MoreSuits, BepInDependency.DependencyFlags.SoftDependency)] // optimization
-[BepInDependency(Dependencies.LethalLevelLoader, BepInDependency.DependencyFlags.SoftDependency)] // used to get reference to dungeon (as a fallback)
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
