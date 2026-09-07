@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace LethalPerformance.Dev.Configuration;
@@ -10,6 +10,9 @@ public class ConfigManager
     public ConfigEntry<Vector3> RotationToTeleport { get; }
     public ConfigEntry<KeyboardShortcut> SavePositionButton { get; }
     public ConfigEntry<KeyboardShortcut> TeleportToPositionButton { get; }
+    public ConfigEntry<KeyboardShortcut> NextMixerSnapshotButton { get; }
+
+    public ConfigEntry<bool> SecondPlayerUsesLastVoiceGroup { get; }
 
     public ConfigEntry<bool> ShouldSpawnEnemies { get; }
 
@@ -24,6 +27,10 @@ public class ConfigManager
 
         SavePositionButton = config.Bind("Debug", "Save position button", new KeyboardShortcut(KeyCode.Minus));
         TeleportToPositionButton = config.Bind("Debug", "Teleport to position button", new KeyboardShortcut(KeyCode.Equals));
+        NextMixerSnapshotButton = config.Bind("Debug", "Next mixer snapshot button", new KeyboardShortcut(KeyCode.F8));
+
+        SecondPlayerUsesLastVoiceGroup = config.Bind("Debug", "Second player uses last voice group", true,
+            "Assigns player index 1 to the last Diagetic voice bus so two clients can test extra VoicePlayer groups.");
 
         ShouldSpawnEnemies = config.Bind("Debug", "Should Spawn Enemies", true);
 

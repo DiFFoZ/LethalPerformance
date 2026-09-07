@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using LethalPerformance.Audio;
 using LethalPerformance.Patcher.API;
@@ -12,6 +13,7 @@ internal static class Patch_SoundManager
 {
     private static AudioMixerGroup[]? s_VoiceGroups;
     private static bool[]? s_VoiceBypass;
+    private static readonly List<AudioMixerGroup> s_UnusedVoiceGroups = new();
 
     [HarmonyCleanup]
     public static Exception? Cleanup(Exception exception)
@@ -21,13 +23,20 @@ internal static class Patch_SoundManager
 
     [HarmonyPatch(nameof(SoundManager.Start))]
     [HarmonyPostfix]
-    [HarmonyPriority(Priority.Last)]
+    [HarmonyAfter(Dependencies.MoreCompany)]
     private static void Start(SoundManager __instance)
     {
+        if (Dependencies.IsModLoaded(Dependencies.MoreCompany))
+        {
+            ApplyExtraVoiceGroups(__instance);
+        }
+
         if (!UnityAudioMixerNative.TryInitialize())
         {
             return;
         }
+
+        BypassUnusedVoiceGroups();
 
         s_VoiceGroups = __instance.playerVoiceMixers;
         s_VoiceBypass = new bool[s_VoiceGroups.Length];
@@ -61,6 +70,38 @@ internal static class Patch_SoundManager
     internal static void ReapplyAfterSnapshot(SoundManager instance)
     {
         ApplyVoiceBypass(instance, force: true);
+        BypassUnusedVoiceGroups();
+    }
+
+    private static void ApplyExtraVoiceGroups(SoundManager instance)
+    {
+        var extra = DiageticVoiceMixerNative.ExtraVoiceGroups;
+        if (extra == null || extra.Length == 0)
+        {
+            return;
+        }
+
+        var current = instance.playerVoiceMixers;
+        var usedExtra = Math.Clamp(current.Length - 4, 0, extra.Length);
+        for (var i = 0; i < usedExtra; i++)
+        {
+            current[i + 4] = extra[i];
+        }
+
+        s_UnusedVoiceGroups.Clear();
+        for (var i = usedExtra; i < extra.Length; i++)
+        {
+            s_UnusedVoiceGroups.Add(extra[i]);
+        }
+    }
+
+    private static void BypassUnusedVoiceGroups()
+    {
+        // Disable compressor too?
+        for (var i = 0; i < s_UnusedVoiceGroups.Count; i++)
+        {
+            UnityAudioMixerNative.TrySetEffectBypass(s_UnusedVoiceGroups[i], MixerEffect.PitchShifter, true);
+        }
     }
 
     private static void ApplyVoiceBypass(SoundManager instance, bool force)
@@ -91,7 +132,7 @@ internal static class Patch_SoundManager
                 continue;
             }
 
-            if (UnityAudioMixerNative.SetEffectBypass(s_VoiceGroups[i], MixerEffect.PitchShifter, bypass))
+            if (UnityAudioMixerNative.TrySetEffectBypass(s_VoiceGroups[i], MixerEffect.PitchShifter, bypass))
             {
                 s_VoiceBypass[i] = bypass;
 #if ENABLE_PROFILER

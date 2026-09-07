@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -6,6 +6,7 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using LethalPerformance.Configuration;
+using LethalPerformance.Patcher;
 using LethalPerformance.Patcher.API;
 using LethalPerformance.Utilities;
 using Unity.Burst.LowLevel;
@@ -15,6 +16,7 @@ namespace LethalPerformance;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency(Dependencies.MoreSuits, BepInDependency.DependencyFlags.SoftDependency)] // optimization
+[BepInDependency(Dependencies.MoreCompany, BepInDependency.DependencyFlags.SoftDependency)] // voice mixer buses
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
@@ -86,8 +88,15 @@ public class LethalPerformancePlugin : BaseUnityPlugin
             .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
             .Where(m => m.GetCustomAttribute<InitializeOnAwakeAttribute>() != null))
         {
-            method.Invoke(null, null);
-            Logger.LogInfo($"Initialized {method.FullDescription()}");
+            try
+            {
+                Logger.LogInfo($"Initializating {method.FullDescription()}");
+                method.Invoke(null, null);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to initialize\n" + ex);
+            }
         }
     }
 

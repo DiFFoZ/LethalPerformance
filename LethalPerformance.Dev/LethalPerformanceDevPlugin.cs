@@ -1,4 +1,4 @@
-﻿#if !IAmDiFFoZ
+#if !IAmDiFFoZ
 #error CI build should fail
 #endif
 
@@ -44,7 +44,7 @@ internal class LethalPerformanceDevPlugin : BaseUnityPlugin
 
     private void InitializePositionTeleporter()
     {
-        var go = new GameObject("Lethal Performance Dev", [typeof(PositionTeleporter)]);
+        var go = new GameObject("Lethal Performance Dev", [typeof(PositionTeleporter), typeof(SnapshotSwitcher)]);
         go.hideFlags = HideFlags.HideAndDontSave;
 
         DontDestroyOnLoad(go);

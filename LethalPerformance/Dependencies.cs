@@ -16,6 +16,10 @@ internal static class Dependencies
 
     public const string LobbyControl = "mattymatty.LobbyControl";
 
+    public const string LethalLib = "LethalLib";
+
+    public const string DawnLib = "com.github.teamxiaolan.dawnlib";
+
     public static bool IsModLoaded(string id)
     {
         return Chainloader.PluginInfos.ContainsKey(id)

@@ -75,7 +75,7 @@ internal static unsafe class UnityAudioMixerNative
         return true;
     }
 
-    internal static bool SetEffectBypass(AudioMixerGroup group, MixerEffect effect, bool bypass)
+    internal static bool TrySetEffectBypass(AudioMixerGroup group, MixerEffect effect, bool bypass)
     {
         if (!s_Available || group == null)
         {

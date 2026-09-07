@@ -31,6 +31,7 @@ internal static class Patch_Chainloader
         try
         {
             LethalPerformancePatcher.Harmony!.Patch(MethodOf(Chainloader.Start),
+                postfix: new(MethodOf(ModsLoaded), Priority.Last),
                 transpiler: new(MethodOf(SaveListOfPluginsTranspiler)));
         }
         catch (Exception e)
@@ -39,6 +40,11 @@ internal static class Patch_Chainloader
         }
 
         DebugRemoveThreadSafetyCheck();
+    }
+
+    private static void ModsLoaded()
+    {
+        LethalPerformancePatcher.InvokeOnModsLoaded();
     }
 
     private static void DebugRemoveThreadSafetyCheck()

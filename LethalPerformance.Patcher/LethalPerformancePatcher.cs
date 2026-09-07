@@ -18,6 +18,13 @@ public class LethalPerformancePatcher
     internal static ManualLogSource Logger { get; } = BepInEx.Logging.Logger.CreateLogSource("LethalPerformance.Patcher");
     public static ConfigSaverTask ConfigSaverTask { get; } = new();
 
+    public static event Action? OnModsLoaded;
+
+    internal static void InvokeOnModsLoaded()
+    {
+        OnModsLoaded?.Invoke();
+    }
+
     public static void Finish()
     {
         // Finish() - all assemblies are patched and loaded, should be now safe to access other classes (but still via reflection)
