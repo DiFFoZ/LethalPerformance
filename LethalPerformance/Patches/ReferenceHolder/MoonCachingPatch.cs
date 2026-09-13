@@ -4,7 +4,6 @@ using LethalPerformance.Caching;
 using LethalPerformance.Utilities;
 using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
@@ -60,66 +59,6 @@ internal static class MoonCachingPatch
             if (dropship || dungeon || sun)
             {
                 s_LastCalledSceneId = sceneHandle;
-
-                OptimizeAudioMixers();
-            }
-        }
-
-        private static void OptimizeAudioMixers()
-        {
-            // From what I understand not used audiomixer's from mods still processed with all effects,
-            // and one of effect is pitch shifter that causing high processing time compared to other effects.
-            // 
-            // So finding all audio mixers and deleting them.
-
-            // TODO:
-            // move it after generating dungeon (dawn lib is now hotloading dungeons)
-
-            var gameMixer = SoundManager.Instance.diageticMixer;
-            var musicMixer = GameObject.Find("/Systems/Audios/Music1").GetComponent<AudioSource>().outputAudioMixerGroup.audioMixer;
-
-            if (gameMixer == null || musicMixer == null)
-            {
-                return;
-            }
-
-            var mixers = Resources.FindObjectsOfTypeAll<AudioMixer>();
-            var shapshots = Resources.FindObjectsOfTypeAll<AudioMixerSnapshot>();
-            var groups = Resources.FindObjectsOfTypeAll<AudioMixerGroup>();
-
-            foreach (var snapshot in shapshots)
-            {
-                var mixer = snapshot.audioMixer;
-                if (mixer == gameMixer || mixer == musicMixer)
-                {
-                    LethalPerformancePlugin.Instance.Logger.LogDebug($"skipped real {mixer.name}");
-                    continue;
-                }
-
-                UnityEngine.Object.DestroyImmediate(snapshot, true);
-            }
-
-            foreach (var group in groups)
-            {
-                var mixer = group.audioMixer;
-                if (mixer == gameMixer || mixer == musicMixer)
-                {
-                    LethalPerformancePlugin.Instance.Logger.LogDebug($"skipped real {mixer.name}");
-                    continue;
-                }
-
-                UnityEngine.Object.DestroyImmediate(group, true);
-            }
-
-            foreach (var mixer in mixers)
-            {
-                if (mixer == gameMixer || mixer == musicMixer)
-                {
-                    LethalPerformancePlugin.Instance.Logger.LogDebug($"skipped real {mixer.name}");
-                    continue;
-                }
-
-                UnityEngine.Object.DestroyImmediate(mixer, true);
             }
         }
 

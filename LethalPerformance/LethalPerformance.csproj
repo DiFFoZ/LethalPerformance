@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
     <Publicize Include="Unity.RenderPipelines.Core.Runtime">
       <PublicizeTarget>all</PublicizeTarget>
       <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
@@ -45,7 +44,13 @@
       <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
       <Strip>false</Strip>
     </Publicize>
-      <Publicize Include="UnityEngine.CoreModule">
+    <Publicize Include="UnityEngine.CoreModule">
+      <PublicizeTarget>all</PublicizeTarget>
+      <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
+      <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>
+      <Strip>false</Strip>
+    </Publicize>
+    <Publicize Include="EasyTextEffects">
       <PublicizeTarget>all</PublicizeTarget>
       <PublicizeCompilerGenerated>false</PublicizeCompilerGenerated>
       <IncludeOriginalAttributesAttribute>false</IncludeOriginalAttributesAttribute>

@@ -26,8 +26,16 @@ internal static class NativeFindObjectOfTypePatch
         typeof(MenuManager),
         typeof(SettingsOption),
         typeof(UnlockableSuit),
-        typeof(PlaceableShipObject)
+        typeof(PlaceableShipObject),
         // ---
+        // Spammed by Imperium
+        typeof(GameObject),
+        // ---
+        // Causing stack overflow with experimental Dawn 
+        typeof(TimeOfDay),
+        // ---
+        // Spammed by BetterShipScreens
+        typeof(Terminal)
     ];
 
     [HarmonyCleanup]
@@ -97,21 +105,20 @@ internal static class NativeFindObjectOfTypePatch
     [Conditional("ENABLE_PROFILER")]
     private static void ShowInProfilerType(Type type, bool findAllObjects)
     {
-        // Spammed by Imperium
-        if (type == typeof(GameObject))
-        {
-            return;
-        }
-
         var name = "DiFFoZ.Find." + type.Name;
         if (findAllObjects)
         {
             name += " (all objects)";
         }
 
-        LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
-        if (findAllObjects && !s_IgnoredProfilerTypes.Contains(type))
+        if (type == typeof(TimeOfDay))
         {
+            return;
+        }
+
+        if (!s_IgnoredProfilerTypes.Contains(type))
+        {
+            LethalPerformancePlugin.Instance.Logger.LogInfo("[Cache] " + name);
             //LethalPerformancePlugin.Instance.Logger.LogDebug("[Cache] " + Environment.StackTrace);
         }
 
@@ -127,7 +134,8 @@ internal static class NativeFindObjectOfTypePatch
         }
 
 #if ENABLE_PROFILER
-        if (type != typeof(GameObject))
+        // See ShowInProfilerType
+        if (!s_IgnoredProfilerTypes.Contains(type))
             LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} object");
 #endif
 
@@ -143,7 +151,8 @@ internal static class NativeFindObjectOfTypePatch
         }
 
 #if ENABLE_PROFILER
-        if (type != typeof(GameObject))
+        // See ShowInProfilerType
+        if (!s_IgnoredProfilerTypes.Contains(type))
             LethalPerformancePlugin.Instance.Logger.LogWarning($"Failed to find cached {type.Name} objects");
 #endif
 

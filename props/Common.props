@@ -15,6 +15,10 @@
     <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+  </ItemGroup>
+
   <PropertyGroup>
     <BepInExProfilePath>C:\Users\$(USERNAME)\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\Default2\BepInEx</BepInExProfilePath>
   </PropertyGroup>

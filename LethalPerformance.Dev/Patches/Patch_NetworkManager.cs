@@ -12,6 +12,7 @@ internal static class Patch_NetworkManager
     {
         // 2 minutes will be fine with a lot of LLL extended mods, right??
         NetworkManager.Singleton.NetworkConfig.LoadSceneTimeOut = 120;
+        NetworkManager.Singleton.NetworkConfig.SpawnTimeout = 120;
 
         if (NetworkManager.Singleton.NetworkConfig.NetworkTransport is UnityTransport transport)
         {

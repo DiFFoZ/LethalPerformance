@@ -8,11 +8,11 @@ using LethalPerformance.Patcher.API;
 namespace LethalPerformance.Patches.Mods;
 
 [HarmonyPatch]
-internal static class Patch_MoreCompanyAudioMixerSetFloat
+internal static class Patch_MoreCompany
 {
     private static readonly MethodInfo? s_MethodToPatch;
 
-    static Patch_MoreCompanyAudioMixerSetFloat()
+    static Patch_MoreCompany()
     {
         if (!Chainloader.PluginInfos.TryGetValue(Dependencies.MoreCompany, out var pluginInfo)
             || pluginInfo.Instance == null)
