@@ -53,7 +53,7 @@ internal static class Patch_LethalLevelLoader
         return s_MethodToPatch!;
     }
 
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     internal static void OptimizeAudioSources(Scene scene)
     {
         // From what I understand not used audiomixer's from mods still processed with all effects,

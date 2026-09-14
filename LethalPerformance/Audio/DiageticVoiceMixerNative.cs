@@ -529,8 +529,10 @@ public static unsafe class DiageticVoiceMixerNative
         var slot = c_VanillaExposedCount;
         for (var n = c_VanillaVoiceCount; n < c_TargetVoiceCount; n++)
         {
-            var group = n + 1;
             var k = n - c_VanillaVoiceCount;
+            // Extra VoicePlayer groups are appended after SFX (group 5). Player n>=4 is
+            // group n+2, not n+1 — otherwise PlayerVolume4 writes the SFX fader.
+            var group = c_VanillaGroupCount + k;
             hashes[slot] = CRC32.Crc32Ascii("PlayerVolume" + n);
             indices[slot] = group * 2;
             slot++;

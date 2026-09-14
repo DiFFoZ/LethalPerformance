@@ -21,6 +21,11 @@ internal class SnapshotSwitcher : MonoBehaviour
             return;
         }
 
+        // SFX volume check fix
+        //SoundManager.Instance.diageticMixer.SetFloat("PlayerVolume4", -80f + Mathf.Clamp01(Random.value) * 100);
+        //Debug.Log(SoundManager.Instance.diageticMixer.GetFloat("PlayerVolume4", out var newVolume));
+        //Debug.Log(newVolume);
+
         var sound = SoundManager.Instance;
         var snapshots = sound.mixerSnapshots;
 
