@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using LethalPerformance.Extensions;
 using LethalPerformance.Utilities;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -32,6 +33,7 @@ internal static class EntranceTeleportValidation
                 if (!entrance.IsSpawned)
                 {
                     hasBrokenEntrance = true;
+                    LethalPerformancePlugin.Instance.Logger.LogWarning("Entrance is not spawned, path:" + entrance.transform.GetScenePath());
                     goto exit;
                 }
             }
