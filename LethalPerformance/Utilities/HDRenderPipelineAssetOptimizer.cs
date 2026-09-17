@@ -14,9 +14,7 @@ internal static class HDRenderPipelineAssetOptimizer
 
         renderSettings.lightLoopSettings.reflectionProbeTexCacheSize = LethalPerformancePlugin.Instance.Configuration.ReflectionProbeCacheResolution.Value;
         renderSettings.lightLoopSettings.cookieAtlasSize = (CookieAtlasResolution)LethalPerformancePlugin.Instance.Configuration.CookieAtlasResolution.Value;
-        renderSettings.hdShadowInitParams.cachedAreaLightShadowAtlas = 8192;
-        renderSettings.hdShadowInitParams.cachedPunctualLightShadowAtlas = 8192;
-        renderSettings.hdShadowInitParams.allowDirectionalMixedCachedShadows = true;
+        renderSettings.supportDataDrivenLensFlare = false;
 
         var supportsVolumetric = SystemInfo.supportsRenderTargetArrayIndexFromVertexShader;
         renderSettings.supportVolumetrics = supportsVolumetric;
@@ -24,11 +22,15 @@ internal static class HDRenderPipelineAssetOptimizer
         asset.currentPlatformRenderPipelineSettings = renderSettings;
 
         var settings = HDRenderPipelineGlobalSettings.instance;
+        settings.rendererListCulling = true;
+        settings.supportRuntimeDebugDisplay = false;
+
         ref var frameSettings = ref settings.GetDefaultFrameSettings(FrameSettingsRenderType.Camera);
         frameSettings.SetEnabled(FrameSettingsField.StopNaN, false);
         frameSettings.SetEnabled(FrameSettingsField.DepthPrepassWithDeferredRendering, true);
-        frameSettings.SetEnabled(FrameSettingsField.Shadowmask, false);
-        LethalPerformancePlugin.Instance.Logger.LogInfo("Disabled StopNan and enabled DepthPrepassWithDeferredRendering globally");
+        frameSettings.SetEnabled(FrameSettingsField.ContactShadows, false);
+        frameSettings.SetEnabled(FrameSettingsField.PlanarProbe, false);
+        frameSettings.SetEnabled(FrameSettingsField.LensFlareDataDriven, false);
 
         if (!supportsVolumetric)
         {

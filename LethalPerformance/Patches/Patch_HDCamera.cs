@@ -8,18 +8,12 @@ using UnityEngine.Rendering.HighDefinition;
 
 namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(HDCamera))]
-internal static unsafe class Patch_HDCamera
+internal static class Patch_HDCamera
 {
     [HarmonyCleanup]
     public static Exception? Cleanup(Exception exception)
     {
         return HarmonyExceptionHandler.ReportException(exception);
-    }
-
-    [HarmonyPrepare]
-    public static bool ShouldPatch()
-    {
-        return !Dependencies.IsModLoaded(Dependencies.LethalCompanyVR);
     }
 
     [HarmonyPrefix]

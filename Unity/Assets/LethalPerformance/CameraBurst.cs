@@ -15,7 +15,7 @@ namespace LethalPerformance.Unity
         {
             for (var i = 0; i < viewCount; i++)
             {
-                const int offset = 15;
+                const int offset = 16;
                 const int offset2 = 4;
 
                 MemCpy(cb->_XRViewMatrix + i * offset, &xrViewConstants[i].viewMatrix, sizeof(float4x4));
