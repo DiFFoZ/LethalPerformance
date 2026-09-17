@@ -20,6 +20,8 @@ internal static class Dependencies
 
     public const string DawnLib = "com.github.teamxiaolan.dawnlib";
 
+    public const string DungenPlus = "dev.ladyalice.dungenplus";
+
     public static bool IsModLoaded(string id)
     {
         return Chainloader.PluginInfos.ContainsKey(id)
