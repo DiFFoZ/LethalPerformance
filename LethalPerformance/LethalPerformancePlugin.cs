@@ -2,12 +2,16 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using BepInEx;
 using BepInEx.Logging;
+using DunGen;
 using HarmonyLib;
 using LethalPerformance.Configuration;
+using LethalPerformance.Dungen;
 using LethalPerformance.Patcher;
 using LethalPerformance.Patcher.API;
+using LethalPerformance.Patches.Mods;
 using LethalPerformance.Utilities;
 using Unity.Burst.LowLevel;
 using UnityEngine;
@@ -15,8 +19,6 @@ using UnityEngine;
 namespace LethalPerformance;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(Dependencies.MoreSuits, BepInDependency.DependencyFlags.SoftDependency)] // optimization
-[BepInDependency(Dependencies.MoreCompany, BepInDependency.DependencyFlags.SoftDependency)] // voice mixer buses
 public class LethalPerformancePlugin : BaseUnityPlugin
 {
     public static LethalPerformancePlugin Instance { get; private set; } = null!;
@@ -47,6 +49,35 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         InitializeHarmony();
         CallInitializeOnAwake();
         InitializeSaveScheduler();
+
+        LethalPerformancePatcher.OnModsLoaded += LethalPerformancePatcher_OnModsLoaded;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    private void LethalPerformancePatcher_OnModsLoaded()
+    {
+        if (Dependencies.IsModLoaded(Dependencies.LethalLevelLoader))
+        {
+            //Harmony!.Unpatch(AccessTools.Method(typeof(DoorwayPairFinder), nameof(DoorwayPairFinder.GetDoorwayPairs)),
+            //    HarmonyPatchType.Prefix, Dependencies.LethalLevelLoader);
+
+            //Patch_Dungeon.PatchAll();
+        }
+
+        if (Dependencies.IsModLoaded(Dependencies.DungenPlus))
+        {
+            //Harmony!.PatchAll(typeof(Patch_DungeonPlus));
+        }
+
+        if (Dependencies.IsModLoaded(Dependencies.MoreCompany))
+        {
+            Harmony!.PatchAll(typeof(Patch_MoreCompany));
+        }
+
+        if (Dependencies.IsModLoaded(Dependencies.MoreSuits))
+        {
+            Harmony!.PatchAll(typeof(Patch_MoreSuits));
+        }
     }
 
     private void InitializeSaveScheduler()
@@ -82,9 +113,17 @@ public class LethalPerformancePlugin : BaseUnityPlugin
 
     private void CallInitializeOnAwake()
     {
-        foreach (var method in typeof(LethalPerformancePlugin)
-            .Assembly
-            .GetTypes()
+        var types = Array.Empty<Type>();
+        try
+        {
+            types = typeof(LethalPerformancePlugin).Assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException tle)
+        {
+            types = [.. tle.Types.Where(t => t != null)];
+        }
+       
+        foreach (var method in types
             .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
             .Where(m => m.GetCustomAttribute<InitializeOnAwakeAttribute>() != null))
         {

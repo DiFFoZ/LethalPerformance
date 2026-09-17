@@ -10,7 +10,6 @@ using UnityEngine.SceneManagement;
 
 namespace LethalPerformance.Patches.Mods;
 
-[HarmonyPatch]
 internal static class Patch_LethalLevelLoader
 {
     private static readonly MethodInfo? s_MethodToPatch;

@@ -113,6 +113,7 @@ internal static class Patch_EventSystem
             }
 
             data.hasPersistentHistory = true;
+            HDCameraFrameSettingsOptimizer.ApplyExtraCameraFrameSettings(data);
         }
     }
 
@@ -145,15 +146,6 @@ internal static class Patch_EventSystem
             return;
         }
 
-        ref var maskFrameSettings = ref data.renderingPathCustomFrameSettingsOverrideMask;
-        ref var frameSettings = ref data.renderingPathCustomFrameSettings;
-
-        maskFrameSettings.mask[(uint)FrameSettingsField.ProbeVolume] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.ProbeVolume] = false;
-
-        maskFrameSettings.mask[(uint)FrameSettingsField.VolumetricClouds] = true;
-        frameSettings.bitDatas[(uint)FrameSettingsField.VolumetricClouds] = false;
-
-        data.probeLayerMask = 0;
+        HDCameraFrameSettingsOptimizer.ApplyExtraCameraFrameSettings(data);
     }
 }

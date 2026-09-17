@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+~~- DunGen optimizations.~~
+- Fast packing of the HDRP cached shadow atlas.
+- Patch to not restart the Dissonance voice capture pipeline when lag spike happens.
+### Changed
+- Disabling even more HDRP rendering settings.
+- Reenabled camera burst patch for LCVR.
+- No longer sets cached shadow atlas size to 8192.
+
 ## [1.4.3] 2026-09-14
 ### Fixed
 - The fifth player joined causing SFX volume to be changed.

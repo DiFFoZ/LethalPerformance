@@ -7,7 +7,6 @@ using LethalPerformance.Patcher.API;
 
 namespace LethalPerformance.Patches.Mods;
 
-[HarmonyPatch]
 internal static class Patch_MoreCompany
 {
     private static readonly MethodInfo? s_MethodToPatch;

@@ -8,7 +8,7 @@ using LethalPerformance.Patcher.API;
 using UnityEngine;
 
 namespace LethalPerformance.Patches.Mods;
-[HarmonyPatch]
+
 internal static class Patch_MoreSuits
 {
     private static readonly MethodInfo? s_MethodToPatch;
