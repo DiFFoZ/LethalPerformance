@@ -9,7 +9,7 @@ using UnityEngine.Rendering.HighDefinition;
 
 namespace LethalPerformance.Patches;
 
-//[HarmonyPatch(typeof(HDCachedShadowAtlas))]
+[HarmonyPatch(typeof(HDCachedShadowAtlas))]
 internal static class Patch_HDCachedShadowAtlas
 {
     private sealed class AtlasState
@@ -120,10 +120,11 @@ internal static class Patch_HDCachedShadowAtlas
 
         bool found;
 
-        var slots = NoAllocHelpers.ExtractArrayFromListT(__instance.m_AtlasSlots);
+        var list = __instance.m_AtlasSlots;
+        var slots = NoAllocHelpers.ExtractArrayFromListT(list);
         fixed (HDCachedShadowAtlas.SlotValue* slotPtr = slots)
         {
-            found = CachedShadowAtlasBurst.FindFreeSlot((byte*)slotPtr, slots.Length, res, numEntries, out x, out y);
+            found = CachedShadowAtlasBurst.FindFreeSlot((byte*)slotPtr, list.Count, res, numEntries, out x, out y);
         }
 
         if (!found)
@@ -147,18 +148,8 @@ internal static class Patch_HDCachedShadowAtlas
     [HarmonyPatch(nameof(HDCachedShadowAtlas.PlaceMultipleShadows))]
     public static bool PlaceMultipleShadows(HDCachedShadowAtlas __instance, int startIdx, int numberOfShadows, ref bool __result)
     {
-        if ((uint)numberOfShadows > 6u)
-        {
-            return true;
-        }
-
         var viewportSize = __instance.m_TempListForPlacement[startIdx].viewportSize;
         var entries = HDUtils.DivRoundUp(viewportSize, 64);
-        if (CountFreeSlots(__instance) < entries * entries * numberOfShadows)
-        {
-            __result = false;
-            return false;
-        }
 
         Span<Vector2Int> slots = stackalloc Vector2Int[6];
         var placed = 0;
@@ -175,10 +166,10 @@ internal static class Patch_HDCachedShadowAtlas
 
         if (placed == numberOfShadows)
         {
-            for (var j = 0; j < numberOfShadows; j++)
+            for (var i = 0; i < numberOfShadows; i++)
             {
-                var value = __instance.m_TempListForPlacement[startIdx + j];
-                value.offsetInAtlas = new Vector4(slots[j].x * 64, slots[j].y * 64, slots[j].x, slots[j].y);
+                var value = __instance.m_TempListForPlacement[startIdx + i];
+                value.offsetInAtlas = new Vector4(slots[i].x * 64, slots[i].y * 64, slots[i].x, slots[i].y);
                 if (value.rendersOnPlacement)
                 {
                     __instance.m_ShadowsPendingRendering.Add(value.shadowIndex, value);
@@ -193,10 +184,9 @@ internal static class Patch_HDCachedShadowAtlas
 
         if (placed > 0)
         {
-            var numEntries = HDUtils.DivRoundUp(__instance.m_TempListForPlacement[startIdx].viewportSize, 64);
-            for (var k = 0; k < placed; k++)
+            for (var i = 0; i < placed; i++)
             {
-                __instance.MarkEntries(slots[k].x, slots[k].y, numEntries, HDCachedShadowAtlas.SlotValue.Free);
+                __instance.MarkEntries(slots[i].x, slots[i].y, entries, HDCachedShadowAtlas.SlotValue.Free);
             }
         }
 
@@ -204,14 +194,9 @@ internal static class Patch_HDCachedShadowAtlas
         return false;
     }
 
-    private static void AddLightsNotYetFailed(
-        HDCachedShadowAtlas atlas,
-        Dictionary<int, HDAdditionalLightData> lightList,
-        HDShadowInitParameters initParams,
-        HashSet<int> failedLightIds)
+    private static void AddLightsNotYetFailed(HDCachedShadowAtlas atlas, Dictionary<int, HDAdditionalLightData> lightList,
+        HDShadowInitParameters initParams, HashSet<int> failedLightIds)
     {
-        var recordList = atlas.m_TempListForPlacement;
-        var item = default(HDCachedShadowAtlas.CachedShadowRecord);
         foreach (var value in lightList.Values)
         {
             var lightId = value.lightIdxForCachedShadows;
@@ -224,25 +209,17 @@ internal static class Patch_HDCachedShadowAtlas
             var shadowCount = value.type != HDLightType.Point ? 1 : 6;
             for (var i = 0; i < shadowCount; i++)
             {
-                item.shadowIndex = lightId + i;
-                item.viewportSize = resolution;
-                item.offsetInAtlas = new Vector4(-1f, -1f, -1f, -1f);
-                item.rendersOnPlacement = value.shadowUpdateMode != ShadowUpdateMode.OnDemand
-                    || value.forceRenderOnPlacement
-                    || value.onDemandShadowRenderOnPlacement;
+                HDCachedShadowAtlas.CachedShadowRecord item = new()
+                {
+                    shadowIndex = lightId + i,
+                    viewportSize = resolution,
+                    offsetInAtlas = new Vector4(-1f, -1f, -1f, -1f),
+                    rendersOnPlacement = value.shadowUpdateMode != ShadowUpdateMode.OnDemand || value.forceRenderOnPlacement || value.onDemandShadowRenderOnPlacement
+                };
+
                 value.forceRenderOnPlacement = false;
-                recordList.Add(item);
+                atlas.m_TempListForPlacement.Add(item);
             }
-        }
-    }
-
-    private static unsafe int CountFreeSlots(HDCachedShadowAtlas atlas)
-    {
-        var slots = NoAllocHelpers.ExtractArrayFromListT(atlas.m_AtlasSlots);
-
-        fixed (HDCachedShadowAtlas.SlotValue* slotPtr = slots)
-        {
-            return CachedShadowAtlasBurst.CountFreeSlots((byte*)slotPtr, slots.Length);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using DunGenPlus.Patches;
+﻿using System.Runtime.CompilerServices;
+using DunGenPlus.Generation;
+using DunGenPlus.Patches;
 using HarmonyLib;
 
 namespace LethalPerformance.Dungen;
@@ -14,6 +16,7 @@ internal static class Patch_DungeonPlus
         return AllowReset;
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
     public static void ResetDictionary()
     {
         TileProxyPatch.ResetDictionary();

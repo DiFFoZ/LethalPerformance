@@ -43,6 +43,8 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
         Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
         Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
+
+        Debug.unityLogger.logEnabled = false;
 #endif
 
         LoadGameBurstLib();
@@ -56,27 +58,30 @@ public class LethalPerformancePlugin : BaseUnityPlugin
     [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
     private void LethalPerformancePatcher_OnModsLoaded()
     {
+        var harmony = Harmony!;
+
         if (Dependencies.IsModLoaded(Dependencies.LethalLevelLoader))
         {
-            //Harmony!.Unpatch(AccessTools.Method(typeof(DoorwayPairFinder), nameof(DoorwayPairFinder.GetDoorwayPairs)),
-            //    HarmonyPatchType.Prefix, Dependencies.LethalLevelLoader);
+            harmony.Unpatch(AccessTools.Method(typeof(DoorwayPairFinder), nameof(DoorwayPairFinder.GetDoorwayPairs)),
+                HarmonyPatchType.Prefix, Dependencies.LethalLevelLoader);
 
-            //Patch_Dungeon.PatchAll();
+            Patch_Dungeon.PatchAll();
+            harmony.PatchAll(typeof(Patch_LethalLevelLoader));
         }
 
         if (Dependencies.IsModLoaded(Dependencies.DungenPlus))
         {
-            //Harmony!.PatchAll(typeof(Patch_DungeonPlus));
+            harmony.PatchAll(typeof(Patch_DungeonPlus));
         }
 
         if (Dependencies.IsModLoaded(Dependencies.MoreCompany))
         {
-            Harmony!.PatchAll(typeof(Patch_MoreCompany));
+            harmony.PatchAll(typeof(Patch_MoreCompany));
         }
 
         if (Dependencies.IsModLoaded(Dependencies.MoreSuits))
         {
-            Harmony!.PatchAll(typeof(Patch_MoreSuits));
+            harmony.PatchAll(typeof(Patch_MoreSuits));
         }
     }
 

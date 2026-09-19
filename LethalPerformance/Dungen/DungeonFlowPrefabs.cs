@@ -10,8 +10,6 @@ internal static class DungeonFlowPrefabs
     private static readonly HashSet<TileSet> s_TileSets = [];
     private static readonly List<GameObject> s_Pending = new(256);
     private static readonly List<Doorway> s_Doorways = [];
-    private static readonly List<RandomMapObject> s_RandomMapObjects = [];
-    private static readonly List<SpawnSyncedObject> s_SpawnSyncedObjects = [];
 
     public static void Collect(DungeonFlow? dungeonFlow, HashSet<GameObject> prefabs)
     {
@@ -24,8 +22,7 @@ internal static class DungeonFlowPrefabs
         s_Pending.Clear();
 
         CollectTileSets(dungeonFlow);
-        CollectTileAndLockPrefabs(prefabs);
-        CollectKeyPrefabs(dungeonFlow.KeyManager, prefabs);
+        CollectTilePrefabs(prefabs);
 
         for (var i = 0; i < s_Pending.Count; i++)
         {
@@ -35,8 +32,6 @@ internal static class DungeonFlowPrefabs
         s_TileSets.Clear();
         s_Pending.Clear();
         s_Doorways.Clear();
-        s_RandomMapObjects.Clear();
-        s_SpawnSyncedObjects.Clear();
     }
 
     private static void CollectTileSets(DungeonFlow dungeonFlow)
@@ -92,36 +87,11 @@ internal static class DungeonFlowPrefabs
         }
     }
 
-    private static void CollectTileAndLockPrefabs(HashSet<GameObject> prefabs)
+    private static void CollectTilePrefabs(HashSet<GameObject> prefabs)
     {
         foreach (var tileSet in s_TileSets)
         {
             AddChanceTable(tileSet.TileWeights, prefabs);
-
-            var lockPrefabs = tileSet.LockPrefabs;
-            if (lockPrefabs == null)
-            {
-                continue;
-            }
-
-            for (var i = 0; i < lockPrefabs.Count; i++)
-            {
-                AddChanceTable(lockPrefabs[i]?.LockPrefabs, prefabs);
-            }
-        }
-    }
-
-    private static void CollectKeyPrefabs(KeyManager? keyManager, HashSet<GameObject> prefabs)
-    {
-        if (keyManager == null)
-        {
-            return;
-        }
-
-        var keys = keyManager.Keys;
-        for (var i = 0; i < keys.Count; i++)
-        {
-            TryAdd(keys[i]?.Prefab, prefabs);
         }
     }
 
@@ -140,18 +110,6 @@ internal static class DungeonFlowPrefabs
                 if (!door.GameObject.TryGetComponent<Door>(out _))
                     door.GameObject.AddComponent<Door>();
             }
-        }
-
-        prefab.GetComponentsInChildren(true, s_RandomMapObjects);
-        for (var i = 0; i < s_RandomMapObjects.Count; i++)
-        {
-            AddGameObjects(s_RandomMapObjects[i].spawnablePrefabs, prefabs);
-        }
-
-        prefab.GetComponentsInChildren(true, s_SpawnSyncedObjects);
-        for (var i = 0; i < s_SpawnSyncedObjects.Count; i++)
-        {
-            TryAdd(s_SpawnSyncedObjects[i].spawnPrefab, prefabs);
         }
     }
 
@@ -196,19 +154,6 @@ internal static class DungeonFlowPrefabs
         for (var i = 0; i < weights.Count; i++)
         {
             TryAdd(weights[i]?.GameObject, prefabs);
-        }
-    }
-
-    private static void AddGameObjects(List<GameObject>? gameObjects, HashSet<GameObject> prefabs)
-    {
-        if (gameObjects == null)
-        {
-            return;
-        }
-
-        for (var i = 0; i < gameObjects.Count; i++)
-        {
-            TryAdd(gameObjects[i], prefabs);
         }
     }
 

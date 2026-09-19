@@ -30,6 +30,8 @@ internal static partial class Patch_Dungeon
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void Start()
         {
+            Patch_TileInstantiation.Cancel();
+
             s_Prefabs.Clear();
             s_TileProxies.Clear();
 
@@ -43,6 +45,11 @@ internal static partial class Patch_Dungeon
             var extendedFlows = PatchedContent.ExtendedDungeonFlows;
             foreach (var flow in extendedFlows)
             {
+                if (flow.ContentType is ContentType.External)
+                {
+                    continue;
+                }
+
                 DungeonFlowPrefabs.Collect(flow?.DungeonFlow, s_Prefabs);
             }
 
@@ -54,6 +61,14 @@ internal static partial class Patch_Dungeon
 
             s_Prefabs.Clear();
             s_Meshes.Clear();
+        }
+
+        [HarmonyPatch(typeof(DungeonGenerator), nameof(DungeonGenerator.Generate))]
+        [HarmonyPrefix]
+        public static void ApplySettings(DungeonGenerator __instance)
+        {
+            __instance.TriggerPlacement = TriggerPlacementMode.None;
+            //__instance.LengthMultiplier = 
         }
 
         [HarmonyPatch(typeof(DungeonGenerator), nameof(DungeonGenerator.PreProcess))]
