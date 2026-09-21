@@ -21,4 +21,10 @@ internal static class Patch_DungeonPlus
     {
         TileProxyPatch.ResetDictionary();
     }
+
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    public static bool IsDunGenPlusActive()
+    {
+        return DunGenPlusGenerator.Active;
+    }
 }

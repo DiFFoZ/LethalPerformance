@@ -44,7 +44,8 @@ public class LethalPerformancePlugin : BaseUnityPlugin
         Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
         Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
 
-        Debug.unityLogger.logEnabled = false;
+        Debug.developerConsoleEnabled = false;
+        Debug.developerConsoleVisible = false;
 #endif
 
         LoadGameBurstLib();

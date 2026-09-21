@@ -141,6 +141,14 @@ internal static partial class Patch_Dungeon
                 return false;
             }
 
+            if (Dependencies.IsModLoaded(Dependencies.DungenPlus) && Patch_DungeonPlus.IsDunGenPlusActive())
+            {
+                // DunGen+ replaces vanilla search in postfix anyway
+
+                __result = s_Pairs;
+                return false;
+            }
+
             s_Pairs.Clear();
             FillTileOrderIndex(__instance);
             try
@@ -181,7 +189,7 @@ internal static partial class Patch_Dungeon
             for (var i = 0; i < tileOrder.Count; i++)
             {
                 var tile = tileOrder[i];
-                if (tile != null)
+                if (tile != null && !s_TileOrderIndex.ContainsKey(tile))
                 {
                     s_TileOrderIndex[tile] = i;
                 }
@@ -206,9 +214,8 @@ internal static partial class Patch_Dungeon
 
                 var doorways = nextTile.doorways;
                 var tileSet = tileWeight.TileSet;
-                for (var d = 0; d < doorways.Count; d++)
+                foreach (var doorway in doorways)
                 {
-                    var doorway = doorways[d];
                     var doorwayWeight = instance.CalculateConnectionWeight(
                         new ProposedConnection(instance.DungeonProxy, null, nextTile, null, doorway));
                     pairs.Add(new DoorwayPair(null, null, nextTile, doorway, tileSet, weight, doorwayWeight));

@@ -68,7 +68,6 @@ internal static partial class Patch_Dungeon
         public static void ApplySettings(DungeonGenerator __instance)
         {
             __instance.TriggerPlacement = TriggerPlacementMode.None;
-            //__instance.LengthMultiplier = 
         }
 
         [HarmonyPatch(typeof(DungeonGenerator), nameof(DungeonGenerator.PreProcess))]

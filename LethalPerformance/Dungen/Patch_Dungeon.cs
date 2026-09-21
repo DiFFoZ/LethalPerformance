@@ -59,7 +59,8 @@ internal static partial class Patch_Dungeon
             -------------
             Dungeon generated
             Seed: {generator.Seed} ({generator.ChosenSeed})
-            Tiles: {tiles.Count} ({hash:X8})
+            Tiles: {tiles.Count} ({generator.GenerationStats.MainPathRoomCount} + {generator.GenerationStats.BranchPathRoomCount}) ({hash:X8})
+            Retries: {generator.GenerationStats.TotalRetries}
             -------------
             """);
         foreach (var (status, time) in generator.GenerationStats.GenerationStepTimes)

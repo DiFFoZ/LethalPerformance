@@ -5,6 +5,7 @@
 using System.Linq;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Logging;
 using HarmonyLib;
 using LethalPerformance.Dev.Configuration;
 using LethalPerformance.Patcher.API;
@@ -18,12 +19,14 @@ internal class LethalPerformanceDevPlugin : BaseUnityPlugin
     public static LethalPerformanceDevPlugin Instance { get; private set; } = null!;
 
     public new ConfigManager Config { get; private set; } = null!;
+    internal new ManualLogSource Logger { get; private set; } = null!;
 
     private Harmony? m_Harmony;
 
     private void Awake()
     {
         Instance = this;
+        Logger = base.Logger;
         Config = new(base.Config);
 
         m_Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
