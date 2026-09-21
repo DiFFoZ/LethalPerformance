@@ -27,16 +27,16 @@ Another mod likely prevented an entrance teleport from spawning correctly. Expec
 Remove Terbium for better compatibility with LethalPerformance.
 
 ## Recommended mods
-For a preconfigured set of performance and bug fixes mods that can be added to any modpack, use [Starter Pack](https://thunderstore.io/c/lethal-company/p/ThecheeseXD/Starter_Pack/) by ThecheeseXD.
+For a preconfigured pack of performance and bugfix mods that you can add to any modpack, use [Starter Pack](https://thunderstore.io/c/lethal-company/p/ThecheeseXD/Starter_Pack/) by ThecheeseXD.
 
 LethalPerformance also works well with:
-- [LethalFixes](https://thunderstore.io/c/lethal-company/p/Dev1A3/LethalFixes/) by Dev1A3 - fixes lag spikes caused by Dissonance and RPC logging and more.
-- [AsyncLogger](https://thunderstore.io/c/lethal-company/p/mattymatty/AsyncLoggers/) by Matty_Matty - moves logging to another thread, resulting in smoother frametime.
-- [BepInEx Faster Load AssetBundles Patcher](https://thunderstore.io/c/lethal-company/p/DiFFoZ/BepInEx_Faster_Load_AssetBundles_Patcher/) by DiFFoZ - reduces RAM usage and speeds up asset loading, leading to smoother frametime.
-- [PathfindingLagFix](https://thunderstore.io/c/lethal-company/p/Zaggy1024/PathfindingLagFix/) by Zaggy1024 - makes the calculation of AI path to use time-slicing, resulting in smoother frametime.
-- [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) by fumiko & Zaggy1024 - stops rendering interior rooms that aren't visible.
-- [LethalSponge](https://thunderstore.io/c/lethal-company/p/Scoops/LethalSponge/) by Scoops - frame limiting cameras in the ship, creating LOD for items and more.
-- [ReXuvination](https://thunderstore.io/c/lethal-company/p/XuXiaolan/ReXuvination/) by XuXiaolan - optimizes colliders that unnecessarily calling OnTriggerStay message.
+- [AsyncLoggers](https://thunderstore.io/c/lethal-company/p/mattymatty/AsyncLoggers/) by Matty_Matty - processes logs on a separate thread so log spam does not hitch the game.
+- [BepInEx Faster Load AssetBundles Patcher](https://thunderstore.io/c/lethal-company/p/DiFFoZ/BepInEx_Faster_Load_AssetBundles_Patcher/) by DiFFoZ - decompresses asset bundles to disk to cut startup time and RAM use.
+- [PathfindingLagFix](https://thunderstore.io/c/lethal-company/p/Zaggy1024/PathfindingLagFix/) by Zaggy1024 - moves vanilla AI pathfinding off the main thread.
+- [NavMeshLib](https://thunderstore.io/c/lethal-company/p/TRizzle/NavMeshLib/) by TRizzle - rebakes NavMeshes in the background instead of blocking the main thread.
+- [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) by fumiko & Zaggy1024 - stops rendering interior rooms, items, and lights that aren't visible.
+- [LethalSponge](https://thunderstore.io/c/lethal-company/p/Scoops/LethalSponge/) by Scoops - adds camera FPS limits, scrap culling and LODs, graphics options.
+- [ReXuvination](https://thunderstore.io/c/lethal-company/p/XuXiaolan/ReXuvination/) by XuXiaolan - cuts unnecessary collision/trigger work for enemies, players, doors, landmines, and other objects.
 
 ## Credits
 - Icon by [Lorc](https://lorcblog.blogspot.com/) via [game-icons.net](https://game-icons.net/)
