@@ -20,6 +20,51 @@ internal static partial class Patch_Dungeon
             return cmp != 0 ? cmp : b.DoorwayWeight.CompareTo(a.DoorwayWeight);
         };
 
+        private static bool IsTileAllowed(DoorwayPairFinder instance, TileProxy previousTile, TileProxy potentialNextTile, ref float weight)
+        {
+            if (instance.GetTileTemplateDelegate?.Target is not DungeonGenerator generator)
+            {
+                return instance.IsTileAllowedPredicate == null
+                    || instance.IsTileAllowedPredicate(previousTile, potentialNextTile, ref weight);
+            }
+
+            var prefab = potentialNextTile.Prefab;
+            var repeatsPrevious = previousTile != null && prefab == previousTile.Prefab;
+
+            var repeatMode = TileRepeatMode.Allow;
+            if (generator.OverrideRepeatMode)
+            {
+                repeatMode = generator.RepeatMode;
+            }
+            else if (potentialNextTile != null)
+            {
+                repeatMode = potentialNextTile.PrefabTile.RepeatMode;
+            }
+
+            switch (repeatMode)
+            {
+                case TileRepeatMode.Allow:
+                    return true;
+
+                case TileRepeatMode.DisallowImmediate:
+                    return !repeatsPrevious;
+
+                case TileRepeatMode.Disallow:
+                    foreach (var proxy in generator.proxyDungeon.AllTiles)
+                    {
+                        if (proxy.Prefab == prefab)
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
+                default:
+                    throw new NotImplementedException($"TileRepeatMode {repeatMode} is not implemented");
+            }
+        }
+
         [HarmonyCleanup]
         public static Exception? Cleanup(Exception exception)
         {
@@ -207,7 +252,7 @@ internal static partial class Patch_Dungeon
 
                 var nextTile = instance.GetTileTemplateDelegate(tileWeight.Value);
                 var weight = tileWeight.GetWeight(instance.IsOnMainPath, instance.NormalizedDepth) * (float)instance.RandomStream.NextDouble();
-                if (instance.IsTileAllowedPredicate != null && !instance.IsTileAllowedPredicate(instance.PreviousTile, nextTile, ref weight))
+                if (!IsTileAllowed(instance, instance.PreviousTile, nextTile, ref weight))
                 {
                     continue;
                 }
@@ -260,7 +305,7 @@ internal static partial class Patch_Dungeon
 
                     var nextTile = instance.GetTileTemplateDelegate(tileWeight.Value);
                     float weight = instance.tileOrder.Count - tileIndex;
-                    if (instance.IsTileAllowedPredicate != null && !instance.IsTileAllowedPredicate(previousTile, nextTile, ref weight))
+                    if (!IsTileAllowed(instance, previousTile, nextTile, ref weight))
                     {
                         continue;
                     }
