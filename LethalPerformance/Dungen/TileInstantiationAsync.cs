@@ -11,6 +11,7 @@ internal static class TileInstantiationAsync
     private const int c_MaxInFlight = 4;
 
     private static readonly List<TileProxy> s_Tiles = new(256);
+    private static readonly List<Tile> s_SpawnedTiles = new(256);
     private static readonly Queue<AsyncInstantiateOperation<Tile>> s_TileOperations = new(c_MaxInFlight);
 
     private static Transform? s_Parent;
@@ -18,6 +19,19 @@ internal static class TileInstantiationAsync
     private static bool s_Started;
     private static bool s_Finished;
     private static bool s_AwaitingClear;
+
+    internal static bool IsActive => s_Started;
+
+    public static void Skip()
+    {
+        if (s_Started)
+        {
+            Reset();
+            return;
+        }
+
+        s_Finished = true;
+    }
 
     public static bool Start(List<TileProxy> tiles, Transform parent)
     {
@@ -34,6 +48,7 @@ internal static class TileInstantiationAsync
 
         s_Tiles.Clear();
         s_Tiles.AddRange(tiles);
+        s_SpawnedTiles.Clear();
 
         return true;
     }
@@ -58,6 +73,7 @@ internal static class TileInstantiationAsync
         }
 
         s_Tiles.Clear();
+        s_SpawnedTiles.Clear();
         s_Parent = null;
         s_NextTileIndex = 0;
         s_AwaitingClear = false;
@@ -109,6 +125,8 @@ internal static class TileInstantiationAsync
             {
                 disposable.Dispose();
             }
+
+            RestoreSiblingOrder();
         }
     }
 
@@ -123,6 +141,7 @@ internal static class TileInstantiationAsync
             return false;
         }
 
+        s_SpawnedTiles.Add(tile);
         FillTileWindow();
         return true;
     }
@@ -209,6 +228,22 @@ internal static class TileInstantiationAsync
             if (gameObject != null)
             {
                 UnityEngine.Object.DestroyImmediate(gameObject);
+            }
+        }
+    }
+
+    private static void RestoreSiblingOrder()
+    {
+        // a hacky-hack to restore order of tiles as
+        // we don't use allowSceneActivation toggle to
+        // make spawning a lot faster
+
+        for (var i = 0; i < s_SpawnedTiles.Count; i++)
+        {
+            var tile = s_SpawnedTiles[i];
+            if (tile != null)
+            {
+                tile.transform.SetAsLastSibling();
             }
         }
     }

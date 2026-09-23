@@ -25,6 +25,13 @@ internal static partial class Patch_Dungeon
         [HarmonyPrefix]
         public static void FromProxyPrefix(DungeonProxy proxyDungeon, DungeonGenerator generator, ref Func<bool> shouldSkipFrame)
         {
+            // causing InstantiateAsync to never complete.
+            if (!generator.GenerateAsynchronously)
+            {
+                TileInstantiationAsync.Skip();
+                return;
+            }
+
             if (!TileInstantiationAsync.Start(proxyDungeon.AllTiles, generator.Root.transform))
             {
                 return;
@@ -37,6 +44,11 @@ internal static partial class Patch_Dungeon
         [HarmonyPostfix]
         public static void FromProxyPostfix(ref IEnumerator __result)
         {
+            if (!TileInstantiationAsync.IsActive)
+            {
+                return;
+            }
+
             __result = TileInstantiationAsync.PumpFromProxy(__result);
         }
 
@@ -56,6 +68,8 @@ internal static partial class Patch_Dungeon
                 return true;
             }
 
+            // logic from original dungeon
+            // todo: check if it really needed
             if (tile.TryGetComponent<Tile>(out var component))
             {
                 component.RefreshTileEventReceivers();
