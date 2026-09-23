@@ -8,10 +8,10 @@ namespace LethalPerformance.Dungen;
 
 internal static class TileInstantiationAsync
 {
-    private const int c_WindowSize = 4;
+    private const int c_MaxInFlight = 4;
 
     private static readonly List<TileProxy> s_Tiles = new(256);
-    private static readonly Queue<AsyncInstantiateOperation<Tile>> s_TileOperations = new(c_WindowSize);
+    private static readonly Queue<AsyncInstantiateOperation<Tile>> s_TileOperations = new(c_MaxInFlight);
 
     private static Transform? s_Parent;
     private static int s_NextTileIndex;
@@ -141,7 +141,7 @@ internal static class TileInstantiationAsync
             worldSpace = false,
         };
 
-        while (s_TileOperations.Count < c_WindowSize && s_NextTileIndex < s_Tiles.Count)
+        while (s_TileOperations.Count < c_MaxInFlight && s_NextTileIndex < s_Tiles.Count)
         {
             var proxy = s_Tiles[s_NextTileIndex++];
             var placement = proxy.Placement;

@@ -90,7 +90,7 @@ internal static class UnsafeCacheManager
                 return InstancesResult.NotFound(null);
             }
 
-            if (dungeon.Generator.CurrentDungeon == null)
+            if (dungeon == null || dungeon.Generator.CurrentDungeon == null)
             {
                 return InstancesResult.Found([]);
             }

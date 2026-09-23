@@ -17,19 +17,17 @@ internal static class Patch_StartOfRound
 
     [HarmonyPatch(nameof(StartOfRound.Start))]
     [HarmonyPostfix]
-    public static void OverrideSeed()
+    public static void Start()
     {
         ChangeWindowTitle();
+        OverrideSeed();
+    }
 
-        var newSeed = LethalPerformanceDevPlugin.Instance.Config.OverriddenSeed.Value;
-        if (newSeed <= 0)
-        {
-            StartOfRound.Instance.overrideRandomSeed = false;
-            return;
-        }
-
-        StartOfRound.Instance.overrideRandomSeed = true;
-        StartOfRound.Instance.overrideSeedNumber = newSeed;
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(StartOfRound.ChooseNewRandomMapSeed))]
+    private static void ChooseNewRandomMapSeedPatch()
+    {
+        OverrideSeed();
     }
 
     [HarmonyPatch(nameof(StartOfRound.SetPlanetsWeather))]
@@ -64,6 +62,20 @@ internal static class Patch_StartOfRound
 
         WindowAPI.SetWindowText(handle, $"Lethal Company - {(isServer ? "Server" : "Client")} #{id}");
         WindowAPI.SetConsoleTitle($"Lethal Company - {(isServer ? "Server" : "Client")} #{id}");
+    }
+
+    private static void OverrideSeed()
+    {
+        var newSeed = LethalPerformanceDevPlugin.Instance.Config.OverriddenSeed.Value;
+        if (newSeed <= 0)
+        {
+            StartOfRound.Instance.overrideRandomSeed = false;
+            return;
+        }
+
+        StartOfRound.Instance.overrideRandomSeed = true;
+        StartOfRound.Instance.overrideSeedNumber = newSeed;
+        StartOfRound.Instance.randomMapSeed = newSeed;
     }
 
     [HarmonyPatch(nameof(StartOfRound.PlayFirstDayShipAnimation))]

@@ -42,8 +42,7 @@ internal static partial class Patch_Dungeon
                 Patch_DungeonPlus.AllowReset = false;
             }
 
-            var extendedFlows = PatchedContent.ExtendedDungeonFlows;
-            foreach (var flow in extendedFlows)
+            foreach (var flow in PatchedContent.ExtendedDungeonFlows)
             {
                 if (flow.ContentType is ContentType.External)
                 {
@@ -89,7 +88,7 @@ internal static partial class Patch_Dungeon
 
         private static void CacheTileProxy(GameObject prefab)
         {
-            if (prefab == null || s_TileProxies.ContainsKey(prefab) || !prefab.TryGetComponent<Tile>(out _))
+            if (s_TileProxies.ContainsKey(prefab) || !prefab.TryGetComponent<Tile>(out _))
             {
                 return;
             }
