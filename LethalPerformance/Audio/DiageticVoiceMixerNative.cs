@@ -14,13 +14,13 @@ public static unsafe class DiageticVoiceMixerNative
     private const int c_VanillaGroupCount = 6; // Master, VoicePlayer0-VoicePlayer3, SFX
     private const int c_VanillaEffectCount = 20;
     private const int c_VanillaSnapshotCount = 5; // Default, MuffledEcho, Muffled, SoundsMuted, Drunkness
-    private const int c_VanillaParamCount = 64;
-    private const int c_VanillaExposedCount = 10; // PlayerVolume0-PlayerVolume3, PlayerPitch0-PlayerPitch3, DiageticVolume, EchoWetness
+    private const int c_VanillaParamCount = 72; // Groups volume, pitch (12 or c_FaderInsertIndex) and all parameters of effects (60)
+    private const int c_VanillaExposedCount = 10; // DiageticVolume, EchoWetness, (PlayerVolume0, PlayerPitch0 .. PlayerVolume3, PlayerPitch3)
     private const int c_VanillaVoiceCount = 4;
 
     private const int c_TemplateEffectIndex = 5;
     private const int c_EffectsPerVoice = 3; // Attenuation, Compressor, Pitch
-    private const int c_FaderInsertIndex = 12;
+    private const int c_FaderInsertIndex = 12; // Each group have 2 faders (volume, pitch), so 6(c_VanillaGroupCount) * 2 = 12
     private const int c_EffectParamsPerVoice = 8;
 
     // https://github.com/notnotnotswipez/MoreCompany/blob/master/MoreCompany/MainClass.cs#L34
@@ -188,7 +188,7 @@ public static unsafe class DiageticVoiceMixerNative
             OffsetPtr.Clear(&constant->Effects);
             OffsetPtr.Clear(&constant->EffectGuids);
             OffsetPtr.Clear(&constant->Snapshots);
-            OffsetPtr.Clear(&constant->Names);
+            OffsetPtr.Clear(&constant->GroupNames);
             OffsetPtr.Clear(&constant->ExposedHashes);
             OffsetPtr.Clear(&constant->ExposedIndices);
         }
@@ -221,7 +221,6 @@ public static unsafe class DiageticVoiceMixerNative
 
         if (constant->EffectCount != c_VanillaEffectCount
             || constant->SnapshotCount != c_VanillaSnapshotCount
-            || constant->ParameterCount != c_VanillaParamCount
             || constant->ExposedCount != c_VanillaExposedCount
             || constant->GroupCount != c_VanillaGroupCount)
         {
@@ -265,43 +264,13 @@ public static unsafe class DiageticVoiceMixerNative
         }
 
         var instanceId = *(int*)(mixer + Object.OffsetOfInstanceIDInCPlusPlusObject);
-
         if (instanceId <= 0)
         {
             return false;
         }
 
-        var getName = InvokeVtable<ObjectStringDelegate>(mixer, 0x48);
-        if (getName == null)
-        {
-            return false;
-        }
-
-        var namePtr = getName(mixer);
-        if (namePtr == IntPtr.Zero)
-        {
-            return false;
-        }
-
-        var name = Marshal.PtrToStringAnsi(namePtr);
-        return name == "Diagetic";
-    }
-
-    private static T? InvokeVtable<T>(IntPtr obj, int slotOffset) where T : Delegate
-    {
-        var vtable = *(IntPtr*)obj;
-        if (vtable == IntPtr.Zero)
-        {
-            return null;
-        }
-
-        var fn = *(IntPtr*)(vtable + slotOffset);
-        if (fn == IntPtr.Zero)
-        {
-            return null;
-        }
-
-        return Marshal.GetDelegateForFunctionPointer<T>(fn);
+        var mixerScript = Resources.InstanceIDToObject(instanceId);
+        return mixerScript is AudioMixer && mixerScript.name == "Diagetic";
     }
 
     private static void ExpandConstant(AudioMixerConstant* constant)
@@ -311,7 +280,7 @@ public static unsafe class DiageticVoiceMixerNative
         var oldEffects = OffsetPtr.Get<EffectConstant>(&constant->Effects);
         var oldEffectGuids = OffsetPtr.Get<UnityGuid>(&constant->EffectGuids);
         var oldSnapshots = OffsetPtr.Get<SnapshotConstant>(&constant->Snapshots);
-        var oldNames = OffsetPtr.Get(&constant->Names);
+        var oldNames = OffsetPtr.Get(&constant->GroupNames);
         var oldHashes = OffsetPtr.Get<uint>(&constant->ExposedHashes);
         var oldIndices = OffsetPtr.Get<int>(&constant->ExposedIndices);
 
@@ -358,14 +327,14 @@ public static unsafe class DiageticVoiceMixerNative
 
         constant->GroupCount = c_NewGroupCount;
         constant->EffectCount = c_NewEffectCount;
-        constant->ParameterCount = c_NewParamCount;
+        constant->GroupNameBufferSize = nameBytes.Length;
         constant->ExposedCount = c_NewExposedCount;
         OffsetPtr.Set(&constant->Groups, newGroups);
         OffsetPtr.Set(&constant->GroupGuids, newGroupGuids);
         OffsetPtr.Set(&constant->Effects, newEffects);
         OffsetPtr.Set(&constant->EffectGuids, newEffectGuids);
         OffsetPtr.Set(&constant->Snapshots, newSnapshots);
-        OffsetPtr.Set(&constant->Names, newNames);
+        OffsetPtr.Set(&constant->GroupNames, newNames);
         OffsetPtr.Set(&constant->ExposedHashes, newHashes);
         OffsetPtr.Set(&constant->ExposedIndices, newIndices);
     }
@@ -393,6 +362,7 @@ public static unsafe class DiageticVoiceMixerNative
                 dst->GroupConstantIndex = group;
                 dst->PrevEffectIndex = baseEffect + e - 1;
 
+                // Attenuation index
                 if (e == 0)
                 {
                     dst->ParameterCount = 0;
@@ -450,22 +420,32 @@ public static unsafe class DiageticVoiceMixerNative
             var src = oldSnapshots + s;
             var dst = newSnapshots + s;
             Copy(src, dst, 1);
+
             dst->ValueCount = c_NewParamCount;
 
+            // 0, 1, 4, 1, 4, 1, 4, 1, 4, 1, 2, 1, (VOLUME MASTER, PITCH MASTER ... VOLUME SFX, PITCH SFX)
+            // -3.2, 10, 47, 0, (COMPRESSOR MASTER)
+            // 356, 0.085, 0, 1, 0, (ECHO MASTER)
+            // 22000, 1, (LOWPASS MASTER)
+            // 407, 0.305, 0, 1, 0, (ECHO MASTER)
+            // -11.7, 17.4, 35, 0, 1, 1024, 6, 0, -11.7, 17.4, 35, 0, 1, 1024, 6, 0, -11.7, 17.4, 35, 0, 1, 1024, 6, 0, -11.7, 17.4, 35, 0, 1, 1024, 6, 0, 1, 0, 0, 0, 40, 0.8, 0.03, 7.707142E-44, 1, 1024, 4, 0
             var oldValues = OffsetPtr.Get<float>(&src->Values);
             var newValues = AllocArray<float>(c_NewParamCount);
 
+            // Volume, Pitch of vanilla groups
             for (var i = 0; i < 12; i++)
             {
                 newValues[i] = oldValues[i];
             }
 
+            // Our new groups, copy vanilla player Volume, Pitch values
             for (var k = 0; k < c_NewVoiceCount; k++)
             {
-                newValues[c_FaderInsertIndex + (k * 2)] = oldValues[2];
-                newValues[c_FaderInsertIndex + (k * 2) + 1] = oldValues[3];
+                newValues[c_FaderInsertIndex + k] = oldValues[2];
+                newValues[c_FaderInsertIndex + k + 1] = oldValues[3];
             }
 
+            // Copy vanilla effect params
             for (var i = 12; i < c_VanillaParamCount; i++)
             {
                 newValues[i + c_FaderInsertCount] = oldValues[i];
@@ -481,36 +461,10 @@ public static unsafe class DiageticVoiceMixerNative
             }
 
             OffsetPtr.Set(&dst->Values, newValues);
-
-            RelocateIntOffsetArray(
-                &src->TransitionTypes, &dst->TransitionTypes, src->TransitionCount, remapSlots: false);
-            RelocateIntOffsetArray(
-                &src->TransitionIndices, &dst->TransitionIndices, src->TransitionCount, remapSlots: true);
+            // TransitionRemap was here
+            OffsetPtr.Clear(&dst->TransitionTypes);
+            OffsetPtr.Clear(&dst->TransitionIndices);            
         }
-    }
-
-    private static void RelocateIntOffsetArray(OffsetPtr* srcField, OffsetPtr* dstField, int count, bool remapSlots)
-    {
-        if (count <= 0 || srcField->IsEmpty)
-        {
-            OffsetPtr.Clear(dstField);
-            return;
-        }
-
-        var src = OffsetPtr.Get<int>(srcField);
-        var dst = AllocArray<int>(count);
-        for (var i = 0; i < count; i++)
-        {
-            var value = src[i];
-            if (remapSlots && value >= c_FaderInsertIndex)
-            {
-                value += c_FaderInsertCount;
-            }
-
-            dst[i] = value;
-        }
-
-        OffsetPtr.Set(dstField, dst);
     }
 
     private static void RemapExistingExposed(int* indices)
@@ -695,9 +649,9 @@ public static unsafe class DiageticVoiceMixerNative
         return ptr;
     }
 
-    private static unsafe void WriteNewGuid(UnityGuid* dest)
+    private static void WriteNewGuid(UnityGuid* dest)
     {
-        var destination = new Span<byte>(dest, 16);
+        var destination = new Span<byte>(dest, sizeof(UnityGuid));
         Guid.NewGuid().TryWriteBytes(destination);
     }
 }
