@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-~~- DunGen optimizations.~~
+- DunGen optimizations.
 - Fast packing of the HDRP cached shadow atlas.
 - Patch to not restart the Dissonance voice capture pipeline when lag spike happens.
 ### Changed
+- Updated README.
 - Disabling even more HDRP rendering settings.
 - Reenabled camera burst patch for LCVR.
 - No longer sets cached shadow atlas size to 8192.

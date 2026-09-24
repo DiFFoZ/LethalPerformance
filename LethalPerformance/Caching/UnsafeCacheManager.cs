@@ -150,6 +150,25 @@ internal static class UnsafeCacheManager
                 autoInstance.SaveInstance();
             }
         }
+
+        // Potential fix for a long standing bug when Chorus effect in SFX bus
+        // bugs out and makes audio to play "behind" you
+
+        foreach (var type in (Type[])[typeof(DissonanceComms), typeof(AudioListener)])
+        {
+            var result = s_MapGettingInstance[type](FindObjectsInactive.Include);
+            AudioChorusFilter? chorus = result.instance switch
+            {
+                DissonanceComms comms => comms.PlaybackPrefab.GetComponent<AudioChorusFilter>(),
+                AudioListener listener => listener.GetComponent<AudioChorusFilter>(),
+                _ => null,
+            };
+
+            if (chorus != null)
+            {
+                Object.DestroyImmediate(chorus);
+            }
+        }
     }
 
     public static bool TryGetCachedReference(Type type, FindObjectsInactive findObjectsInactive, out Object? cache)
