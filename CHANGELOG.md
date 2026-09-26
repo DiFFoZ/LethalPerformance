@@ -5,9 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.5.0] 2026-09-26
 ### Added
-- DunGen optimizations.
+- DunGen optimizations: a less GC allocs, using pre-cached data, deleting ProBuilderMesh, and async tile instantiation.
 - Fast packing of the HDRP cached shadow atlas.
 - Patch to not restart the Dissonance voice capture pipeline when lag spike happens.
 ### Changed
@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Disabling even more HDRP rendering settings.
 - Reenabled camera burst patch for LCVR.
 - No longer sets cached shadow atlas size to 8192.
+### Fixed
+- Audio mixer patch to snapshots didn't capture all values, now TZP effect should match the same as vanilla.
 
 ## [1.4.3] 2026-09-14
 ### Fixed
