@@ -1,10 +1,11 @@
-using System;
-using System.Runtime.InteropServices;
-using System.Text;
 using LethalPerformance.Extensions;
 using LethalPerformance.Patcher.Utilities;
 using LethalPerformance.Utilities;
+using LethalPerformance.Validation;
 using MonoMod.RuntimeDetour;
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -36,6 +37,7 @@ public static unsafe class DiageticVoiceMixerNative
     private static int s_MixerConstantOffset;
     private static int s_MixerMemoryOffset;
     private static int s_GroupIdOffset;
+    private static int s_EnableSuspendOffset;
 
     private static NativeDetour? s_Detour;
     private static NativeDetour? s_DestroyDetour;
@@ -125,6 +127,7 @@ public static unsafe class DiageticVoiceMixerNative
             s_MixerConstantOffset = 0x88;
             s_MixerMemoryOffset = 0x90;
             s_GroupIdOffset = 0x7C;
+            s_EnableSuspendOffset = 0xB8;
 
             return;
         }
@@ -132,6 +135,7 @@ public static unsafe class DiageticVoiceMixerNative
         s_MixerConstantOffset = 0x68;
         s_MixerMemoryOffset = 0x70;
         s_GroupIdOffset = 0x5C;
+        s_EnableSuspendOffset = 0x98;
     }
 
     private static IntPtr ResolveRva(int developmentRva, int releaseRva)
@@ -228,9 +232,17 @@ public static unsafe class DiageticVoiceMixerNative
             return;
         }
 
+        // todo
+        //byte* suspend = (byte*)mixer + s_EnableSuspend;
+        //*suspend = 0;
+
+        MixerConstantValidaton.LogMixer(constant);
+
         ExpandConstant(constant);
         LethalPerformancePlugin.Instance.Logger.LogInfo(
             $"Expanded Diagetic mixer to {c_TargetVoiceCount} voice buses");
+
+        MixerConstantValidaton.LogMixer(constant);
 
         // Creating voice groups after expanding as unity would pass invalid ptr to FMOD
         CreateVoiceGroups(mixer, constant);
@@ -386,11 +398,6 @@ public static unsafe class DiageticVoiceMixerNative
 
     private static void RemapEffectIndices(EffectConstant* src, EffectConstant* dst)
     {
-        if (dst->WetMixLevelIndex >= c_FaderInsertIndex)
-        {
-            dst->WetMixLevelIndex += c_FaderInsertCount;
-        }
-
         var count = src->ParameterCount;
         if (count <= 0)
         {
@@ -400,7 +407,7 @@ public static unsafe class DiageticVoiceMixerNative
 
         var srcIndices = src->ParameterIndices.Get();
         var dstIndices = AllocArray<uint>(count);
-        for (uint i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             var value = srcIndices[i];
             if (value >= c_FaderInsertIndex)
@@ -471,7 +478,7 @@ public static unsafe class DiageticVoiceMixerNative
 
             dst->TransitionCount = 0;
             dst->TransitionTypes.Clear();
-            dst->TransitionIndices.Clear();        
+            dst->TransitionIndices.Clear();
         }
     }
 
