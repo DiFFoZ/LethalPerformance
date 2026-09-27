@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Bootstrap;
 using HarmonyLib;
 using LethalPerformance.Patcher.Utilities;
 using MonoMod.RuntimeDetour;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
 using static System.Reflection.Emit.OpCodes;
 
 namespace LethalPerformance.Patcher.Patches;
@@ -17,6 +20,8 @@ internal static class Patch_Chainloader
 #pragma warning disable IDE0044 // Add readonly modifier
     private static Dictionary<string, PluginInfo>? s_PluginsToLoad;
 #pragma warning restore IDE0044 // Add readonly modifier
+
+    private static string? s_ThreadingFilePath;
 
     internal static bool IsModWillBeLoaded(string guid)
     {
@@ -31,6 +36,7 @@ internal static class Patch_Chainloader
         try
         {
             LethalPerformancePatcher.Harmony!.Patch(MethodOf(Chainloader.Start),
+                prefix: new (MethodOf(Start), Priority.First),
                 postfix: new(MethodOf(ModsLoaded), Priority.Last),
                 transpiler: new(MethodOf(SaveListOfPluginsTranspiler)));
         }
@@ -40,6 +46,15 @@ internal static class Patch_Chainloader
         }
 
         DebugRemoveThreadSafetyCheck();
+    }
+
+    private static void Start()
+    {
+        s_ThreadingFilePath = Path.Combine(Application.persistentDataPath, "threadingLogIssues.log");
+        if (File.Exists(s_ThreadingFilePath))
+        {
+            File.Delete(s_ThreadingFilePath);
+        }
     }
 
     private static void ModsLoaded()
@@ -65,13 +80,21 @@ internal static class Patch_Chainloader
         }
 
         // Updated to unity 2022.3.62f2
-        const int offset = 0x101F620; // ThreadAndSerializationSafeCheck::ReportError
+        const int offset = 0x101F620; // ThreadAndSerializationSafeCheck::ReportError 
         NativeDetour detour = new NativeDetour(UnityPlayerModule.GetRva(offset), MethodOf(StubMethod));
+
+        static void StubMethod()
+        {
+            if (s_ThreadingFilePath == null)
+            {
+                return;
+            }
+
+            File.AppendAllText(s_ThreadingFilePath, new StackTrace().ToString() + "\n\n");
+        }
     }
 
-    private static void StubMethod() { }
-
-    private static MethodInfo MethodOf(Delegate @delegate) => @delegate.Method;
+    private static MethodInfo MethodOf(Delegate @delegate) => @delegate.Method; 
 
     private static IEnumerable<CodeInstruction> SaveListOfPluginsTranspiler(IEnumerable<CodeInstruction> codeInstructions)
     {
