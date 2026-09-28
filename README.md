@@ -8,6 +8,8 @@ For support or discussion, use the [Discord channel](https://discord.gg/XeyYqRdR
 - Reduces allocations and main-thread work in common paths.
 - Reduces save-related hitching by caching Easy Save 3 file data and scheduling saves.
 - Tunes HDRP defaults to reduce unnecessary memory use, including the reflection-probe texture cache.
+- Pre-generates `ProBuilderMeshes` in interiors, and uses async tile instantiation for less hitching when dungeon generates (requires [LethalLevelLoader](https://thunderstore.io/c/lethal-company/p/IAmBatby/LethalLevelLoader/)).
+- Adds an API to patch audio mixer to make TZP voice pitching working with [MoreCompany](https://thunderstore.io/c/lethal-company/p/notnotnotswipez/MoreCompany/) (requires [DiFFoZTweaks](https://thunderstore.io/c/lethal-company/p/DiFFoZ/DiFFoZTweaks/)).
 
 ## Useful shortcut
 Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> to open the Unity log folder. This is useful when reporting a problem.
