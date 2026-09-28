@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using LethalPerformance.Patcher.API;
+using Unity.Netcode;
+using UnityEngine;
 
 namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(GrabbableObject))]
@@ -39,13 +41,28 @@ internal static class Patch_GrabbableObject
     {
         if (Patch_RoundManager.s_AssignedRandomSpawn.TryGetValue(item, out var spawn))
         {
-            LethalPerformancePlugin.Instance.Logger.LogDebug("Used RandomScrapSpawn");
-
             Patch_RoundManager.s_AssignedRandomSpawn.Remove(item);
 
-            return [spawn];
+            if (spawn != null)
+            {
+                LethalPerformancePlugin.Instance.Logger.LogDebug($"{item?.itemProperties?.itemName ?? "NULL"} used random scrap spawn");
+                return [spawn];
+            }
+
+            // Got null caching, so client acknowledged that item doesn't have RandomScrapSpawn attached to (see Patch_CreateObjectMessage).
+            // Or it just got destroyed between Spawn and Start?
+            return [];
         }
 
+        if (!NetworkManager.Singleton.IsHost)
+        {
+            // Host didn't sent any data (or it was invalid) if item did have RandomScrapSpawn.
+            // so fallback to searching the scene
+
+            return Object.FindObjectsByType<RandomScrapSpawn>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        }
+
+        // Spawned outside of RoundManager.SpawnScrapInLevel (see Patch_RoundManager)
         return [];
     }
 }

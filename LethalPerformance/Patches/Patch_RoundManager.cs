@@ -9,7 +9,7 @@ namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(RoundManager))]
 internal static class Patch_RoundManager
 {
-    internal static readonly ConditionalWeakTable<GrabbableObject, RandomScrapSpawn> s_AssignedRandomSpawn = new();
+    internal static readonly ConditionalWeakTable<GrabbableObject, RandomScrapSpawn?> s_AssignedRandomSpawn = new();
 
     private static RandomScrapSpawn? s_RandomScrapSpawn;
 

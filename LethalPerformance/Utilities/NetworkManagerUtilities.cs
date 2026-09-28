@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Netcode;
 
 namespace LethalPerformance.Utilities;
+
 internal static class NetworkManagerUtilities
 {
     public static void FindAllSpawnedNetworkBehaviour<T>(List<T> spawnedObjects) where T : Object
