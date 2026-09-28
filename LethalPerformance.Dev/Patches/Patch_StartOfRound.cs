@@ -60,8 +60,12 @@ internal static class Patch_StartOfRound
         var isServer = NetworkManager.Singleton.IsServer;
         var id = NetworkManager.Singleton.LocalClientId;
 
-        WindowAPI.SetWindowText(handle, $"Lethal Company - {(isServer ? "Server" : "Client")} #{id}");
-        WindowAPI.SetConsoleTitle($"Lethal Company - {(isServer ? "Server" : "Client")} #{id}");
+        var postfix = $"{(isServer ? "Server" : "Client")} #{id}";
+
+        WindowAPI.SetWindowText(handle, $"Lethal Company - " + postfix);
+        WindowAPI.SetConsoleTitle($"Lethal Company - " + postfix);
+
+        LethalPerformanceDevPlugin.Instance.Logger.LogMessage($"--- {postfix} ---");
     }
 
     private static void OverrideSeed()
