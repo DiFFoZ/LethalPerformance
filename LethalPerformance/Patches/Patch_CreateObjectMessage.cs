@@ -8,20 +8,31 @@ namespace LethalPerformance.Patches;
 [HarmonyPatch(typeof(CreateObjectMessage))]
 internal static class Patch_CreateObjectMessage
 {
+#if ENABLE_PROFILER
+    private const bool c_DontSerialize = false;
+    private const bool c_DontRead = false;
+#endif
+
+    private const byte c_Ok = 0;
+    private const byte c_OkNoData = 1;
+    private const byte c_Error = 2;
+
     // A little compact with in future mod -- idk
     private const int c_Priority = Priority.Normal - 1;
 
-    private static readonly List<int> s_Indicies = new();
+    private static readonly List<ushort> s_Indicies = new();
 
     [HarmonyPatch(nameof(CreateObjectMessage.Serialize))]
     [HarmonyPriority(c_Priority)]
     [HarmonyPostfix]
     private static void Serialize(CreateObjectMessage __instance, FastBufferWriter writer)
     {
-        if (NetworkManager.Singleton.IsHost)
+#if ENABLE_PROFILER
+        if (c_DontSerialize)
         {
             return;
         }
+#endif
 
         if (!TryGetGrabbableObject(__instance.ObjectInfo, out var grabbableObject))
         {
@@ -33,7 +44,7 @@ internal static class Patch_CreateObjectMessage
             || !randomScrapSpawn.spawnedItemsCopyPosition
             || randomScrapSpawn.spawnWithParent == null)
         {
-            goto writeNull;
+            goto writeNoData;
         }
 
         var networkObject = randomScrapSpawn.GetComponentInParent<NetworkObject>();
@@ -41,7 +52,7 @@ internal static class Patch_CreateObjectMessage
             || !networkObject.IsSpawned
             || networkObject.transform.parent != null)
         {
-            goto writeNull;
+            goto writeError;
         }
 
         s_Indicies.Clear();
@@ -49,22 +60,28 @@ internal static class Patch_CreateObjectMessage
 
         while (current != null && current != networkObject.transform)
         {
-            s_Indicies.Add(current.GetSiblingIndex());
+            var siblingIndex = current.GetSiblingIndex();
+
+            if (siblingIndex > ushort.MaxValue)
+            {
+                goto writeError;
+            }
+
+            s_Indicies.Add((ushort)siblingIndex);
             current = current.parent;
         }
 
-        if (current != networkObject.transform)
+        if (current != networkObject.transform
+            || s_Indicies.Count > ushort.MaxValue)
         {
-            // somehow didn't got to the parent
-
-            goto writeNull;
+            goto writeError;
         }
 
         s_Indicies.Reverse();
 
-        writer.WriteByteSafe(1);
+        writer.WriteByteSafe(c_Ok);
         writer.WriteNetworkSerializable<NetworkObjectReference>(networkObject);
-        writer.WriteValueSafe(s_Indicies.Count);
+        writer.WriteValueSafe((ushort)s_Indicies.Count);
 
         foreach (var siblingIndex in s_Indicies)
         {
@@ -73,15 +90,32 @@ internal static class Patch_CreateObjectMessage
 
         return;
 
-    writeNull:
-        writer.WriteByteSafe(0);
+    writeNoData:
+        writer.WriteByteSafe(c_OkNoData);
+        return;
+
+    writeError:
+        writer.WriteByteSafe(c_Error);
     }
 
-    [HarmonyPatch(nameof(CreateObjectMessage.Handle))]
+    [HarmonyPatch(nameof(CreateObjectMessage.Deserialize))]
     [HarmonyPriority(c_Priority)]
     [HarmonyPostfix]
-    public static void Handle(CreateObjectMessage __instance)
+    public static void Handle(CreateObjectMessage __instance, bool __result)
     {
+#if ENABLE_PROFILER
+        if (c_DontRead)
+        {
+            return;
+        }
+#endif
+
+        if (!__result)
+        {
+            // Deferred (scene object, will just ignore)
+            return;
+        }
+
         if (!TryGetGrabbableObject(__instance.ObjectInfo, out var grabbableObject))
         {
             return;
@@ -94,13 +128,13 @@ internal static class Patch_CreateObjectMessage
         }
 
         reader.ReadByteSafe(out var hasValue);
-        if (hasValue == 0)
+        if (hasValue == c_OkNoData)
         {
             Patch_RoundManager.s_AssignedRandomSpawn.AddOrUpdate(grabbableObject, null);
             return;
         }
 
-        if (hasValue != 1)
+        if (hasValue != c_Ok)
         {
             // Invalid data (mod conflict?)
             return;
@@ -113,18 +147,14 @@ internal static class Patch_CreateObjectMessage
             return;
         }
 
-        reader.ReadValueSafe(out int pathLength);
-        if (pathLength < 0)
-        {
-            return;
-        }
+        reader.ReadValueSafe(out ushort pathLength);
 
         var current = networkObject.transform;
         for (int i = 0; i < pathLength; i++)
         {
-            reader.ReadValueSafe(out int siblingIndex);
+            reader.ReadValueSafe(out ushort siblingIndex);
 
-            if (siblingIndex < 0 || siblingIndex >= current.childCount)
+            if (siblingIndex >= current.childCount)
             {
                 return;
             }
