@@ -60,19 +60,6 @@ internal static class Patch_SoundManager
         ApplyVoiceBypass(__instance, force: false);
     }
 
-    [HarmonyPatch(nameof(SoundManager.ResumeCurrentMixerSnapshot))]
-    [HarmonyPostfix]
-    private static void ResumeCurrentMixerSnapshot(SoundManager __instance)
-    {
-        ReapplyAfterSnapshot(__instance);
-    }
-
-    internal static void ReapplyAfterSnapshot(SoundManager instance)
-    {
-        ApplyVoiceBypass(instance, force: true);
-        BypassUnusedVoiceGroups();
-    }
-
     private static void ApplyExtraVoiceGroups(SoundManager instance)
     {
         var extra = DiageticVoiceMixerNative.ExtraVoiceGroups;
@@ -135,35 +122,7 @@ internal static class Patch_SoundManager
             if (UnityAudioMixerNative.TrySetEffectBypass(s_VoiceGroups[i], MixerEffect.PitchShifter, bypass))
             {
                 s_VoiceBypass[i] = bypass;
-#if ENABLE_PROFILER
-                LethalPerformancePlugin.Instance.Logger.LogInfo(
-                    $"Pitch Shifter bypass={bypass} on {s_VoiceGroups[i].name} (pitch={pitch:0.###})");
-#endif
             }
         }
-    }
-}
-
-[HarmonyPatch(typeof(AudioMixerSnapshot))]
-internal static class Patch_AudioMixerSnapshot
-{
-    [HarmonyCleanup]
-    public static Exception? Cleanup(Exception exception)
-    {
-        return HarmonyExceptionHandler.ReportException(exception);
-    }
-
-    [HarmonyPatch(nameof(AudioMixerSnapshot.TransitionTo))]
-    [HarmonyPostfix]
-    private static void TransitionTo()
-    {
-        var soundManager = SoundManager.Instance;
-        if (soundManager == null)
-        {
-            return;
-        }
-
-        // Snapshot apply can rewrite live DSP bypass from the asset (all Pitch Shifters m_Bypass: 0).
-        Patch_SoundManager.ReapplyAfterSnapshot(soundManager);
     }
 }

@@ -55,9 +55,6 @@ public static unsafe class DiageticVoiceMixerNative
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     private delegate byte EnsureValidRuntimeDelegate(IntPtr mixer);
 
-    [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-    private delegate IntPtr ObjectStringDelegate(IntPtr obj);
-
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate IntPtr MallocInternalDebugDelegate(
         ulong size, ulong align, IntPtr memLabel, int options, IntPtr file, int line);
