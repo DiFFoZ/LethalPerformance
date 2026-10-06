@@ -1,9 +1,12 @@
+using BepInEx;
+using LethalLevelLoader;
 using LethalPerformance.Extensions;
 using LethalPerformance.Patcher.Utilities;
 using LethalPerformance.Utilities;
 using LethalPerformance.Validation;
 using MonoMod.RuntimeDetour;
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
@@ -42,9 +45,7 @@ public static unsafe class DiageticVoiceMixerNative
     private static NativeDetour? s_Detour;
     private static NativeDetour? s_DestroyDetour;
     private static EnsureValidRuntimeDelegate? s_Original;
-    private static EnsureValidRuntimeDelegate? s_Hook;
     private static DestroyConstantDelegate? s_DestroyOriginal;
-    private static DestroyConstantDelegate? s_DestroyHook;
     private static MallocInternalDebugDelegate? s_MallocDebug;
     private static MallocInternalReleaseDelegate? s_MallocRelease;
     private static AudioMixerGroup[]? s_ExtraVoiceGroups;
@@ -103,16 +104,14 @@ public static unsafe class DiageticVoiceMixerNative
             s_MallocRelease = Marshal.GetDelegateForFunctionPointer<MallocInternalReleaseDelegate>(mallocRVA);
         }
 
-        s_Hook = OnEnsureValidRuntime;
         s_Detour = new NativeDetour(
             ResolveRva(0x149E070, 0xBC7890), // AudioMixer::EnsureValidRuntime
-            Marshal.GetFunctionPointerForDelegate(s_Hook));
+            OnEnsureValidRuntime);
         s_Original = s_Detour.GenerateTrampoline<EnsureValidRuntimeDelegate>();
 
-        s_DestroyHook = OnDestroyConstant;
         s_DestroyDetour = new NativeDetour(
             ResolveRva(0x14D4FA0, 0xBE8E10), // audio::mixer::DestroyAudioMixerConstant 
-            Marshal.GetFunctionPointerForDelegate(s_DestroyHook));
+            OnDestroyConstant);
         s_DestroyOriginal = s_DestroyDetour.GenerateTrampoline<DestroyConstantDelegate>();
     }
 
@@ -243,6 +242,8 @@ public static unsafe class DiageticVoiceMixerNative
 
         // Creating voice groups after expanding as unity would pass invalid ptr to FMOD
         CreateVoiceGroups(mixer, constant);
+
+        // todo: undo and free the detour
     }
 
     private static void CreateVoiceGroups(IntPtr mixer, AudioMixerConstant* constant)
@@ -263,6 +264,7 @@ public static unsafe class DiageticVoiceMixerNative
         }
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
     private static bool IsDiagetic(IntPtr mixer)
     {
         // We are still in launch options where real diagetic mixer is still not created
@@ -271,6 +273,15 @@ public static unsafe class DiageticVoiceMixerNative
         {
             //LethalPerformancePlugin.Instance.Logger.LogInfo("Init still");
             return false;
+        }
+
+        // Check if LLL still loading bundles
+        if (Dependencies.IsModLoaded(Dependencies.LethalLevelLoader))
+        {
+            if (LethalLevelLoaderRef.IsLLLLoadingBundles())
+            {
+                return false;
+            }
         }
 
         var instanceId = *(int*)(mixer + Object.OffsetOfInstanceIDInCPlusPlusObject);
@@ -665,5 +676,11 @@ public static unsafe class DiageticVoiceMixerNative
     {
         var destination = new Span<byte>(dest, sizeof(UnityGuid));
         Guid.NewGuid().TryWriteBytes(destination);
+    }
+
+    private static class LethalLevelLoaderRef
+    {
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static bool IsLLLLoadingBundles() => LethalBundleManager.CurrentStatus == LethalBundleManager.ModProcessingStatus.Loading;
     }
 }

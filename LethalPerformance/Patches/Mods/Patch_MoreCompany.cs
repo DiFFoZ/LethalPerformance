@@ -1,15 +1,19 @@
-using System;
-using System.Reflection;
 using BepInEx.Bootstrap;
 using HarmonyLib;
 using LethalPerformance.Audio;
 using LethalPerformance.Patcher.API;
+using System;
+using System.Collections;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace LethalPerformance.Patches.Mods;
 
 internal static class Patch_MoreCompany
 {
     private static readonly MethodInfo? s_MethodToPatch;
+    private static bool? s_IsMixerPatched;
 
     static Patch_MoreCompany()
     {
@@ -52,12 +56,52 @@ internal static class Patch_MoreCompany
     [HarmonyPrefix]
     internal static bool SkipSharedBusWorkaround(ref bool __result)
     {
-        if (!DiageticVoiceMixerNative.HasExpandedVoiceBuses)
+        CacheIfMixerIsPatched();
+
+        if (!DiageticVoiceMixerNative.HasExpandedVoiceBuses || s_IsMixerPatched!.Value == false)
         {
             return true;
         }
 
         __result = true;
         return false;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    private static void CacheIfMixerIsPatched()
+    {
+        if (s_IsMixerPatched != null)
+        {
+            return;
+        }
+
+        s_IsMixerPatched = SoundManager.Instance.diageticMixer.GetFloat("PlayerVolume4", out _);
+        if (!s_IsMixerPatched.Value)
+        {
+            StartOfRound.Instance.StartCoroutine(ShowWarning());
+        }
+        return;
+    }
+
+    private static IEnumerator ShowWarning()
+    {
+        while (HUDManager.Instance == null || GameNetworkManager.Instance.localPlayerController == null)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(5);
+
+        while (GameNetworkManager.Instance.localPlayerController.quickMenuManager.isMenuOpen)
+        {
+            yield return null;
+        }
+
+        while (HUDManager.Instance.tipsPanelBody.isActiveAndEnabled)
+        {
+            yield return null;
+        }
+
+        HUDManager.Instance.DisplayTip("Lethal Performance", "Failed to patch audio mixer. Report to the developer!", isWarning: true, prefsKey: "LP_MXBAD");
     }
 }
