@@ -1,9 +1,9 @@
-using System;
-using System.Collections;
 using DunGen;
 using DunGen.Generation;
 using HarmonyLib;
 using LethalPerformance.Patcher.API;
+using System;
+using System.Collections;
 using UnityEngine;
 
 namespace LethalPerformance.Dungen;
@@ -21,14 +21,13 @@ internal static partial class Patch_Dungeon
             return HarmonyExceptionHandler.ReportException(exception);
         }
 
-        [HarmonyPatch(typeof(Dungeon), nameof(Dungeon.FromProxy), [typeof(DungeonProxy), typeof(DungeonGenerator), typeof(Func<bool>)])]
+        [HarmonyPatch(typeof(Dungeon), nameof(Dungeon.FromProxy))]
         [HarmonyPrefix]
         public static void FromProxyPrefix(DungeonProxy proxyDungeon, DungeonGenerator generator, ref Func<bool> shouldSkipFrame)
         {
             // causing InstantiateAsync to never complete.
             if (!generator.GenerateAsynchronously)
             {
-                TileInstantiationAsync.Skip();
                 return;
             }
 
@@ -37,10 +36,11 @@ internal static partial class Patch_Dungeon
                 return;
             }
 
-            shouldSkipFrame = TileInstantiationAsync.ShouldSkipUntilNextReady;
+            var originalShouldSkipFrame = shouldSkipFrame;
+            shouldSkipFrame = () => TileInstantiationAsync.HasIncompleteFront() || originalShouldSkipFrame();
         }
 
-        [HarmonyPatch(typeof(Dungeon), nameof(Dungeon.FromProxy), [typeof(DungeonProxy), typeof(DungeonGenerator), typeof(Func<bool>)])]
+        [HarmonyPatch(typeof(Dungeon), nameof(Dungeon.FromProxy))]
         [HarmonyPostfix]
         public static void FromProxyPostfix(ref IEnumerator __result)
         {
@@ -56,36 +56,40 @@ internal static partial class Patch_Dungeon
         [HarmonyPostfix]
         public static void DungeonCleared()
         {
-            TileInstantiationAsync.OnDungeonCleared();
+            TileInstantiationAsync.StartSpawning();
         }
 
         [HarmonyPatch(typeof(TileInstanceSource), nameof(TileInstanceSource.SpawnTile))]
         [HarmonyPrefix]
         public static bool SpawnTile(TileInstanceSource __instance, Tile tilePrefab, Vector3 position, Quaternion rotation, ref Tile __result)
         {
-            if (!TileInstantiationAsync.TryTake(tilePrefab, position, rotation, out var tile))
+            try
             {
-                return true;
-            }
+                if (!TileInstantiationAsync.TryTake(tilePrefab, position, rotation, out var tile))
+                {
+                    LethalPerformancePlugin.Instance.Logger.LogWarning($"Tile async instantiation didn't returned the tile. Tile spawn {tilePrefab}\n{Environment.StackTrace}");
+                    return true;
+                }
 
-            // logic from original dungeon
-            // todo: check if it really needed
-            if (tile.TryGetComponent<Tile>(out var component))
+                tile.RefreshTileEventReceivers();
+                tile.TileSpawned();
+                s_TileInstanceSpawned(__instance)?.Invoke(tilePrefab, tile, fromPool: false);
+
+                __result = tile;
+                return false;
+            }
+            catch (Exception e)
             {
-                component.RefreshTileEventReceivers();
-                component.TileSpawned();
-                s_TileInstanceSpawned(__instance)?.Invoke(tilePrefab, component, fromPool: false);
+                LethalPerformancePlugin.Instance.Logger.LogWarning(e.ToString());
             }
-
-            __result = tile;
-            return false;
+            return true;
         }
 
         [HarmonyPatch(typeof(DungeonGenerator), nameof(DungeonGenerator.Cancel))]
         [HarmonyPostfix]
         public static void Cancel()
         {
-            TileInstantiationAsync.ResetIfStarted();
+            TileInstantiationAsync.Reset();
         }
     }
 }

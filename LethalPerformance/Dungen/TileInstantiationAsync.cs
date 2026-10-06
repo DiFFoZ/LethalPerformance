@@ -1,7 +1,7 @@
-﻿using System;
+﻿using DunGen;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using DunGen;
 using UnityEngine;
 
 namespace LethalPerformance.Dungen;
@@ -12,37 +12,24 @@ internal static class TileInstantiationAsync
 
     private static readonly List<TileProxy> s_Tiles = new(256);
     private static readonly List<Tile> s_SpawnedTiles = new(256);
-    private static readonly Queue<AsyncInstantiateOperation<Tile>> s_TileOperations = new(c_MaxInFlight);
+    private static readonly Queue<TileSpawn> s_TileOperations = new(c_MaxInFlight);
 
     private static Transform? s_Parent;
     private static int s_NextTileIndex;
     private static bool s_Started;
     private static bool s_Finished;
-    private static bool s_AwaitingClear;
 
     internal static bool IsActive => s_Started;
 
-    public static void Skip()
-    {
-        if (s_Started)
-        {
-            Reset();
-            return;
-        }
-
-        s_Finished = true;
-    }
-
     public static bool Start(List<TileProxy> tiles, Transform parent)
     {
-        if (s_Started || tiles == null || tiles.Count == 0 || parent == null)
+        if (s_Started)
         {
             return false;
         }
 
         s_Started = true;
         s_Finished = false;
-        s_AwaitingClear = true;
         s_Parent = parent;
         s_NextTileIndex = 0;
 
@@ -69,54 +56,38 @@ internal static class TileInstantiationAsync
 
         while (s_TileOperations.Count > 0)
         {
-            DestroyUnconsumed(s_TileOperations.Dequeue());
+            DestroyUnconsumed(s_TileOperations.Dequeue().Operation);
         }
 
         s_Tiles.Clear();
         s_SpawnedTiles.Clear();
         s_Parent = null;
         s_NextTileIndex = 0;
-        s_AwaitingClear = false;
         s_Started = false;
     }
 
-    internal static void ResetIfStarted()
+    public static bool HasIncompleteFront()
     {
-        if (!s_Started)
-        {
-            return;
-        }
-
-        Reset();
+        return s_TileOperations.Count > 0 && !s_TileOperations.Peek().Operation.isDone;
     }
 
-    internal static void OnDungeonCleared()
+    public static void StartSpawning()
     {
-        if (!s_AwaitingClear)
-        {
-            return;
-        }
-
-        s_AwaitingClear = false;
         FillTileWindow();
-    }
-
-    internal static bool ShouldSkipUntilNextReady()
-    {
-        return HasIncompleteFront(s_TileOperations);
     }
 
     internal static IEnumerator PumpFromProxy(IEnumerator original)
     {
         try
         {
+            while (HasIncompleteFront())
+            {
+                yield return null;
+            }
+
             while (original.MoveNext())
             {
                 yield return original.Current;
-                while (ShouldSkipUntilNextReady())
-                {
-                    yield return null;
-                }
             }
         }
         finally
@@ -132,56 +103,14 @@ internal static class TileInstantiationAsync
 
     internal static bool TryTake(Tile prefab, Vector3 position, Quaternion rotation, out Tile tile)
     {
-        _ = prefab;
-        _ = position;
-        _ = rotation;
-
-        if (!TryTakeOperation(s_TileOperations, out tile))
+        if (s_TileOperations.Count == 0)
         {
+            tile = null!;
             return false;
         }
 
-        s_SpawnedTiles.Add(tile);
-        FillTileWindow();
-        return true;
-    }
-
-    private static void FillTileWindow()
-    {
-        var parent = s_Parent;
-        if (parent == null)
-        {
-            return;
-        }
-
-        var parameters = new InstantiateParameters
-        {
-            parent = parent,
-            worldSpace = false,
-        };
-
-        while (s_TileOperations.Count < c_MaxInFlight && s_NextTileIndex < s_Tiles.Count)
-        {
-            var proxy = s_Tiles[s_NextTileIndex++];
-            var placement = proxy.Placement;
-            s_TileOperations.Enqueue(UnityEngine.Object.InstantiateAsync(proxy.PrefabTile, placement.Position, placement.Rotation, parameters));
-        }
-    }
-
-    private static bool HasIncompleteFront<T>(Queue<AsyncInstantiateOperation<T>> operations) where T : UnityEngine.Object
-    {
-        return operations.Count > 0 && !operations.Peek().isDone;
-    }
-
-    private static bool TryTakeOperation<T>(Queue<AsyncInstantiateOperation<T>> operations, out T instance) where T : UnityEngine.Object
-    {
-        if (operations.Count == 0)
-        {
-            instance = null!;
-            return false;
-        }
-
-        var operation = operations.Dequeue();
+        var spawn = s_TileOperations.Dequeue();
+        var operation = spawn.Operation;
         if (!operation.isDone)
         {
             operation.WaitForCompletion();
@@ -190,15 +119,39 @@ internal static class TileInstantiationAsync
         var result = operation.Result;
         if (result == null || result.Length == 0 || result[0] == null)
         {
-            instance = null!;
+            tile = null!;
             return false;
         }
 
-        instance = result[0];
+        tile = result[0];
+        s_SpawnedTiles.Add(tile);
+        FillTileWindow();
+
         return true;
     }
 
-    private static void DestroyUnconsumed<T>(AsyncInstantiateOperation<T> operation) where T : UnityEngine.Object
+    private static void FillTileWindow()
+    {
+        var parameters = new InstantiateParameters
+        {
+            parent = s_Parent,
+            worldSpace = false,
+        };
+
+        while (s_TileOperations.Count < c_MaxInFlight && s_NextTileIndex < s_Tiles.Count)
+        {
+            var proxy = s_Tiles[s_NextTileIndex++];
+            var placement = proxy.Placement;
+
+            s_TileOperations.Enqueue(new()
+            {
+                Operation = Object.InstantiateAsync(proxy.PrefabTile, placement.Position, placement.Rotation, parameters),
+                Prefab = proxy.Prefab,
+            });
+        }
+    }
+
+    private static void DestroyUnconsumed(AsyncInstantiateOperation<Tile> operation)
     {
         if (operation == null)
         {
@@ -224,11 +177,7 @@ internal static class TileInstantiationAsync
                 continue;
             }
 
-            var gameObject = instance as GameObject ?? (instance as Component)?.gameObject;
-            if (gameObject != null)
-            {
-                UnityEngine.Object.DestroyImmediate(gameObject);
-            }
+            UnityEngine.Object.DestroyImmediate(instance.gameObject);
         }
     }
 
@@ -246,5 +195,11 @@ internal static class TileInstantiationAsync
                 tile.transform.SetAsLastSibling();
             }
         }
+    }
+
+    private class TileSpawn
+    {
+        public AsyncInstantiateOperation<Tile> Operation { get; set; } = null!;
+        public GameObject Prefab { get; set; } = null!;
     }
 }

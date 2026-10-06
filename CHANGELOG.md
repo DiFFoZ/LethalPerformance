@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] 2026-10-07
+### Added
+- In-game notification when patch to the audio mixer was failed.
+### Changed
+- Removed pitch effect bypass reapply when snapshot transition is called.
+### Fixed
+- GeneralImprovements auto online feature was causing audio mixer to patch modded instead of vanilla mixer. (Thanks ZetaArcade!)
+- First tile instantiation could cause main thread blocked waiting.
+
 ## [1.5.1] 2026-09-29
 ### Changed
 - Updated README.
