@@ -75,6 +75,12 @@ internal static class Patch_MoreCompany
             return;
         }
 
+        if (!DiageticVoiceMixerNative.Initialized)
+        {
+            s_IsMixerPatched = true;
+            return;
+        }
+
         s_IsMixerPatched = SoundManager.Instance.diageticMixer.GetFloat("PlayerVolume4", out _);
         if (!s_IsMixerPatched.Value)
         {

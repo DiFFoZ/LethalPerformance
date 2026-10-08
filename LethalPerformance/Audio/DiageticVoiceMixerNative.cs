@@ -71,6 +71,8 @@ public static unsafe class DiageticVoiceMixerNative
 
     internal static bool HasExpandedVoiceBuses => s_ExtraVoiceGroups is { Length: > 0 };
 
+    internal static bool Initialized => s_Initialized;
+
     //[InitializeOnAwake]
     // Called from diffoz tweaks
     public static void Initialize()
